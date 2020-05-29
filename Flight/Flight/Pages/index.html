@@ -1,0 +1,507 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="../Scripts/FlightsAutoComplete.js"></script>
+    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
+    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
+    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+
+    <script>
+        var dataForTable;
+        var allAirports;
+        var tableType;
+        var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
+        var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
+
+        //buttons function binding
+        $(document).ready(function () {
+            $("#flightForm").submit(getFlight);
+            $("#loginForm").submit(LoginCheck);
+            $("#myFlightsBTN").click(getMyFlights);
+            $("#getAirportsBTN").click(function () {
+                alert("getAirports was clicked,Please wait a few seconds until recieve a message");
+                GetAirports();
+                $(this).slideUp();
+            });
+
+            $("#getAirlinesBTN").click(function () {
+                alert("getAirlines was clicked,Please wait a few seconds until recieve a message");
+                GetAirlines();
+                $(this).slideUp();
+            });
+
+        });
+
+        function LoginCheck() {
+
+
+
+        }
+
+        //Inserting Airlines to database
+        ////////////////////////////////////////////////
+        function GetAirlines() {
+            getAllAirlines();
+            return false; // the return false will prevent the form from being submitted
+            // hence the page will not reload
+        }
+        function getAllAirlines() {
+
+            let airlines = "https://api.skypicker.com/airlines";
+            ajaxCall("GET", airlines, "", successAirline, errorAirline);
+        }
+        function successAirline(data) {
+            AirlinesData = data;
+            //  swal("Get Airlines json Success!", "", "success");
+            AddAllAirline();
+        }
+        function errorAirline(err) {
+            alert("error");
+        }
+        function AddAllAirline() {
+            var AirlinesArr = [];
+            for (var k in AirlinesData) {
+
+                if (AirlinesData[k].type == 'airline') {
+                    Airline = { // Note that the name of the fields must be identical to the names of the properties of the object in the server
+                        airlineID: AirlinesData[k].id,
+                        airlineName: AirlinesData[k].name,
+
+                    };
+                    AirlinesArr.push(Airline);
+                }
+            }
+            ajaxCall("POST", "../api/Airlines", JSON.stringify(AirlinesArr), successPostAirline, errorPost);
+        }
+
+
+        function successPostAirline(data) {
+            swal("Added Successfuly!", "Inserted all Airlines into Database", "success");
+        }
+        function errorPost(err) {
+            alert("error");
+        }
+
+
+
+
+        //Inserting Airports to database
+        ///////////////////////////////////////////////////////////
+
+        function GetAirports() {
+            getAllAirports();
+            return false; // the return false will prevent the form from being submitted
+            // hence the page will not reload
+        }
+
+        function getAllAirports() {
+
+            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
+            ajaxCall("GET", airports, "", successAirports, errorAirports);
+        }
+        function successAirports(data) {
+            AirportsData = data.locations;
+            //  swal("Get Airports json Success!", "", "success");
+            AddAllAirport();
+        }
+        function errorAirports(err) {
+            alert("error");
+        }
+
+        function AddAllAirport() {
+            var AirportsArr = [];
+            for (var k in AirportsData) {
+
+                Airport = { // Note that the name of the fields must be identical to the names of the properties of the object in the server
+                    airportID: AirportsData[k].id,
+                    airportName: AirportsData[k].name,
+                    city: AirportsData[k].city.name,
+                    country: AirportsData[k].city.country.name,
+                    airportLong: AirportsData[k].location.lon,
+                    airportLat: AirportsData[k].location.lat
+                };
+                AirportsArr.push(Airport);
+            }
+            ajaxCall("POST", "../api/Airports", JSON.stringify(AirportsArr), success, Error);
+        }
+
+        function success(data) {
+
+            swal("Added Successfuly!", "Inserted all airports into Database", "success");
+        }
+        function Error(err) {
+            console.log(err);
+        }
+
+
+
+
+
+        ///Airports AutoComplete Section
+        ////////////////////////////////////////////////////
+
+        function getAllAirportsAutoComplete() {
+
+            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
+            ajaxCall("GET", airports, "", successAP, errorAP);
+        }
+        function successAP(data) {
+            console.log(data);
+            allAirports = createAirportsList(data);
+
+            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+            autocomplete(document.getElementById("originTB"), allAirports);
+            autocomplete(document.getElementById("destinationTB"), allAirports);
+        }
+        function errorAP(err) {
+            console.log(err.responseJSON.ExceptionMessage);
+        }
+
+        function createAirportsList(object) {
+            var arr = [];
+            for (var k in object.locations) {
+                arr.push(object.locations[k].id);
+            }
+            return arr;
+        }
+
+
+
+
+
+        //get my flight list from server
+        function getMyFlights() {
+            tableType = 1;
+            ajaxCall("GET", "../api/Flight", "", successCBF, errorCBF);
+        }
+
+        //GET (AjaxCall) from the skypicker api server using the values we input
+        function getFlight() {
+
+            let origin = $("#originTB").val();
+            let destination = $("#destinationTB").val();
+            let start = convertDateType($("#startDateTB").val());
+            let end = convertDateType($("#endDateTB").val());
+            let api = "https://api.skypicker.com/flights?flyFrom=" + origin + "&to=" + destination + "&dateFrom=" + start + "&dateTo=" + end + "&partner=picky";
+            tableType = 0;
+            ajaxCall("GET", api, "", successCBF, errorCBF);
+            return false;
+        }
+
+        function successCBF(data) {
+            console.log(data);
+            document.getElementById("dynamicContent").innerHTML = "";
+            if (tableType == 0) {
+                dataForTable = data.data;
+                generateTable(0);
+            }
+            else {
+                dataForTable = data;
+                generateTable(1);
+            }
+        }
+
+        function errorCBF(err) {
+            console.log(err.responseJSON.ExceptionMessage);
+        }
+
+        //Dynamically create a table and render the search results we have.
+        //parameter type will determine the table content, 0 for API results ,1 for results from server
+        function generateTable(type) {
+            var tableArea = document.getElementById("dynamicContent");
+            var tableTitle = document.createElement('p');
+            tableTitle.setAttribute("id", "tableTitle")
+            //create new table element
+            var table = document.createElement('table');
+            table.setAttribute("id", "flightTbl");// set table id to - flightTbl
+            var limit;
+            var handler;
+
+            if (type == 0)//generate search flight table
+            {
+                limit = headers.length;
+                handler = propertyFromApi;
+                //Decide how many rows you want to see
+                for (var i = 0; i < dataForTable.length; i++) {    ///dataForTable.length
+                    var row = document.createElement('tr');
+                    for (var j = 0; j < limit; j++) {
+                        row.appendChild(document.createElement('td'));//Add column to the row
+                        //Check (j==7) if we are at the "order" feature so we can add a button.
+                        if (j == 7) {
+                            row.cells[j].appendChild(getDataForApiTable(i, headers[j]));
+                        }
+                        else {
+                            row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j])));
+                        }
+                    }
+                    table.appendChild(row);
+                }
+                tableTitle.innerText = "Search Results - ";
+                tableArea.appendChild(tableTitle);
+                tableArea.appendChild(table);
+                setTablesHeaders(headers.length, table.id);
+            }
+            else // generate my flight table
+            {
+                limit = propertyFromApi.length;
+                handler = headers;
+                for (var i = 0; i < dataForTable.length; i++) {    ///dataForTable.length
+                    var row = document.createElement('tr');
+                    for (var j = 0; j < limit; j++) {
+                        row.appendChild(document.createElement('td'));//Add column to the row
+                        row.cells[j].appendChild(document.createTextNode(dataForTable[i][handler[j]]));
+                    }
+                    table.appendChild(row);
+                }
+                tableTitle.innerText = "My Flights List - ";
+                tableArea.appendChild(tableTitle);
+                tableArea.appendChild(table);
+                setTablesHeaders(propertyFromApi.length, table.id);
+            }
+        }
+
+        //extract relevant data for search table from api object
+        function getDataForApiTable(set, feature) {
+            if (feature == "cityFrom")//Origin
+            {
+                return dataForTable[set][feature];
+            }
+            if (feature == "cityTo")//Destination
+            {
+                return dataForTable[set][feature];
+            }
+            if (feature == "route")//num of stops
+            {
+                let temp = dataForTable[set][feature];
+                let stringToReturn = "";
+                for (var k in temp) {
+                    stringToReturn += (temp[k].cityTo + ",");
+                }
+                return stringToReturn;
+            }
+            if (feature == "dTimeUTC")//Departure Time
+            {
+                let dep = new Date(0);//
+                dep.setUTCSeconds(dataForTable[set][feature]);
+                return dep.toUTCString();
+            }
+            if (feature == "aTimeUTC")//Arrival Time
+            {
+                let Arv = new Date(0);
+                Arv.setUTCSeconds(dataForTable[set][feature]);
+                return Arv.toUTCString();
+            }
+            if (feature == "airlines")//AirLine Name
+            {
+                return dataForTable[set][feature][0];
+            }
+            if (feature == "price")//Price
+            {
+                return dataForTable[set][feature] + " EUR ";
+            }
+            if (feature == "Order") {
+                let btn = document.createElement("button");
+                btn.setAttribute("id", "tableBtn" + (set + 1));
+                //btn.setAttribute("name", "Order Row " + (set+1));
+                btn.innerHTML = "Order Row " + (set + 1);
+                btn.onclick = function () {
+                    postFlight(this);
+                    InsertFlight(this);
+                };
+                return btn
+            }
+        }
+
+        function InsertFlight(btnClicked) {
+
+            let index = btnClicked.id;
+            index = index.replace(/\D/g, '');
+            index = parseInt(index);
+            index--;
+
+            let flightID = dataForTable[index].id;
+            let airportFrom = dataForTable[index].flyFrom;
+            let airportTo = dataForTable[index].flyTo;
+            let price = dataForTable[index].price;
+            let duration = dataForTable[index].fly_duration;
+            let departure = new Date(0);
+            let arrival = new Date(0);
+            let legs = dataForTable[index]['route'];
+            let legsFinal = [];
+            departure.setUTCSeconds(dataForTable[index].dTimeUTC);
+            arrival.setUTCSeconds(dataForTable[index].aTimeUTC);
+
+            //creating leg object and pushing it to the array
+            for (var i = 0; i < legs.length; i++) {
+                let Departure = new Date(0);
+                let Arrival = new Date(0);
+                Departure.setUTCSeconds(legs[i].dTimeUTC);
+                Arrival.setUTCSeconds(legs[i].aTimeUTC);
+                let timeDiff = Arrival.getTime() - Departure.getTime(); //timediff contains num of milliseconds
+                let seconds = parseInt((timeDiff / 1000) % 60);
+                let minutes = parseInt(((timeDiff / (1000 * 60)) % 60));
+                let hours = parseInt(((timeDiff / (1000 * 60 * 60)) % 24));
+                let Duration = hours + "h " + minutes + "m";
+                legObject = {
+
+                    legID: legs[i].id,
+                    flightID: dataForTable[index].id,
+                    airlineID: legs[i].airline,
+                    airportFrom: legs[i].flyFrom,
+                    airportTo: legs[i].flyTo,
+                    flight_no: legs[i].flight_no,
+                    legNum: i,
+                    departure: Departure,
+                    arrival: Arrival,
+                    duration: Duration
+                }
+                legsFinal.push(legObject);
+            }
+
+            flightObject = {
+
+                flightID: flightID,
+                airportFrom: airportFrom,
+                airportTo: airportTo,
+                price: price,
+                duration: duration,
+                departure: departure,
+                arrival: arrival,
+                legs: legsFinal
+            }
+
+            ajaxCall("POST", "../api/Flights", JSON.stringify(flightObject), successFlight, ErrorFlight);
+        }
+        function successFlight(data) {
+            swal("Added Successfuly!", "Inserted Flight into Database", "success");
+        }
+        function ErrorFlight(err) {
+            console.log(err);
+        }
+
+        //sets the header table after creation
+        function setTablesHeaders(value, tableId) {
+            var table = document.getElementById(tableId)
+            //creat new row an add it to the begin of table
+            var row = table.insertRow(0);
+            for (var i = 0; i < value; i++) {
+                var cell = document.createElement('th');
+                cell.innerHTML = headers[i];
+                row.appendChild(cell);
+            }
+        }
+
+        //conver date type to fit api search request
+        function convertDateType(toConvert) {
+            var temp = toConvert.split("-");
+            var year = temp[0];
+            var month = temp[1];
+            var day = temp[2];
+            return (day + "/" + month + "/" + year);
+        }
+
+        //save selected flight in server
+        function postFlight(btn) {
+
+            let index = btn.id;
+            index = index.replace(/\D/g, '');
+            let FlightTable = document.getElementById("flightTbl");
+            index = parseInt(index);
+
+            let from = FlightTable.rows[index].cells[0].innerHTML;
+            let to = FlightTable.rows[index].cells[1].innerHTML;
+            let stopsStr = FlightTable.rows[index].cells[2].innerHTML;
+            let stops = stopsStr.split(',');
+            let departuretime = FlightTable.rows[index].cells[3].innerHTML;
+            let arrivaltime = FlightTable.rows[index].cells[4].innerHTML;
+            let airlinename = FlightTable.rows[index].cells[5].innerHTML;
+            let price = FlightTable.rows[index].cells[6].innerHTML;
+
+            o = {
+                // critical point, zillion error here
+                // parameters passing is done by names
+                // must be identical to the class Properties
+                From: from,
+                To: to,
+                Stops: stops,
+                DepartureTime: departuretime,
+                ArrivalTime: arrivaltime,
+                AirlineName: airlinename,
+                Price: price,
+            }
+            ajaxCall("POST", "../api/Flight", JSON.stringify(o), postSuccessCB, postErrorCB);
+        }
+
+        function postSuccessCB(data) {
+
+            if (data) {
+                alert("Post successful")
+            }
+            else {
+                alert("You already ordered that! :)");
+            }
+        }
+
+        function postErrorCB(err) {
+            alert(err.responseJSON.ExceptionMessage);
+        }
+
+    </script>
+
+</head>
+<body onload="getAllAirportsAutoComplete()">
+
+
+    <div class="topnav">
+        <a class="active" href="#home">Home</a>
+        <div class="login-container">
+            <form action="/action_page.php" id="loginForm">
+                <label>Manager Login: </label>
+                <input type="text" placeholder="Username" name="username" required>
+                <input type="text" placeholder="Password" name="psw" required>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="Wrapper">
+        <div class="inputDiv">
+            <!--Make sure the form has the autocomplete function switched off:-->
+            <form autocomplete="off" action="/action_page.php" id="flightForm">
+
+                <div><label for="origin">Origin</label></div>
+                <div class="autocomplete form-group"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
+
+                <div><label for="destination">Destination</label></div>
+                <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
+
+                <div><label for="sDate">Start Date</label></div>
+                <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
+
+                <div><label for="eDate">Ends Date</label></div>
+                <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
+
+                <div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
+                <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>
+                <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
+                <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
+
+            </form>
+        </div>
+
+        <div class="imgDiv">
+            <img src="../Images/airport.jpg" id="AirportID" />
+        </div>
+    </div>
+
+    <div id="dynamicContent"></div>
+</body>
+</html>
