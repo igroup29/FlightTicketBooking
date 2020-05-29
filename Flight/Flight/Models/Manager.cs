@@ -22,7 +22,7 @@ namespace ClassEX3.Models
         public string Username { get => username; set => username = value; }
 
 
-        public int checkManager()
+        public bool checkManager()
         {
 
             DBservices dbs = new DBservices();
@@ -30,9 +30,9 @@ namespace ClassEX3.Models
              
             if (dbs.dt.Rows.Count != 1)
             {
-                return 0;
+                return false;
             }      
-                return 1; 
+                return true; 
         } 
     }
 }

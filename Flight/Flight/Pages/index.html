@@ -42,7 +42,15 @@
 
         function LoginCheck() {
 
+            var user = $("#user").val();
+            var pass = $("#pass").val();
 
+            manager = {
+                username: user,
+                password: pass
+            }
+
+            ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
 
         }
 
@@ -465,8 +473,8 @@
         <div class="login-container">
             <form action="/action_page.php" id="loginForm">
                 <label>Manager Login: </label>
-                <input type="text" placeholder="Username" name="username" required>
-                <input type="text" placeholder="Password" name="psw" required>
+                <input type="text" placeholder="Username" name="username" id="user" required>
+                <input type="text" placeholder="Password" name="psw" id="pass" required>
                 <button type="submit">Login</button>
             </form>
         </div>

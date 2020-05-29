@@ -333,17 +333,19 @@ public class DBservices
 
     } 
 
-    public DBservices getAllAirlines()
+    public DBservices ManagerIfExits(Manager manager)
     {
         SqlConnection con = null;
         try
         {
             con = connect("DBConnectionString");
-            da = new SqlDataAdapter("select * from Airlines_CS", con);
+            da = new SqlDataAdapter("select * from Managers_CS where Username= "+manager.Username +"Password="+manager.Password, con);
             SqlCommandBuilder builder = new SqlCommandBuilder(da);
             DataSet ds = new DataSet();
             da.Fill(ds);
             dt = ds.Tables[0];
+           
+             
         }
 
         catch (Exception ex)
