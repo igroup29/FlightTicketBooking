@@ -23,13 +23,13 @@ namespace ClassEX3.Controllers
         }
 
         // POST api/<controller>
-        public void Post([FromBody]Manager manager)
+        public int Post([FromBody]Manager manager)
         {
             if(manager.checkManager())
             {
-                
+                return 1;
             }
-
+            return 0;
         }
 
         // PUT api/<controller>/5

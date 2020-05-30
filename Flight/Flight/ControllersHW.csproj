@@ -200,6 +200,7 @@
     <Content Include="Pages\AirportsTest.html" />
     <Content Include="Pages\edit - class Ex solution.html" />
     <Content Include="Pages\index.html" />
+    <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />
     <Content Include="Scripts\ajaxCallsStub.js" />
     <Content Include="Scripts\bootstrap.js" />

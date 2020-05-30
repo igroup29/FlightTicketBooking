@@ -339,7 +339,7 @@ public class DBservices
         try
         {
             con = connect("DBConnectionString");
-            da = new SqlDataAdapter("select * from Managers_CS where Username= "+manager.Username +"Password="+manager.Password, con);
+            da = new SqlDataAdapter("select * from Managers_CS where UserName= "+manager.Username +" and ManagerPassword="+manager.Password, con);
             SqlCommandBuilder builder = new SqlCommandBuilder(da);
             DataSet ds = new DataSet();
             da.Fill(ds);
