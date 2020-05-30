@@ -16,15 +16,22 @@
 
 </head>
 <body>
+
+    <script>
+        $(document).ready(function () {
+
+            var man = JSON.parse(localStorage.getItem('man'));
+
+            document.getElementById("man").innerHTML = "Welcome "+man.username;
+
+        });
+
+
+    </script>
     <div class="topnav">
         <a class="active" href="index.html">Home</a>
-        <div class="login-container">
-            <form action="/action_page.php" id="loginForm">
-                <label>Manager Login: </label>
-                <input type="text" placeholder="Username" name="username" id="user" required>
-                <input type="text" placeholder="Password" name="psw" id="pass" required>
-                <button type="submit">Login</button>
-            </form>
+        <div class="login-container">           
+                <label id="man">""</label>                     
         </div>
     </div>
     <div class="btnHolder"><button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button></div>

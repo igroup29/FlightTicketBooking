@@ -107,11 +107,11 @@ function ajaxCall(method, api, data, successCB, errorCB) {
     }
 
 
-    else if (method == "POST" && api == "../api/cars") {
-        let car = JSON.parse(data);
-        car.Id = getMaxId(Cars) + 1;
-        Cars.push(car);
-        successCB(Cars);
+    else if (method == "POST" && api == "../api/Manager") {
+        let manager = JSON.parse(data);
+        
+        //Cars.push(car);
+        successCB(manager);
         //errorCB("did not manage to insert the new car into the DB");
     }
 

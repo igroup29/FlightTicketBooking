@@ -14,8 +14,8 @@ namespace ClassEX3.Models
 
         public Manager(string username, string password)
         {
-            this.Username = username;
-            this.Password = password;
+            Username = username;
+            Password = password;
         }
 
         public string Password { get => password; set => password = value; }
