@@ -1,76 +1,12 @@
-﻿Cars = [
+﻿Discounts = [
      {
          Id : 1000,
-         Model: "3",
-         Manufacturer: "Mazda",
-         Price: 100000,
-         Year: 2017,
-         Hand: 1,
-         Color: "White",
-         Automatic: true,
-         Image: "Car1.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-         
-     },
-     {
-         Id: 1001,
-         Model: "3",
-         Manufacturer: "Mazda",
-         Price: 90000,
-         Year: 2016,
-         Hand: 2,
-         Color: "White",
-         Automatic: true,
-         Image: "Car3.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-     },
-     {
-         Id: 1002,
-         Model: "6",
-         Manufacturer: "Mazda",
-         Price: 110000,
-         Year: 2016,
-         Hand: 2,
-         Color: "Black",
-         Automatic: false,
-         Image: "Car2.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-     },
-     {
-         Id: 1003,
-         Model: "6",
-         Manufacturer: "Mazda",
-         Price: 110000,
-         Year: 2016,
-         Hand: 2,
-         Color: "red",
-         Automatic: false,
-         Image: "Car1.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-     },
-     {
-         Id: 1004,
-         Model: "Corola",
-         Manufacturer: "Toyota",
-         Price: 110000,
-         Year: 2016,
-         Hand: 3,
-         Color: "White",
-         Automatic: true,
-         Image: "Car3.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
-     },
-     {
-         Id: 1005,
-         Model: "Corola",
-         Manufacturer: "Toyota",
-         Price: 120000,
-         Year: 2017,
-         Hand: 2,
-         Color: "White",
-         Automatic: true,
-         Image: "Car2.jpg",
-         Description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+         AirlineName: "Elal",
+         From: "TLV",
+         To: "JFK",
+         DiscountStart: "10/10/20",
+         DiscountEnd: "10/10/20",
+         AirlineDiscount: 10
      }
 ];
 
@@ -87,12 +23,12 @@ function ajaxCall(method, api, data, successCB, errorCB) {
     //    error: errorCB
     //});
 
-    if (method == "GET" && api == "../api/cars") {
-        successCB(Cars);
+    if (method == "GET" && api == "../api/Discounts") {
+        successCB(Discounts);
         return;
     }
 
-    else if (method == "PUT" && api == "../api/cars") {
+    else if (method == "PUT" && api == "../api/Discounts") {
         let car = JSON.parse(data);
         for (var i = 0; i < Cars.length; i++) {
             if (Cars[i].Id == car.Id) {
@@ -107,10 +43,10 @@ function ajaxCall(method, api, data, successCB, errorCB) {
     }
 
 
-    else if (method == "POST" && api == "../api/Manager") {
-        let manager = JSON.parse(data);
+    else if (method == "POST" && api == "../api/Discounts") {
+        let dicount = JSON.parse(data);
         
-        //Cars.push(car);
+        Discounts.push(dicount);
         successCB(manager);
         //errorCB("did not manage to insert the new car into the DB");
     }

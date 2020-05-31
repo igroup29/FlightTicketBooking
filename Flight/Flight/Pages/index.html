@@ -24,20 +24,20 @@
         //buttons function binding
         $(document).ready(function () {
             $("#flightForm").submit(getFlight);
-         //   $("#myFlightsBTN").click(getMyFlights);
-            $("#myFlightsBTN").click(LoginCheck);
+            $("#myFlightsBTN").click(getMyFlights);
             $("#getAirportsBTN").click(function () {
                 alert("getAirports was clicked,Please wait a few seconds until recieve a message");
                 GetAirports();
                 $(this).slideUp();
             });
-
             $("#getAirlinesBTN").click(function () {
                 alert("getAirlines was clicked,Please wait a few seconds until recieve a message");
                 GetAirlines();
                 $(this).slideUp();
             });
-           
+
+            $("#loginForm").submit(LoginCheck);
+
         });
 
         function LoginCheck() {
@@ -45,15 +45,15 @@
             var user = $("#user").val();
             var pass = $("#pass").val();
 
-
             manager = {
                 username: user,
                 password: pass
             }
-
             ajaxCall("POST","../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
             return false;
         }
+
+
         function successLogin(data) {
             if (data) {
                 alert("LogIn Success");          
@@ -494,12 +494,13 @@
     <div class="topnav">
         <a class="active" href="#home">Home</a>
         <div class="login-container">
-            <form  id="loginForm" >               
-                <label>Manager Login: </label>
+            <form  id="loginForm">               
+                <label class="floatleft"> Manager Login: </label>
+                <div >
                 <input type="text" placeholder="Username" name="username" id="user" required>
                 <input type="text" placeholder="Password" name="psw" id="pass" required>
-                <button id="login" type="button">Login</button>
-         
+                <button id="login" type="submit">Login</button>
+                </div>      
             </form>
         </div>
     </div>

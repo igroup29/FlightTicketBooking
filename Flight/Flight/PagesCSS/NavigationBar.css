@@ -32,7 +32,8 @@ body {
 }
 
 .topnav .login-container {
-  float: right;
+  float:right;
+  margin-right:50px;
 }
 
 .topnav input[type=text] {

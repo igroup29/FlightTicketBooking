@@ -4,37 +4,312 @@
     <meta charset="utf-8" />
     <title>Manager API</title>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="../Scripts/ajaxCalls.js"></script>
+
+    <script src="../Scripts/ajaxCallsStub.js"></script>
+    <script src="../Scripts/FlightsAutoComplete.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="../Scripts/FlightsAutoComplete.js"></script>
     <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
     <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
 
 </head>
 <body>
 
     <script>
+        // will run when the document is ready
         $(document).ready(function () {
 
+            //Name of manager that logged in is shown in nav bar.
             var man = JSON.parse(localStorage.getItem('man'));
+            document.getElementById("man").innerHTML = "Welcome" + man.username;
+            mode = "";
 
-            document.getElementById("man").innerHTML = "Welcome "+man.username;
+            //First hide all the tables 
+            $("#DiscountForm").hide();
+            $("#OrdersForm").hide();
+            $("#editDiv").hide();
+            $("#newBTN").hide();
+
+            $("#getDiscountBtn").click(function () {
+
+                $("#DiscountForm").show();
+                $("#newBTN").show();
+
+                ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
+            });
+            $("#GetOrderBtn").click(function () {
+
+                $("#OrdersForm").show();
+            });
+          
+            $("#cancelSaveBTN").on("click", function () {
+                discount = null;
+                $("#editDiv").hide();
+                if (mode == "new") $("#DiscountForm").show();
+                mode = "";
+            });
+
+            $("#newBTN").on("click", function () {
+                discount = null;
+                mode = "new";
+                $("#DiscountForm").hide();
+                $("#editDiv").show();
+                clearFields();
+                $("#editDiv :input").prop("disabled", false); // new mode: enable all controls in the form
+            });
+
+           
+
+            // once the document is ready we fetch a list of cars from the server
+           // ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
+
+            $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
 
         });
+        // this function is activated in case of a success
+        function getSuccess(DiscountsData) {
+            Discounts = DiscountsData; // keep the cars array in a global variable;
+            try {
+                tbl = $('#DiscountTable').DataTable({
+                    data: DiscountsData,
+                    pageLength: 5,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataDiscount = "data-discountId='" + row.Id + "'";
+
+                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataDiscount + "> Edit </button>";
+                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataDiscount + "> View </button>";
+                                deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataDiscount + "> Delete </button>";
+                                return editBtn + viewBtn + deleteBtn;
+                            }
+                        },                   
+                        { data: "AirlineName" },
+                        { data: "From" },
+                        { data: "To" },
+                        { data: "DiscountStart" },
+                        { data: "DiscountEnd" },                    
+                        { data: "AirlineDiscount" },                     
+                    ],
+                });
+                buttonEvents();
+            }
+
+            catch (err) {
+                alert(err);
+            }
+        }
+
+        // this function is activated in case of a failure
+        function error(err) {
+            swal("Error: " + err);
+        }
 
 
+        function onSubmitFunc() {
+
+            var Id = -1;          
+            if (mode == "edit") {
+                Id = discount.Id;             
+            }
+
+            
+            let cartoSave = {
+                Id: Id,
+                Image: Image, // for now we do not change the image
+                Manufacturer: $("#AirlineName").val(),
+                Model: $("#From").val(),
+                Year: $("#To").val(),
+                Price: $("#DiscountStart").val(),
+                Color: $("#DiscountEnd").val(),
+                Hand: $("#AirlineDiscount").val(),             
+            }
+
+            // add a new Car record to the server
+            if (mode == "edit")
+                ajaxCall("PUT", "../api/Discounts", JSON.stringify(cartoSave), updateSuccess, error);
+            else if (mode == "new")
+                ajaxCall("POST", "../api/Discounts", JSON.stringify(cartoSave), insertSuccess, error);
+            return false;
+        }
+
+        // wire all the buttons to their functions
+        function buttonEvents() {
+
+            $(document).on("click", ".editBtn", function () {
+                mode = "edit";
+                markSelected(this);
+                $("#editDiv").show();
+                $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
+                populateFields(this.getAttribute('data-discountId')); // fill the form fields according to the selected row
+            });
+
+            $(document).on("click", ".viewBtn", function () {
+                mode = "view";
+                markSelected(this);
+                $("#editDiv").show();
+                row.className = 'selected';
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                populateFields(this.getAttribute('data-discountId'));
+            });
+
+            $(document).on("click", ".deleteBtn", function () {
+                mode = "delete";
+                markSelected(this);
+                var discountId = this.getAttribute('data-discountId');
+                swal({ // this will open a dialouge 
+                    title: "Are you sure ??",
+                    text: "",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true
+                })
+                    .then(function (willDelete) {
+                        if (willDelete) DeleteDiscount(discountId);
+                        else swal("Not Deleted!");
+                    });
+            });
+        }
+
+        // Delete a car from the server
+        function DeleteDiscount(id) {
+            ajaxCall("DELETE", "../api/Discounts/" + id, "", deleteSuccess, error);
+        }
+
+        // mark the selected row
+        function markSelected(btn) {
+            $("#DiscountTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
+            row = (btn.parentNode).parentNode; // button is in TD which is in Row
+            row.className = 'selected'; // mark as selected
+        }
+
+        // fill the form fields
+        function clearFields() {
+            $("#AirlineName").val("");
+            $("#From").val("");
+            $("#To").val("");
+            $("#DiscountStart").val("");
+            $("#DiscountEnd").val("");
+            $("#AirlineDiscount").val("");
+        }
+
+        // fill the form fields
+        function populateFields(DiscountId) {
+            discount = getDiscountId(DiscountId);
+            $("#AirlineName").val(discount.AirlineName);
+            $("#From").val(discount.From);
+            $("#To").val(discount.To);
+            $("#DiscountStart").val(discount.DepartureTime);
+            $("#DiscountEnd").val(discount.ArrivalTime);
+            $("#AirlineDiscount").val(discount.AirlineDiscount);
+        }
+
+        // get a car according to its Id
+        function getDiscountId(id) {
+            for (i in Discounts) {
+                if (Discounts[i].Id == id)
+                    return Discounts[i];
+            }
+            return null;
+        }
+        
     </script>
+
     <div class="topnav">
         <a class="active" href="index.html">Home</a>
-        <div class="login-container">           
-                <label id="man">""</label>                     
+        <div class="login-container">
+            <label id="man">""</label>
         </div>
     </div>
+
     <div class="btnHolder"><button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button></div>
     <div class="btnHolder"><button type="button" class="MainBTN" id="getDiscountBtn">Get Discount Table</button></div>
+
+    <div class="container">
+        <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
+
+        <form id="DiscountForm">
+            <table id="DiscountTable" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>AirlineName</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>DiscountStart</th>
+                        <th>DiscountEnd</th>
+                        <th>AirlineDiscount</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
+       
+        <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
+        <!--Hide it at first only when Manager clicks Orders render the table and show it-->
+        <form id="OrdersForm">
+            <table id="OrdersTable" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Stops</th>
+                        <th>DepartureTime</th>
+                        <th>ArrivalTime</th>
+                        <th>AirlineName</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
+
+        <div id="editDiv">
+            <form id="DiscountFlightForm">
+                <div class="form-group row">
+                    <div class="form-group col-sm-3">
+                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                        <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="From"><span class="red-star">★ </span>From</label>
+                        <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="To"><span class="red-star">★ </span>To</label>
+                        <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-3">
+                        <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
+                        <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Departure Time" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
+                        <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Arrival Time" required>
+                    </div>
+                    <div class="form-group col-sm-3">
+                        <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
+                        <input type="text" class="form-control" id="AirlineDiscount" checked />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+                <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
+            </form>
+        </div>
+    </div>
+
+
 </body>
 </html>

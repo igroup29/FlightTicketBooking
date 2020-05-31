@@ -1,4 +1,29 @@
-﻿table {
+﻿
+button {
+    margin-left: 10px;
+}
+
+.colorDiv {
+    height: 30px;
+    width: 70px;
+    border: 2px solid black
+}
+
+#newBTN {
+    background-color: blueviolet;
+    margin-bottom: 10px;
+}
+
+.floatleft{
+
+    float:left;
+}
+
+
+
+
+
+table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     width: 100%;
