@@ -11,9 +11,16 @@ namespace ClassEX3.Controllers
     public class ManagerController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<string> Get()
+      /*  public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
+        }*/
+
+        // GET api/<controller>/5
+        public IEnumerable<Discount> Get()
+        {
+            Discount dis = new Discount();
+            return dis.getAllDiscounts();
         }
 
         // GET api/<controller>/5
@@ -36,6 +43,24 @@ namespace ClassEX3.Controllers
         // PUT api/<controller>/5
         public void Put(int id, [FromBody]string value)
         {
+
+        }
+
+        // POST api/<controller>
+        public List<Discount> Post([FromBody]Discount discount)
+        {
+            Discount dis = new Discount();
+            dis.insertDiscount(discount);
+            return dis.getAllDiscounts();
+        }
+
+        [HttpPut]
+        [Route("api/Manager")]
+        public List<Discount> Put (Discount discount)
+        {
+            Discount dis = new Discount();
+            dis.UpdateDiscounts(discount);
+            return  dis.getAllDiscounts();
         }
 
         // DELETE api/<controller>/5

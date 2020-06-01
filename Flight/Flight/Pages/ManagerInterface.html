@@ -3,22 +3,30 @@
 <head>
     <meta charset="utf-8" />
     <title>Manager API</title>
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
-    <script src="../Scripts/ajaxCallsStub.js"></script>
-    <script src="../Scripts/FlightsAutoComplete.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
-    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
-    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css">
+
+
+    <script src="../Scripts/ajaxCallsStub.js"></script>
+    <script src="../Scripts/FlightsAutoComplete.js"></script>
+    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
+    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
+    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
 
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
 
 </head>
 <body>
@@ -69,7 +77,7 @@
            
 
             // once the document is ready we fetch a list of cars from the server
-           // ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
+            //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
 
             $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
 
@@ -113,6 +121,45 @@
             swal("Error: " + err);
         }
 
+        // success callback function after update
+        function updateSuccess(discountData) {
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Updated Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // success callback function after update
+        function insertSuccess(discountData) {
+            $("#DiscountForm").show();
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Inserted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // success callback function after delete
+        function deleteSuccess(discountData) {
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents(); // after redrawing the table, we must wire the new buttons
+            $("#editDiv").hide();
+            swal("Deleted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // redraw a datatable with new data
+        function redrawTable(tbl, data) {
+            tbl.clear();
+            for (var i = 0; i < data.length; i++) {
+                tbl.row.add(data[i]);
+            }
+            tbl.draw();
+        }
 
         function onSubmitFunc() {
 
@@ -122,22 +169,21 @@
             }
 
             
-            let cartoSave = {
-                Id: Id,
-                Image: Image, // for now we do not change the image
-                Manufacturer: $("#AirlineName").val(),
-                Model: $("#From").val(),
-                Year: $("#To").val(),
-                Price: $("#DiscountStart").val(),
-                Color: $("#DiscountEnd").val(),
-                Hand: $("#AirlineDiscount").val(),             
+            let dicountToSave = {
+                Id: Id,            
+                airlineName: $("#AirlineName").val(),
+                origin: $("#From").val(),
+                destination: $("#To").val(),
+                discountStart: $("#DiscountStart").val(),
+                discountEnd: $("#DiscountEnd").val(),
+                airlineDiscount: $("#AirlineDiscount").val(),             
             }
 
             // add a new Car record to the server
             if (mode == "edit")
-                ajaxCall("PUT", "../api/Discounts", JSON.stringify(cartoSave), updateSuccess, error);
+                ajaxCall("PUT", "../api/Discounts", JSON.stringify(dicountToSave), updateSuccess, error);
             else if (mode == "new")
-                ajaxCall("POST", "../api/Discounts", JSON.stringify(cartoSave), insertSuccess, error);
+                ajaxCall("POST", "../api/Discounts", JSON.stringify(dicountToSave), insertSuccess, error);
             return false;
         }
 
@@ -207,8 +253,8 @@
             $("#AirlineName").val(discount.AirlineName);
             $("#From").val(discount.From);
             $("#To").val(discount.To);
-            $("#DiscountStart").val(discount.DepartureTime);
-            $("#DiscountEnd").val(discount.ArrivalTime);
+            $("#DiscountStart").val(discount.DiscountStart);
+            $("#DiscountEnd").val(discount.DiscountEnd);
             $("#AirlineDiscount").val(discount.AirlineDiscount);
         }
 

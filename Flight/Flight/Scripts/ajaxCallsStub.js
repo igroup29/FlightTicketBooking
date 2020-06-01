@@ -4,13 +4,13 @@
          AirlineName: "Elal",
          From: "TLV",
          To: "JFK",
-         DiscountStart: "10/10/20",
-         DiscountEnd: "10/10/20",
+        DiscountStart: "2013-03-18T13:00",
+        DiscountEnd: "2013-03-18T13:00",
          AirlineDiscount: 10
      }
 ];
 
-
+var id = 1001;
 function ajaxCall(method, api, data, successCB, errorCB) {
     //$.ajax({
     //    type: method,
@@ -44,10 +44,12 @@ function ajaxCall(method, api, data, successCB, errorCB) {
 
 
     else if (method == "POST" && api == "../api/Discounts") {
-        let dicount = JSON.parse(data);
         
+        let dicount = JSON.parse(data);
+        dicount.Id = id;
         Discounts.push(dicount);
-        successCB(manager);
+        successCB(Discounts);
+        id++;
         //errorCB("did not manage to insert the new car into the DB");
     }
 
