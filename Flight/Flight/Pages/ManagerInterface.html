@@ -45,6 +45,7 @@
             $("#OrdersForm").hide();
             $("#editDiv").hide();
             $("#newBTN").hide();
+            $("#backBTN").hide();
 
             $("#getDiscountBtn").click(function () {
 
@@ -281,6 +282,7 @@
 
     <div class="container">
         <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
+        <input type="button" value="Back" class="btn btn-primary btn-lg" id="backBTN" />
 
         <form id="DiscountForm">
             <table id="DiscountTable" class="display nowrap" style="width:100%">
@@ -297,7 +299,7 @@
                 </thead>
             </table>
         </form>
-       
+
         <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
         <!--Hide it at first only when Manager clicks Orders render the table and show it-->
         <form id="OrdersForm">

@@ -66,14 +66,14 @@ function ajaxCall(method, api, data, successCB, errorCB) {
         let id = splitArr[splitArr.length - 1];
         temp = [];
         index = 0;
-        for (var i = 0; i < Cars.length; i++) {
-            if (parseInt(Cars[i].Id) != id) {
-                temp[index] = Cars[i];
+        for (var i = 0; i < Discounts.length; i++) {
+            if (parseInt(Discounts[i].Id) != id) {
+                temp[index] = Discounts[i];
                 index++;
             }
         }
-        Cars = temp;
-        successCB(Cars);
+        Discounts = temp;
+        successCB(Discounts);
     }
 
 
