@@ -11,8 +11,8 @@ namespace ClassEX3.Models
 
         private int id;
         private string airlineName;
-        private string origin;
-        private string destination;
+        private string from;
+        private string to;
         private DateTime discountStart;
         private DateTime discountEnd;
         private int airlineDiscount;
@@ -25,12 +25,12 @@ namespace ClassEX3.Models
 
         }
 
-        public Discount(int id, string airlineName, string origin, string destination, DateTime discountStart, DateTime discountEnd, int airlineDiscount)
+        public Discount(int id, string airlineName, string from, string to, DateTime discountStart, DateTime discountEnd, int airlineDiscount)
         {
             this.Id = id;
             this.AirlineName = airlineName;
-            this.Origin = origin;
-            this.Destination = destination;
+            this.From = from;
+            this.To = to;
             this.DiscountStart = discountStart;
             this.DiscountEnd = discountEnd;
             this.AirlineDiscount = airlineDiscount;
@@ -38,14 +38,23 @@ namespace ClassEX3.Models
 
         public int Id { get => id; set => id = value; }
         public string AirlineName { get => airlineName; set => airlineName = value; }
-        public string Origin { get => origin; set => origin = value; }
-        public string Destination { get => destination; set => destination = value; }
+        public string From { get => from; set => from = value; }
+        public string To { get => to; set => to = value; }
         public DateTime DiscountStart { get => discountStart; set => discountStart = value; }
         public DateTime DiscountEnd { get => discountEnd; set => discountEnd = value; }
         public int AirlineDiscount { get => airlineDiscount; set => airlineDiscount = value; }
 
 
+     
 
+
+        
+        public void deleteDiscount(int id)
+        {
+           DBservices dbs = new DBservices();
+           dbs.deleteSelectedDiscount(id);
+            
+        }
 
         public void insertDiscount(Discount discount)
         {
@@ -75,12 +84,12 @@ namespace ClassEX3.Models
             int id;
             foreach (DataRow dr in dt.Rows)
             {
-                id=Convert.ToInt32(dr["DiscountId"]);
+                id=Convert.ToInt32(dr["DiscountsId"]);
                 if (id==discount.Id)
                 {
                     dr["AirlineName"] = discount.AirlineName;
-                    dr["Origin"] = discount.Origin;
-                    dr["Destination"] = discount.Destination;
+                    dr["Origin"] = discount.From;
+                    dr["Destination"] = discount.To;
                     dr["DiscountStart"] = discount.DiscountStart;
                     dr["DiscountEnd"] = discount.DiscountEnd;
                     dr["AirlineDiscount"] = discount.AirlineDiscount;

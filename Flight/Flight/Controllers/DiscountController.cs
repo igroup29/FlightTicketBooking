@@ -39,9 +39,15 @@ namespace ClassEX3.Controllers
             dis.UpdateDiscounts(discount);
             return dis.getAllDiscounts();
         }
+
         // DELETE api/<controller>/5
-        public void Delete(int id)
+        public List<Discount> Delete(Discount DeletedDis)
         {
+
+            Discount dis = new Discount();
+            dis.deleteDiscount(DeletedDis.Id);
+            return dis.getAllDiscounts();
+
         }
     }
 }

@@ -19,6 +19,27 @@
     }
 ];
 
+Orders = [
+    {
+        Id: 1000,
+        AirlineName: "Elal",
+        From: "TLV",
+        To: "JFK",
+        DepartureTime: "2013-03-18T13:00",
+        ArrivalTime: "2013-03-18T13:00",
+        Price: 10
+    },
+    {
+        Id: 1001,
+        AirlineName: "RonAir",
+        From: "AMS",
+        To: "JFK",
+        DepartureTime: "2014-03-18T13:00",
+        ArrivalTime: "2014-03-18T13:00",
+        Price: 20
+    }
+];
+
 var id = 1001;
 function ajaxCall(method, api, data, successCB, errorCB) {
     //$.ajax({
@@ -32,12 +53,16 @@ function ajaxCall(method, api, data, successCB, errorCB) {
     //    error: errorCB
     //});
 
-    if (method == "GET" && api == "../api/Discounts") {
+    if (method == "GET" && api == "../api/Discount") {
         successCB(Discounts);
         return;
     }
+    if (method == "GET" && api == "../api/Manager") {
+        successCB(Orders);
+        return;
+    }
 
-    else if (method == "PUT" && api == "../api/Discounts") {
+    else if (method == "PUT" && api == "../api/Discount") {
         let car = JSON.parse(data);
         for (var i = 0; i < Cars.length; i++) {
             if (Cars[i].Id == car.Id) {
@@ -52,7 +77,7 @@ function ajaxCall(method, api, data, successCB, errorCB) {
     }
 
 
-    else if (method == "POST" && api == "../api/Discounts") {
+    else if (method == "POST" && api == "../api/Discount") {
         
         let dicount = JSON.parse(data);
         dicount.Id = getMaxId(Discounts) + 1;
