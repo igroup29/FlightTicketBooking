@@ -55,63 +55,6 @@ public class DBservices
     }
 
 
-   
-    public int deleteSelectedDiscount(int id)
-    {
-
-        SqlConnection con;
-        SqlCommand cmd;
-
-        try
-        {
-            con = connect("DBConnectionString"); // create the connection
-        }
-        catch (Exception ex)
-        {
-            // write to log
-            throw (ex);
-        }
-
-        String cStr = BuildDeleteCommandDiscounts(id);      // helper method to build the insert string
-
-        cmd = CreateCommand(cStr, con);             // create the command
-
-        try
-        {
-            int numEffected = cmd.ExecuteNonQuery(); // execute the command
-            return numEffected;
-        }
-        catch (Exception ex)
-        {
-            return 0;
-            //Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
-            throw (ex);
-        }
-
-        finally
-        {
-            if (con != null)
-            {
-                // close the db connection
-                con.Close();
-            }
-        }
-
-    }
-    //--------------------------------------------------------------------
-    // Build the Insert command String
-    //--------------------------------------------------------------------
-    private String BuildDeleteCommandDiscounts(int id)
-    {
-        String command;     
-        StringBuilder sb = new StringBuilder();
-        // use a string builder to create the dynamic string
-        String prefix = "Delete From Discounts_CS WHERE DiscountsID = '"+id+"'";
-        command = prefix;
-
-        return command;
-    }
-
     //Insert AirportsMethod
     public int insertDiscount(Discount discount)
     {
@@ -161,61 +104,14 @@ public class DBservices
     private String BuildInsertCommandDiscounts(Discount discount)
     {
         String command;
-        string format = "yyyy-MM-dd HH:mm:ss";
+
         StringBuilder sb = new StringBuilder();
         // use a string builder to create the dynamic string
-        sb.AppendFormat("Values('{0}', '{1}', '{2}', '{3}', '{4}', {5})", discount.AirlineName,discount.From, discount.To, discount.DiscountStart.ToString(format), discount.DiscountEnd.ToString(format), discount.AirlineDiscount.ToString());
-        String prefix = "INSERT INTO Discounts_CS " + "(AirlineName, Origin,Destination, DiscountStart,DiscountEnd,AirlineDiscount)";
+        sb.AppendFormat("Values('{0}', '{1}', '{2}', {3}, {4}, {5})", discount.AirlineName,discount.Origin, discount.Destination, discount.DiscountStart.ToString(), discount.DiscountEnd.ToString(), discount.AirlineDiscount.ToString());
+        String prefix = "INSERT INTO Discounts_CS " + "(AirlineName, Origin, Destination, DiscountStart,DiscountEnd,AirlineDiscount)";
         command = prefix + sb.ToString();
 
         return command;
-    }
-
-    //getOrders
-    public List<Order> getOrders()
-    {
-        List<Order> OrderList = new List<Order>();
-        SqlConnection con = null;
-
-        try
-        {
-            con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
-
-            String selectSTR = "SELECT * FROM Orders_CS";
-            SqlCommand cmd = new SqlCommand(selectSTR, con);
-
-            // get a reader
-            SqlDataReader dr = cmd.ExecuteReader(CommandBehavior.CloseConnection); // CommandBehavior.CloseConnection: the connection will be closed after reading has reached the end
-
-            while (dr.Read())
-            {   // Read till the end of the data into a row
-                Order order = new Order();
-
-                order.Id = Convert.ToInt32(dr["OrderId"]);
-                order.AirlineName = (string)dr["AirlineName"];
-                order.From = (string)dr["Origin"];
-                order.To = (string)dr["Destination"];
-                order.DepartureTime = Convert.ToDateTime(dr["DepartureTime"]);
-                order.ArrivalTime = Convert.ToDateTime(dr["ArrivalTime"]);
-                order.Price = Convert.ToDouble(dr["Price"]);
-                OrderList.Add(order);
-            }
-
-            return OrderList;
-        }
-        catch (Exception ex)
-        {
-            // write to log
-            throw (ex);
-        }
-        finally
-        {
-            if (con != null)
-            {
-                con.Close();
-            }
-
-        }
     }
 
     //getDiscounts
@@ -238,10 +134,10 @@ public class DBservices
             {   // Read till the end of the data into a row
                 Discount dis = new Discount();
 
-                dis.Id = Convert.ToInt32(dr["DiscountsId"]);
+                dis.Id = Convert.ToInt32(dr["DiscountId"]);
                 dis.AirlineName = (string)dr["AirlineName"];
-                dis.From = (string)dr["Origin"];
-                dis.To = (string)dr["Destination"];           
+                dis.Origin = (string)dr["Origin"];
+                dis.Destination = (string)dr["Destination"];           
                 dis.DiscountStart = Convert.ToDateTime(dr["DiscountStart"]);
                 dis.DiscountEnd = Convert.ToDateTime(dr["DiscountEnd"]);
                 dis.AirlineDiscount = Convert.ToInt32(dr["AirlineDiscount"]);
@@ -273,7 +169,7 @@ public class DBservices
         try
         {
             con = connect("DBConnectionString");
-            da = new SqlDataAdapter("select * from Discounts_CS", con);
+            da = new SqlDataAdapter("select * from Discount_CS", con);
             SqlCommandBuilder builder = new SqlCommandBuilder(da);
             DataSet ds = new DataSet();
             da.Fill(ds);

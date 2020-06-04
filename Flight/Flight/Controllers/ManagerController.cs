@@ -6,18 +6,16 @@ using System.Net.Http;
 using System.Web.Http;
 using ClassEX3.Models;
 
-
 namespace ClassEX3.Controllers
 {
     public class ManagerController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<Order> Get()
+        public IEnumerable<string> Get()
         {
-            Order order = new Order();
-            return order.getAllOrders();
+            return new string[] { "value1", "value2" };
         }
-       
+
         // GET api/<controller>/5
         public string Get(int id)
         {

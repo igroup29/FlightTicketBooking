@@ -180,7 +180,6 @@
     <Compile Include="Models\Flights.cs" />
     <Compile Include="Models\Leg.cs" />
     <Compile Include="Models\Manager.cs" />
-    <Compile Include="Models\Order.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
