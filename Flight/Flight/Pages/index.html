@@ -18,11 +18,26 @@
         var dataForTable;
         var allAirports;
         var tableType;
+        var clickedBtnOrder;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
         var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
 
         //buttons function binding
         $(document).ready(function () {
+
+            //First hide all the tables 
+            $("#NewOrderDiv").hide();
+            $("#OrdersForm").hide();
+
+         
+
+
+
+            // once the document is ready we fetch a list of cars from the server
+            //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
+
+            $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
+
             $("#flightForm").submit(getFlight);
             $("#myFlightsBTN").click(getMyFlights);
             $("#getAirportsBTN").click(function () {
@@ -37,6 +52,8 @@
             });
 
             $("#loginForm").submit(LoginCheck);
+
+
 
         });
 
@@ -352,6 +369,7 @@
         }
 
         function InsertFlight(btnClicked) {
+            clickedBtnOrder = btnClicked;
 
             let index = btnClicked.id;
             index = index.replace(/\D/g, '');
@@ -407,6 +425,9 @@
                 departure: departure,
                 arrival: arrival,
                 legs: legsFinal
+            }
+            clientOrderObject = {
+
             }
 
             ajaxCall("POST", "../api/Flights", JSON.stringify(flightObject), successFlight, ErrorFlight);
@@ -485,22 +506,27 @@
             alert(err.responseJSON.ExceptionMessage);
         }
 
+
+      
+
+         
+
     </script>
 
 </head>
-<body >
+<body>
 
 
     <div class="topnav">
         <a class="active" href="#home">Home</a>
         <div class="login-container">
-            <form  id="loginForm">               
+            <form id="loginForm">
                 <label> Manager Login: </label>
-                <div >
-                <input type="text" placeholder="Username" name="username" id="user" required>
-                <input type="text" placeholder="Password" name="psw" id="pass" required>
-                <button id="login" type="submit">Login</button>
-                </div>      
+                <div>
+                    <input type="text" placeholder="Username" name="username" id="user" required>
+                    <input type="text" placeholder="Password" name="psw" id="pass" required>
+                    <button id="login" type="submit">Login</button>
+                </div>
             </form>
         </div>
     </div>
@@ -508,33 +534,67 @@
     <div class="Wrapper">
         <div class="inputDiv">
             <!--Make sure the form has the autocomplete function switched off:-->
-                <form autocomplete="off" action="/action_page.php" id="flightForm">
+            <form autocomplete="off" action="/action_page.php" id="flightForm">
 
-                    <div><label for="origin">Origin</label></div>
-                    <div class="autocomplete form-group"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
+                <div><label for="origin">Origin</label></div>
+                <div class="autocomplete form-group"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
 
-                    <div><label for="destination">Destination</label></div>
-                    <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
+                <div><label for="destination">Destination</label></div>
+                <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
 
-                    <div><label for="sDate">Start Date</label></div>
-                    <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
+                <div><label for="sDate">Start Date</label></div>
+                <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
 
-                    <div><label for="eDate">Ends Date</label></div>
-                    <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
+                <div><label for="eDate">Ends Date</label></div>
+                <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
 
-                    <div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
-                    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>
-                    <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
-                    <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
+                <div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
+                <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>
+                <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
+                <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
 
-                </form>
-</div>
-
-        <div class="imgDiv">
-            <img src="../Images/airport.jpg" id="AirportID" />
+            </form>
         </div>
+
     </div>
 
     <div id="dynamicContent"></div>
+    <div id="NewOrderDiv">
+        <form id="NewOrderForm">
+            <div class="form-group row">
+                <div class="form-group col-sm-3">
+                    <label for="FirstName"><span class="red-star">★ </span>FirstName</label>
+                    <input type="text" class="form-control" id="FirstName" placeholder="Enter first name" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="LastName"><span class="red-star">★ </span>LastName</label>
+                    <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="eMail"><span class="red-star">★ </span>eMail</label>
+                    <input type="text" class="form-control" id="eMail" placeholder="Enter eMail" required>
+                </div>
+            </div>
+
+
+            <div class="form-group row">
+                <div class="form-group col-sm-3">
+                    <label for="IDNumber"><span class="red-star">★ </span>IDNumber</label>
+                    <input type="datetime-local" class="form-control" id="IDNumber" placeholder="Enter the ID Number" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="PassportNum"><span class="red-star">★ </span>PassportNum</label>
+                    <input type="datetime-local" class="form-control" id="PassportNum" placeholder="Enter the passport Number" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="Address"><span class="red-star">★ </span>Address?</label>
+                    <input type="text" class="form-control" id="Address" placeholder="Enter Address" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+            <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
+        </form>
+    </div>
 </body>
 </html>
