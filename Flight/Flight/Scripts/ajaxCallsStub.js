@@ -21,21 +21,25 @@
 
 Orders = [
     {
-        Id: 1000,
+        OrderID: 1000,
+        Name: "RonRamal",
+        Email: "RonRamal@outlook.com",
         AirlineName: "Elal",
-        From: "TLV",
-        To: "JFK",
-        DepartureTime: "2013-03-18T13:00",
-        ArrivalTime: "2013-03-18T13:00",
+        AirportFrom: "TLV",
+        AirportTo: "JFK",
+        Departure: "2020-06-10T13:00",
+        Arrival: "2020-06-20T13:00",
         Price: 10
     },
     {
-        Id: 1001,
+        OrderID: 1001,
+        Name: "GuyGareba",
+        Email: "GuyGareba@outlook.com",
         AirlineName: "RonAir",
-        From: "AMS",
-        To: "JFK",
-        DepartureTime: "2014-03-18T13:00",
-        ArrivalTime: "2014-03-18T13:00",
+        AirportFrom: "AMS",
+        AirportTo: "JFK",
+        Departure: "2020-06-10T13:00",
+        Arrival: "2020-06-20T13:00",
         Price: 20
     }
 ];
@@ -57,7 +61,7 @@ function ajaxCall(method, api, data, successCB, errorCB) {
         successCB(Discounts);
         return;
     }
-    if (method == "GET" && api == "../api/Manager") {
+    if (method == "GET" && api == "../api/Flights") {
         successCB(Orders);
         return;
     }

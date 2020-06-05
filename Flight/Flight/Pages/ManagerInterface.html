@@ -41,7 +41,7 @@
           
             //Name of manager that logged in is shown in nav bar.
             var man = JSON.parse(localStorage.getItem('man'));
-            document.getElementById("man").innerHTML = "Welcome" + man.username;
+            document.getElementById("man").innerHTML = "Welcome " + man.username;
             mode = "";
 
             //First hide all the tables 
@@ -77,11 +77,11 @@
 
                 
                 if (AlreadyCalledOrders == 0) {
-                    ajaxCall("GET", "../api/Manager", "", getOrderSuccess, orderError);
+                    ajaxCall("GET", "../api/Flights", "", getOrderSuccess, orderError);
                     AlreadyCalledOrders++;
                 }
                 else {
-                    ajaxCall("GET", "../api/Manager", "", AlreadyOrderSuccess, AlreadyOrderError);
+                    ajaxCall("GET", "../api/Flights", "", AlreadyOrderSuccess, AlreadyOrderError);
                 }
             });
           
@@ -115,25 +115,27 @@
         // this  is activated in case of a success
         function getOrderSuccess(OrdersData) {
             Orders = OrdersData; // keep the cars array in a global variable;          
-            try {
-                OrderTbl = $('#OrdersTable').DataTable({
+            try {          
+                    OrderTbl = $('#OrdersTable').DataTable({
                     data: OrdersData,
-                    pageLength: 5,
+                    pageLength: 9,
                     columns: [
                         {
                             render: function (data, type, row, meta) {
-                                let dataOrder = "data-orderId='" + row.Id + "'";
+                                let dataOrder = "data-orderId='" + row.OrderID + "'";
 
                                 viewBtnOrder = "<button type='button' class = 'viewBtnOrder btn btn-info' " + dataOrder + "> View </button>";
                               
                                 return viewBtnOrder;
                             }
                         },
-                        { data: "From" },
-                        { data: "To" },
+                        { data: "Name" },
+                        { data: "Email" },
+                        { data: "AirportFrom" },
+                        { data: "AirportTo" },
                         { data: "AirlineName" },
-                        { data: "DepartureTime" },
-                        { data: "ArrivalTime" },
+                        { data: "Departure" },
+                        { data: "Arrival" },
                         { data: "Price" },
                     ],              
                 });
@@ -166,17 +168,19 @@
         // fill the form fields
         function populateFieldsOrder(OrderId) {
             order = getOrderId(OrderId);
-            $("#FromOrder").val(order.From);
-            $("#ToOrder").val(order.To);
+            $("#Passenger").val(order.Name);
+            $("#Email").val(order.Email);
+            $("#FromOrder").val(order.AirportFrom);
+            $("#ToOrder").val(order.AirportTo);
             $("#AirlineNameOrder").val(order.AirlineName);
-            $("#DepartureTimeOrder").val(order.DepartureTime);
-            $("#ArrivalTimeOrder").val(order.ArrivalTime);
+            $("#DepartureTimeOrder").val(order.Departure);
+            $("#ArrivalTimeOrder").val(order.Arrival);
             $("#PriceOrder").val(order.Price);
         }
         // get a car according to its Id
         function getOrderId(id) {
             for (i in Orders) {
-                if (Orders[i].Id == id)
+                if (Orders[i].OrderID == id)
                     return Orders[i];
             }
             return null;
@@ -436,6 +440,8 @@
                 <thead>
                     <tr>
                         <th></th>
+                        <th>Passenger</th>
+                        <th>Email</th>
                         <th>From</th>
                         <th>To</th>
                         <th>DepartureTime</th>
@@ -448,6 +454,19 @@
         </form>
         <div id="ViewDiv">
             <form id="OrderFlightsForm">
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-6">
+                        <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
+                        <input type="text" class="form-control" id="Passenger" placeholder="Enter the Airline name" required>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label for="Email"><span class="red-star">★ </span>Email</label>
+                        <input type="text" class="form-control" id="Email" placeholder="Enter From" required>
+                    </div>
+               
+                </div>
+
                 <div class="form-group row">
                     <div class="form-group col-sm-3">
                         <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
@@ -475,9 +494,9 @@
                     </div>
                     <div class="form-group col-sm-3">
                         <label for="Price"><span class="red-star">★ </span>Price</label>
-                        <input type="text" class="form-control" id="PriceOrder"  />
+                        <input type="text" class="form-control" id="PriceOrder" />
                     </div>
-                </div>            
+                </div>
                 <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
             </form>
         </div>
