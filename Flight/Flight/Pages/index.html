@@ -18,7 +18,7 @@
         var dataForTable;
         var allAirports;
         var tableType;
-        var clickedBtnOrder;
+        var clickedOrderBtnIndex;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
         var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
 
@@ -27,33 +27,41 @@
 
             //First hide all the tables 
             $("#NewOrderDiv").hide();
-            $("#OrdersForm").hide();
-
-         
-
 
 
             // once the document is ready we fetch a list of cars from the server
             //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
 
-            $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
+            // wire the submit event when client press save order
+            $("#NewOrderForm").submit(onSubmit); 
 
+            //wire the submit event when client press search
             $("#flightForm").submit(getFlight);
+            //wire the click event when client press myFlights
             $("#myFlightsBTN").click(getMyFlights);
+            //wire get airports button behavure
             $("#getAirportsBTN").click(function () {
                 alert("getAirports was clicked,Please wait a few seconds until recieve a message");
                 GetAirports();
                 $(this).slideUp();
             });
+            //set get airlines button behavure
             $("#getAirlinesBTN").click(function () {
                 alert("getAirlines was clicked,Please wait a few seconds until recieve a message");
                 GetAirlines();
                 $(this).slideUp();
             });
-
+            // wire the submit event when manager wish to login
             $("#loginForm").submit(LoginCheck);
 
+            //
+            $("#cancelSaveBTN").click(function () {
+                $("#NewOrderDiv").hide();
+                $("#dynamicContent").show();
+            });
 
+
+          
 
         });
 
@@ -361,32 +369,44 @@
                 //btn.setAttribute("name", "Order Row " + (set+1));
                 btn.innerHTML = "Order Row " + (set + 1);
                 btn.onclick = function () {
-                    postFlight(this);
+                   // postFlight(this);
                     InsertFlight(this);
                 };
                 return btn
             }
         }
-
         function InsertFlight(btnClicked) {
-            clickedBtnOrder = btnClicked;
-
             let index = btnClicked.id;
             index = index.replace(/\D/g, '');
             index = parseInt(index);
             index--;
+            clickedOrderBtnIndex = index;
+            clearFields();
+            $("#dynamicContent").hide();
+            $("#NewOrderDiv").show();
 
-            let flightID = dataForTable[index].id;
-            let airportFrom = dataForTable[index].flyFrom;
-            let airportTo = dataForTable[index].flyTo;
-            let price = dataForTable[index].price;
-            let duration = dataForTable[index].fly_duration;
+       
+        }
+        // clear the form fields
+        function clearFields() {
+            $("#ClientName").val("");
+            $("#EMail").val("");
+          
+        }
+
+        function onSubmit() {
+
+            let flightID = dataForTable[clickedOrderBtnIndex].id;
+            let airportFrom = dataForTable[clickedOrderBtnIndex].flyFrom;
+            let airportTo = dataForTable[clickedOrderBtnIndex].flyTo;
+            let price = dataForTable[clickedOrderBtnIndex].price;
+            let duration = dataForTable[clickedOrderBtnIndex].fly_duration;
             let departure = new Date(0);
             let arrival = new Date(0);
-            let legs = dataForTable[index]['route'];
+            let legs = dataForTable[clickedOrderBtnIndex]['route'];
             let legsFinal = [];
-            departure.setUTCSeconds(dataForTable[index].dTimeUTC);
-            arrival.setUTCSeconds(dataForTable[index].aTimeUTC);
+            departure.setUTCSeconds(dataForTable[clickedOrderBtnIndex].dTimeUTC);
+            arrival.setUTCSeconds(dataForTable[clickedOrderBtnIndex].aTimeUTC);
 
             //creating leg object and pushing it to the array
             for (var i = 0; i < legs.length; i++) {
@@ -401,23 +421,26 @@
                 let Duration = hours + "h " + minutes + "m";
                 legObject = {
 
-                    legID: legs[i].id,
-                    flightID: dataForTable[index].id,
-                    airlineID: legs[i].airline,
-                    airportFrom: legs[i].flyFrom,
-                    airportTo: legs[i].flyTo,
-                    flight_no: legs[i].flight_no,
-                    legNum: i,
-                    departure: Departure,
-                    arrival: Arrival,
-                    duration: Duration
+                    LegID: legs[i].id,
+                    FlightID: flightID,
+                    AirlineID: legs[i].airline,
+                    AirportFrom: legs[i].flyFrom,
+                    AirportTo: legs[i].flyTo,
+                    Flight_no: legs[i].flight_no,
+                    LegNum: i,
+                    Departure: Departure,
+                    Arrival: Arrival,
+                    Duration: Duration
                 }
                 legsFinal.push(legObject);
             }
 
-            flightObject = {
+            OrderObject = {
 
-                flightID: flightID,
+                OrderID: orderID,
+                ClientName: $("#ClientName").val(),
+                EMail: $("EMail").val(),
+                FlightID: flightID,
                 airportFrom: airportFrom,
                 airportTo: airportTo,
                 price: price,
@@ -426,9 +449,7 @@
                 arrival: arrival,
                 legs: legsFinal
             }
-            clientOrderObject = {
-
-            }
+          
 
             ajaxCall("POST", "../api/Flights", JSON.stringify(flightObject), successFlight, ErrorFlight);
         }
@@ -438,6 +459,9 @@
         function ErrorFlight(err) {
             console.log(err);
         }
+
+
+
 
         //sets the header table after creation
         function setTablesHeaders(value, tableId) {
@@ -548,8 +572,8 @@
                 <div><label for="eDate">Ends Date</label></div>
                 <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
 
-                <div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
-                <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>
+                <!--<div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
+                    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>-->
                 <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
                 <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
 
@@ -563,35 +587,18 @@
         <form id="NewOrderForm">
             <div class="form-group row">
                 <div class="form-group col-sm-3">
-                    <label for="FirstName"><span class="red-star">★ </span>FirstName</label>
-                    <input type="text" class="form-control" id="FirstName" placeholder="Enter first name" required>
+                    <label for="ClientName"><span class="red-star">★ </span>ClientName</label>
+                    <input type="text" class="form-control" id="ClientName" placeholder="Enter full name" required>
                 </div>
                 <div class="form-group col-sm-3">
-                    <label for="LastName"><span class="red-star">★ </span>LastName</label>
-                    <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
-                </div>
-                <div class="form-group col-sm-3">
-                    <label for="eMail"><span class="red-star">★ </span>eMail</label>
-                    <input type="text" class="form-control" id="eMail" placeholder="Enter eMail" required>
+                    <label for="EMail"><span class="red-star">★ </span>E- Mail</label>
+                    <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
                 </div>
             </div>
-
-
-            <div class="form-group row">
-                <div class="form-group col-sm-3">
-                    <label for="IDNumber"><span class="red-star">★ </span>IDNumber</label>
-                    <input type="datetime-local" class="form-control" id="IDNumber" placeholder="Enter the ID Number" required>
-                </div>
-                <div class="form-group col-sm-3">
-                    <label for="PassportNum"><span class="red-star">★ </span>PassportNum</label>
-                    <input type="datetime-local" class="form-control" id="PassportNum" placeholder="Enter the passport Number" required>
-                </div>
-                <div class="form-group col-sm-3">
-                    <label for="Address"><span class="red-star">★ </span>Address?</label>
-                    <input type="text" class="form-control" id="Address" placeholder="Enter Address" required />
-                </div>
-            </div>
-
+            <!-- <div class="form-group col-sm-3">
+         <label for="LastName"><span class="red-star">★ </span>LastName</label>
+         <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
+           </div>-->
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
             <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>
