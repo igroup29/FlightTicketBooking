@@ -12,9 +12,9 @@ namespace ClassEX3.Controllers
     public class ManagerController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<Order> Get()
+        public IEnumerable<Flights> Get()
         {
-            Order order = new Order();
+            Flights order = new Flights();
             return order.getAllOrders();
         }
        

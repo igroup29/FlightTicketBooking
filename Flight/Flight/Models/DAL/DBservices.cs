@@ -172,16 +172,16 @@ public class DBservices
     }
 
     //getOrders
-    public List<Order> getOrders()
+    public List<Flights> getOrders()
     {
-        List<Order> OrderList = new List<Order>();
+        List<Flights> OrderList = new List<Flights>();
         SqlConnection con = null;
 
         try
         {
             con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
-            String selectSTR = "SELECT * FROM Orders_CS";
+            String selectSTR = "SELECT * FROM MyFlights_CS";
             SqlCommand cmd = new SqlCommand(selectSTR, con);
 
             // get a reader
@@ -189,14 +189,17 @@ public class DBservices
 
             while (dr.Read())
             {   // Read till the end of the data into a row
-                Order order = new Order();
+                Flights order = new Flights();
 
-                order.Id = Convert.ToInt32(dr["OrderId"]);
+                order.OrderID = Convert.ToInt32(dr["OrderID"]);
+                order.Name = (string)dr["ClientName"];
+                order.Email = (string)dr["Email"];
+                order.FlightID = (string)dr["FlightID"];
                 order.AirlineName = (string)dr["AirlineName"];
-                order.From = (string)dr["Origin"];
-                order.To = (string)dr["Destination"];
-                order.DepartureTime = Convert.ToDateTime(dr["DepartureTime"]);
-                order.ArrivalTime = Convert.ToDateTime(dr["ArrivalTime"]);
+                order.AirportFrom = (string)dr["Origin"];
+                order.AirportTo = (string)dr["Destination"];
+                order.Departure = Convert.ToDateTime(dr["DepartureTime"]);
+                order.Arrival = Convert.ToDateTime(dr["ArrivalTime"]);
                 order.Price = Convert.ToDouble(dr["Price"]);
                 OrderList.Add(order);
             }
