@@ -17,7 +17,8 @@
 
     <script>
         var dataForTable;
-        var allAirports;
+        var allAirportsData;
+        var airportsNames;
         var tableType;
         var clickedOrderBtnIndex;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
@@ -40,13 +41,13 @@
             $("#flightForm").submit(getFlight);
             //wire the click event when client press myFlights
             $("#myFlightsBTN").click(getMyFlights);
-            //wire get airports button behavure
+            //wire get airports button behavior
             $("#getAirportsBTN").click(function () {
                 alert("getAirports was clicked,Please wait a few seconds until recieve a message");
                 GetAirports();
                 $(this).slideUp();
             });
-            //set get airlines button behavure
+            //set get airlines button behavior
             $("#getAirlinesBTN").click(function () {
                 alert("getAirlines was clicked,Please wait a few seconds until recieve a message");
                 GetAirlines();
@@ -212,11 +213,12 @@
         }
         function successAP(data) {
             console.log(data);
-            allAirports = createAirportsList(data);
+            allAirportsData = data;
+            airportsNames = createAirportsList(data);
 
             /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-            autocomplete(document.getElementById("originTB"), allAirports);
-            autocomplete(document.getElementById("destinationTB"), allAirports);
+            autocomplete(document.getElementById("originTB"), airportsNames);
+            autocomplete(document.getElementById("destinationTB"), airportsNames);
         }
         function errorAP(err) {
             console.log(err.responseJSON.ExceptionMessage);
@@ -225,7 +227,7 @@
         function createAirportsList(object) {
             var arr = [];
             for (var k in object.locations) {
-                arr.push(object.locations[k].id);
+                arr.push(object.locations[k].city.name + "(" + object.locations[k].id+")");
             }
             return arr;
         }
@@ -239,14 +241,26 @@
             tableType = 1;
             ajaxCall("GET", "../api/Flight", "", successCBF, errorCBF);
         }
-
+        //clean search input
+        function clearSearch() {
+            $("#originTB").val("");
+            $("#destinationTB").val("");
+            $("#startDateTB").val()
+            $("#endDateTB").val()
+        }
         //GET (AjaxCall) from the skypicker api server using the values we input
         function getFlight() {
-
-            let origin = $("#originTB").val();
-            let destination = $("#destinationTB").val();
+            let originIndex = airportsNames.indexOf($("#originTB").val());
+            let origin = allAirportsData.locations[originIndex].id;
+            let destinationIndex = airportsNames.indexOf($("#destinationTB").val());
+            let destination = allAirportsData.locations[destinationIndex].id;
             let start = convertDateType($("#startDateTB").val());
             let end = convertDateType($("#endDateTB").val());
+            if (start > end) {
+                alert("stard date cant be bigger then end date");
+                clearSearch();
+                return;
+            }
             let api = "https://api.skypicker.com/flights?flyFrom=" + origin + "&to=" + destination + "&dateFrom=" + start + "&dateTo=" + end + "&partner=picky";
             tableType = 0;
             ajaxCall("GET", api, "", successCBF, errorCBF);
@@ -376,6 +390,8 @@
                 return btn
             }
         }
+
+        // extract the index from clicked orderBtn and show order form
         function InsertFlight(btnClicked) {
             let index = btnClicked.id;
             index = index.replace(/\D/g, '');
@@ -394,7 +410,7 @@
             $("#EMail").val("");
 
         }
-
+        // add new order to data base when clicking savebtn at order form
         function onSubmit() {
 
             let flightID = dataForTable[clickedOrderBtnIndex].id;
@@ -455,6 +471,7 @@
             ajaxCall("POST", "../api/Flights", JSON.stringify(OrderObject), successFlight, ErrorFlight);
             return false;
         }
+        //success and error behavior
         function successFlight(data) {
             $("#NewOrderDiv").show();
             swal("Added Successfuly!", "Inserted Flight into Database", "success");
@@ -542,9 +559,7 @@
     </script>
 
 </head>
-<body >
-
-
+<body onload="getAllAirportsAutoComplete()">
     <div class="topnav">
         <a class="active" href="#home">Home</a>
         <div class="login-container">
@@ -559,54 +574,92 @@
         </div>
     </div>
 
-    <div class="Wrapper" onload="getAllAirportsAutoComplete()">
-        <div class="inputDiv">
+    <!--<div class="Wrapper">-->
+    <div>
+        <!--<div class="inputDiv">-->
+        <div class="container">
             <!--Make sure the form has the autocomplete function switched off:-->
             <form autocomplete="off" action="/action_page.php" id="flightForm">
-                <div class="flightFormInput">
-                    <div><label for="origin">Origin</label></div>
-                    <div class="autocomplete form-group dateInput"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="origin">Origin</label>
+                    </div>
+                    <div class="autocomplete form-group col-sm-8">
+                        <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required>
+                    </div>
                 </div>
-                <div class="flightFormInput">
-                    <div><label for="destination">Destination</label></div>
-                    <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="destination">Destination</label>
+                    </div>
+
+                    <div class="autocomplete form-group col-sm-8">
+                        <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required>
+                    </div>
                 </div>
-                <div class="flightFormInput">
-                    <div><label for="sDate">Start Date</label></div>
-                    <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="sDate">Start Date</label>
+                    </div>
+                    <div class="form-group col-sm-8">
+                        <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
+                    </div>
                 </div>
-                <div class="flightFormInput">
-                    <div><label for="eDate">Ends Date</label></div>
-                    <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="eDate">Ends Date</label>
+                    </div>
+
+                    <div class="form-group col-sm-8">
+                        <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
+                    </div>
                 </div>
-                <div class="flightFormBtn">
-                    <!--<div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
-    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>-->
-                    <div class="btnHolder"><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
-                    <div class="btnHolder"><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-3">
+                        <button type="submit" class="MainBTN" id="searchBTN">Search</button>
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button>
+                    </div>
+                    <!--
+                        <div class="form-group col-sm-3">
+                            <button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button>
+                        </div>
+
+                        <div class="form-group col-sm-3">
+                            <button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button>
+                        </div>
+                    -->
                 </div>
             </form>
         </div>
+    </div>
+
+    <div id="dynamicContent">
 
     </div>
 
-    <div id="dynamicContent"></div>
     <div id="NewOrderDiv">
         <form id="NewOrderForm">
             <div class="form-group row">
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-6">
                     <label for="ClientName"><span class="red-star">★ </span>ClientName</label>
                     <input type="text" class="form-control" id="ClientName" placeholder="Enter full name" required>
                 </div>
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-6">
                     <label for="EMail"><span class="red-star">★ </span>E- Mail</label>
                     <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
                 </div>
             </div>
             <!-- <div class="form-group col-sm-3">
-         <label for="LastName"><span class="red-star">★ </span>LastName</label>
-         <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
-           </div>-->
+            <label for="LastName"><span class="red-star">★ </span>LastName</label>
+            <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
+             </div>-->
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
             <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>
