@@ -314,14 +314,17 @@
             if (mode == "edit") {
                 Id = discount.Id;
             }
-
+         
+            let discountStart = new Date($("#DiscountStart").val()).toUTCString();
+            let discountEnd = new Date($("#DiscountEnd").val()).toUTCString();
+          
             let dicountToSave = {
                 Id: Id,
                 AirlineName: $("#AirlineName").val(),
                 From: $("#From").val(),//Origin
                 To: $("#To").val(),
-                DiscountStart: $("#DiscountStart").val(),
-                DiscountEnd: $("#DiscountEnd").val(),
+                DiscountStart: discountStart,
+                DiscountEnd: discountEnd,
                 AirlineDiscount: $("#AirlineDiscount").val(),
             }
 

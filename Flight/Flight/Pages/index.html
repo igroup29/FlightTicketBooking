@@ -31,8 +31,8 @@
             $("#NewOrderDiv").hide();
             $("#upload").hide();
 
-            // once the document is ready we fetch a list of cars from the server
-            //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
+            // once the document is ready we fetch a list of Discounts from the server
+             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
 
             // wire the submit event when client press save order
             $("#NewOrderForm").submit(onSubmit);
@@ -61,17 +61,11 @@
                 $("#NewOrderDiv").hide();
                 $("#dynamicContent").show();
             });
-
-
-
-
         });
 
         function LoginCheck() {
-
             var user = $("#user").val();
             var pass = $("#pass").val();
-
             manager = {
                 username: user,
                 password: pass
@@ -79,8 +73,6 @@
             ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
             return false;
         }
-
-
         function successLogin(data) {
             if (data) {
                 alert("LogIn Success");
@@ -98,12 +90,29 @@
             else {
                 alert("Failed");
             }
-
-
         }
         function errorLogin(err) {
             alert("unauthorized User Information")
         }
+
+
+
+        var DiscountsFromManager;
+        //Handling the discountsList we fetched from the database
+        /////////////////////////////////////////////////////////////////////
+        function DiscountsSuccess(DiscountsData) {
+            //we'll use this to check if one of the flights is on sale
+             DiscountsFromManager = DiscountsData;
+        }
+
+        function DiscountsError(err) {
+
+            alert(err);
+        }
+
+
+
+
         //Inserting Airlines to database
         ////////////////////////////////////////////////
         function GetAirlines() {
@@ -232,10 +241,6 @@
             return arr;
         }
 
-
-
-
-
         //get my flight list from server
         function getMyFlights() {
             tableType = 1;
@@ -284,6 +289,35 @@
             console.log(err.responseJSON.ExceptionMessage);
         }
 
+
+        function compare_dates(FlightDeparture, DiscountStart, DiscountEnd) {
+            if (FlightDeparture > DiscountStart && FlightDeparture < DiscountEnd) return (true);       
+            else return (false);
+        }
+
+        function CheckIfOnSale(i) {
+             
+            let Flightindex = i;             
+            let DiscountStart = new Date(0);
+            let DiscountEnd = new Date(0);
+            let departure = new Date(0);
+            let flightdata = dataForTable[Flightindex];
+            departure.setUTCSeconds(flightdata.dTimeUTC);
+            let FlightDeparture = departure.toISOString();
+
+            for (var j = 0; j < DiscountsFromManager.length; j++) {
+
+                DiscountStart = (DiscountsFromManager[j].DiscountStart);
+                DiscountEnd = (DiscountsFromManager[j].DiscountEnd);
+
+                if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd))
+                {
+                    return true;
+                }          
+            }
+            return false;        
+        }
+
         //Dynamically create a table and render the search results we have.
         //parameter type will determine the table content, 0 for API results ,1 for results from server
         function generateTable(type) {
@@ -295,6 +329,7 @@
             table.setAttribute("id", "flightTbl");// set table id to - flightTbl
             var limit;
             var handler;
+            var OnSale;
 
             if (type == 0)//generate search flight table
             {
@@ -303,17 +338,28 @@
                 //Decide how many rows you want to see
                 for (var i = 0; i < dataForTable.length; i++) {    ///dataForTable.length
                     var row = document.createElement('tr');
+
+                    OnSale = CheckIfOnSale(i);
+
                     for (var j = 0; j < limit; j++) {
                         row.appendChild(document.createElement('td'));//Add column to the row
                         //Check (j==7) if we are at the "order" feature so we can add a button.
-                        if (j == 7) {
-                            row.cells[j].appendChild(getDataForApiTable(i, headers[j]));
-                        }
-                        else {
-                            row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j])));
-                        }
+
+                            if (j == 7) {
+                                row.cells[j].appendChild(getDataForApiTable(i, headers[j], OnSale));
+                            }
+                            else {
+                                row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j], OnSale)));
+
+                                if (j == 6 && OnSale) {
+                                    row.cells[j].style.color = "Red";
+                                    
+                                }
+                            }
+                        
                     }
                     table.appendChild(row);
+                    Onsale = false;
                 }
                 tableTitle.innerText = "Search Results - ";
                 tableArea.appendChild(tableTitle);
@@ -340,9 +386,10 @@
         }
 
         //extract relevant data for search table from api object
-        function getDataForApiTable(set, feature) {
+        function getDataForApiTable(set, feature, OnSale) {
+
             if (feature == "cityFrom")//Origin
-            {
+            {             
                 return dataForTable[set][feature];
             }
             if (feature == "cityTo")//Destination
@@ -360,8 +407,9 @@
             }
             if (feature == "dTimeUTC")//Departure Time
             {
+                
                 let dep = new Date(0);//
-                dep.setUTCSeconds(dataForTable[set][feature]);
+                dep.setUTCSeconds(dataForTable[set][feature]);         
                 return dep.toUTCString();
             }
             if (feature == "aTimeUTC")//Arrival Time
@@ -376,8 +424,14 @@
             }
             if (feature == "price")//Price
             {
-                return dataForTable[set][feature] + " EUR ";
+                if (OnSale) {
+
+                    return dataForTable[set][feature] + "EUR, Sale!!!";
+                }
+               
+                return dataForTable[set][feature] + " EUR";
             }
+           
             if (feature == "Order") {
                 let btn = document.createElement("button");
                 btn.setAttribute("id", "tableBtn" + (set + 1));
@@ -564,6 +618,7 @@
         <a class="active" href="#home">Home</a>
         <div class="login-container">
             <form id="loginForm">
+               
                 <label> Manager Login: </label>
                 <div>
                     <input type="text" placeholder="Username" name="username" id="user" required>
