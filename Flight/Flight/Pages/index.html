@@ -530,17 +530,9 @@
             alert(err.responseJSON.ExceptionMessage);
         }
 
-
-      
-
-         
-
     </script>
-
 </head>
-<body>
-
-
+<body onload="getAllAirportsAutoComplete()">
     <div class="topnav">
         <a class="active" href="#home">Home</a>
         <div class="login-container">
@@ -555,50 +547,91 @@
         </div>
     </div>
 
-    <div class="Wrapper">
-        <div class="inputDiv">
-            <!--Make sure the form has the autocomplete function switched off:-->
-            <form autocomplete="off" action="/action_page.php" id="flightForm">
+    <!--<div class="Wrapper">-->
+    <div>
+       <!--<div class="inputDiv">-->
+      <div class="container">
+        <!--Make sure the form has the autocomplete function switched off:-->
+        <form autocomplete="off" action="/action_page.php" id="flightForm">
+            <div class="form-group row">
+                <div class="form-group col-sm-4">
+                    <label for="origin">Origin</label>
+                </div>
+                <div class="autocomplete form-group col-sm-8">
+                    <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required>
+                </div>
+            </div>
 
-                <div><label for="origin">Origin</label></div>
-                <div class="autocomplete form-group"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
+            <div class="form-group row">
+                <div class="form-group col-sm-4">
+                    <label for="destination">Destination</label>
+                </div>
 
-                <div><label for="destination">Destination</label></div>
-                <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
+                <div class="autocomplete form-group col-sm-8">
+                    <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required>
+                </div>
+            </div>
 
-                <div><label for="sDate">Start Date</label></div>
-                <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
+            <div class="form-group row">
+                <div class="form-group col-sm-4">
+                    <label for="sDate">Start Date</label>
+                </div>
+                <div class="form-group col-sm-8">
+                    <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
+                </div>
+            </div>
 
-                <div><label for="eDate">Ends Date</label></div>
-                <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
+            <div class="form-group row">
+                <div class="form-group col-sm-4">
+                    <label for="eDate">Ends Date</label>
+                </div>
 
-                <!--<div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
-                    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>-->
-                <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
-                <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
+                <div class="form-group col-sm-8">
+                    <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
+                </div>
+            </div>
 
-            </form>
-        </div>
+            <div class="form-group row">
+                <div class="form-group col-sm-3">
+                    <button type="submit" class="MainBTN" id="searchBTN">Search</button>
+                </div>
+
+                <div class="form-group col-sm-3">
+                    <button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button>
+                </div>
+
+                <div class="form-group col-sm-3">
+                    <button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button>
+                </div>
+
+                <div class="form-group col-sm-3">
+                    <button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button>
+                </div>
+            </div>
+        </form>
+    </div>
+   </div>
+
+    <div id="dynamicContent">
 
     </div>
 
-    <div id="dynamicContent"></div>
     <div id="NewOrderDiv">
         <form id="NewOrderForm">
             <div class="form-group row">
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-6">
                     <label for="ClientName"><span class="red-star">★ </span>ClientName</label>
                     <input type="text" class="form-control" id="ClientName" placeholder="Enter full name" required>
                 </div>
-                <div class="form-group col-sm-3">
+                <div class="form-group col-sm-6">
                     <label for="EMail"><span class="red-star">★ </span>E- Mail</label>
                     <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
                 </div>
             </div>
             <!-- <div class="form-group col-sm-3">
-         <label for="LastName"><span class="red-star">★ </span>LastName</label>
-         <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
-           </div>-->
+            <label for="LastName"><span class="red-star">★ </span>LastName</label>
+            <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
+             </div>-->
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
             <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>

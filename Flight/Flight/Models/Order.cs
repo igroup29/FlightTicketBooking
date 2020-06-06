@@ -42,7 +42,7 @@ namespace ClassEX3.Models
         public DateTime ArrivalTime { get => arrivalTime; set => arrivalTime = value; }
         public double Price { get => price; set => price = value; }
 
-        public List<Order> getAllOrders()
+        public List<Flights> getAllOrders()
         {
             DBservices dbs = new DBservices();
             return dbs.getOrders();
