@@ -129,7 +129,8 @@
                                 viewBtnOrder = "<button type='button' class = 'viewBtnOrder btn btn-info' " + dataOrder + "> View </button>";
 
                                 return viewBtnOrder;
-                            }
+                            },
+                            data: null
                         },
                         { data: "Name" },
                         { data: "Email" },
@@ -140,10 +141,10 @@
                         { data: "Arrival" },
                         { data: "Price" },
                     ],
-                    //responsive: true
+                    responsive: true,
                 });
                 buttonEventsOrder();
-               // new $.fn.dataTable.FixedHeader(OrderTbl);
+                new $.fn.dataTable.FixedHeader(OrderTbl);
 
             }
             catch (err) {
@@ -235,7 +236,8 @@
                                 viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataDiscount + "> View </button>";
                                 deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataDiscount + "> Delete </button>";
                                 return editBtn + viewBtn + deleteBtn;
-                            }
+                            },
+                            data: null
                         },
                         { data: "AirlineName" },
                         { data: "From" },
@@ -244,9 +246,9 @@
                         { data: "DiscountEnd" },
                         { data: "AirlineDiscount" },
                     ],
-                     //responsive:true
+                     responsive:true
                 });
-               // new $.fn.dataTable.FixedHeader(tbl);
+                new $.fn.dataTable.FixedHeader(tbl);
 
                 buttonEvents();
             }
