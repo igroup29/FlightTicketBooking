@@ -11,6 +11,7 @@
     <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
     <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+    <link href="../PagesCSS/Test.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
 
@@ -25,7 +26,7 @@
         //buttons function binding
         $(document).ready(function () {
 
-            //First hide all the tables 
+            //First hide all the tables
             $("#NewOrderDiv").hide();
 
 
@@ -33,7 +34,7 @@
             //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
 
             // wire the submit event when client press save order
-            $("#NewOrderForm").submit(onSubmit); 
+            $("#NewOrderForm").submit(onSubmit);
 
             //wire the submit event when client press search
             $("#flightForm").submit(getFlight);
@@ -61,7 +62,7 @@
             });
 
 
-          
+
 
         });
 
@@ -74,21 +75,21 @@
                 username: user,
                 password: pass
             }
-            ajaxCall("POST","../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
+            ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
             return false;
         }
 
 
         function successLogin(data) {
             if (data) {
-                alert("LogIn Success");          
+                alert("LogIn Success");
 
                 manager = {
                     username: data.Username,
                     password: data.Password
                 }
                 localStorage.setItem('man', JSON.stringify(manager));
-               
+
 
                 window.location.replace("ManagerInterface.html");
 
@@ -96,7 +97,7 @@
             else {
                 alert("Failed");
             }
-            
+
 
         }
         function errorLogin(err) {
@@ -369,7 +370,7 @@
                 //btn.setAttribute("name", "Order Row " + (set+1));
                 btn.innerHTML = "Order Row " + (set + 1);
                 btn.onclick = function () {
-                   // postFlight(this);
+                    // postFlight(this);
                     InsertFlight(this);
                 };
                 return btn
@@ -385,13 +386,13 @@
             $("#dynamicContent").hide();
             $("#NewOrderDiv").show();
 
-       
+
         }
         // clear the form fields
         function clearFields() {
             $("#ClientName").val("");
             $("#EMail").val("");
-          
+
         }
 
         function onSubmit() {
@@ -436,11 +437,11 @@
             }
 
             OrderObject = {
-
-                OrderID: orderID,
+                orderID: 0,
                 ClientName: $("#ClientName").val(),
-                EMail: $("EMail").val(),
+                Email: $("#EMail").val(),
                 FlightID: flightID,
+                AirlineID: legs[0].airline,
                 airportFrom: airportFrom,
                 airportTo: airportTo,
                 price: price,
@@ -449,11 +450,13 @@
                 arrival: arrival,
                 legs: legsFinal
             }
-          
 
-            ajaxCall("POST", "../api/Flights", JSON.stringify(flightObject), successFlight, ErrorFlight);
+
+            ajaxCall("POST", "../api/Flights", JSON.stringify(OrderObject), successFlight, ErrorFlight);
+            return false;
         }
         function successFlight(data) {
+            $("#NewOrderDiv").show();
             swal("Added Successfuly!", "Inserted Flight into Database", "success");
         }
         function ErrorFlight(err) {
@@ -531,14 +534,14 @@
         }
 
 
-      
 
-         
+
+
 
     </script>
 
 </head>
-<body>
+<body >
 
 
     <div class="topnav">
@@ -555,28 +558,32 @@
         </div>
     </div>
 
-    <div class="Wrapper">
+    <div class="Wrapper" onload="getAllAirportsAutoComplete()">
         <div class="inputDiv">
             <!--Make sure the form has the autocomplete function switched off:-->
             <form autocomplete="off" action="/action_page.php" id="flightForm">
-
-                <div><label for="origin">Origin</label></div>
-                <div class="autocomplete form-group"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
-
-                <div><label for="destination">Destination</label></div>
-                <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
-
-                <div><label for="sDate">Start Date</label></div>
-                <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
-
-                <div><label for="eDate">Ends Date</label></div>
-                <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
-
-                <!--<div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
-                    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>-->
-                <div><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
-                <div><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
-
+                <div class="flightFormInput">
+                    <div><label for="origin">Origin</label></div>
+                    <div class="autocomplete form-group dateInput"><input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required></div>
+                </div>
+                <div class="flightFormInput">
+                    <div><label for="destination">Destination</label></div>
+                    <div class="autocomplete form-group"><input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required></div>
+                </div>
+                <div class="flightFormInput">
+                    <div><label for="sDate">Start Date</label></div>
+                    <div class="form-group"><input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required /></div>
+                </div>
+                <div class="flightFormInput">
+                    <div><label for="eDate">Ends Date</label></div>
+                    <div class="form-group"><input type="date" class="form-control" id="endDateTB" name="myEndDate" required /></div>
+                </div>
+                <div class="flightFormBtn">
+                    <!--<div><button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button></div>
+    <div><button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button></div>-->
+                    <div class="btnHolder"><button type="submit" class="MainBTN" id="searchBTN">Search</button></div>
+                    <div class="btnHolder"><button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button></div>
+                </div>
             </form>
         </div>
 

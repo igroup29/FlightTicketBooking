@@ -8,10 +8,10 @@ namespace ClassEX3.Models
     public class Flights
     {
         private int orderID;
-        private string name;
+        private string clientName;
         private string email;
         private string flightID;
-        private string airlineName;
+        private string airlineID;
         private string airportFrom;
         private string airportTo;
         private double price;
@@ -24,18 +24,18 @@ namespace ClassEX3.Models
         //No Arguments Constructor
         public Flights()
         {
-
+            
 
 
         }
 
-        public Flights(int orderID, string name, string email, string flightID, string airlineName, string airportFrom, string airportTo, double price, string duration, DateTime departure, DateTime arrival, Leg[] legs)
+        public Flights(int orderID, string name, string email, string flightID, string airlineID, string airportFrom, string airportTo, double price, string duration, DateTime departure, DateTime arrival, Leg[] legs)
         {
             OrderID = orderID;
-            Name = name;
+            ClientName = name;
             Email = email;
             FlightID = flightID;
-            AirlineName = airlineName;
+            AirlineID = airlineID;
             AirportFrom = airportFrom;
             AirportTo = airportTo;
             Price = price;
@@ -45,9 +45,10 @@ namespace ClassEX3.Models
             Legs = legs;
         }
         public int OrderID { get => orderID; set => orderID = value; }
-        public string Name { get => name; set => name = value; }
+        public string ClientName { get => clientName; set => clientName = value; }
         public string Email { get => email; set => email = value; }
         public string FlightID { get => flightID; set => flightID = value; }
+        public string AirlineID { get => airlineID; set => airlineID = value; }
         public string AirportFrom { get => airportFrom; set => airportFrom = value; }
         public string AirportTo { get => airportTo; set => airportTo = value; }
         public double Price { get => price; set => price = value; }
@@ -55,7 +56,7 @@ namespace ClassEX3.Models
         public DateTime Departure { get => departure; set => departure = value; }
         public DateTime Arrival { get => arrival; set => arrival = value; }
         public Leg[] Legs { get => legs; set => legs = value; }
-        public string AirlineName { get => airlineName; set => airlineName = value; }
+       
 
         public int InsertFlight()
         {

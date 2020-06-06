@@ -90,7 +90,7 @@ input[type=date], input[type=text] {
 }
 
 .inputDiv {
-    width:40%;
+    width:100%;
     float:left;
     border-radius: 5px;
     background-color: #f2f2f2;
