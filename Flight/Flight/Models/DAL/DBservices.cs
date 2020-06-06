@@ -181,7 +181,7 @@ public class DBservices
         {
             con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
 
-            String selectSTR = "SELECT * FROM MyFlights_CS";
+            String selectSTR = "select* from MyFlights_CS as MF inner join Airlines_CS as A on MF.AirlineID = A.AirlineID";
             SqlCommand cmd = new SqlCommand(selectSTR, con);
 
             // get a reader
@@ -193,13 +193,13 @@ public class DBservices
 
                 order.OrderID = Convert.ToInt32(dr["OrderID"]);
                 order.ClientName = (string)dr["ClientName"];
-                order.Email = (string)dr["Email"];
+                order.Email = (string)dr["EMail"];
                 order.FlightID = (string)dr["FlightID"];
-                order.AirlineID = (string)dr["AirlineID"];
-                order.AirportFrom = (string)dr["Origin"];
-                order.AirportTo = (string)dr["Destination"];
-                order.Departure = Convert.ToDateTime(dr["DepartureTime"]);
-                order.Arrival = Convert.ToDateTime(dr["ArrivalTime"]);
+                order.AirlineID = (string)dr["AirlineName"];
+                order.AirportFrom = (string)dr["AirportFrom"];
+                order.AirportTo = (string)dr["AirportTo"];
+                order.Departure = Convert.ToDateTime(dr["Departure"]);
+                order.Arrival = Convert.ToDateTime(dr["Arrival"]);
                 order.Price = Convert.ToDouble(dr["Price"]);
                 OrderList.Add(order);
             }

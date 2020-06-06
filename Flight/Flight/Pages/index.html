@@ -29,7 +29,7 @@
 
             //First hide all the tables
             $("#NewOrderDiv").hide();
-
+            $("#upload").hide();
 
             // once the document is ready we fetch a list of cars from the server
             //  ajaxCall("GET", "../api/Discounts", "", getSuccess, error);
@@ -257,9 +257,9 @@
             let start = convertDateType($("#startDateTB").val());
             let end = convertDateType($("#endDateTB").val());
             if (start > end) {
-                alert("stard date cant be bigger then end date");
+                alert("start date cant be bigger then end date");
                 clearSearch();
-                return;
+                return false;
             }
             let api = "https://api.skypicker.com/flights?flyFrom=" + origin + "&to=" + destination + "&dateFrom=" + start + "&dateTo=" + end + "&partner=picky";
             tableType = 0;
@@ -639,7 +639,9 @@
             </form>
         </div>
     </div>
-
+    <div id="upload">
+        <img src="../Images/giphy.gif" />
+    </div>
     <div id="dynamicContent">
 
     </div>

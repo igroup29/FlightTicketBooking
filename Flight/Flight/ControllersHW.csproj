@@ -197,6 +197,7 @@
     <Content Include="Images\car1.jpg" />
     <Content Include="Images\car2.jpg" />
     <Content Include="Images\car3.jpg" />
+    <Content Include="Images\giphy.gif" />
     <Content Include="PagesCSS\AutoComplete.css" />
     <Content Include="PagesCSS\NavigationBar.css" />
     <Content Include="PagesCSS\StyleSheet1.css" />

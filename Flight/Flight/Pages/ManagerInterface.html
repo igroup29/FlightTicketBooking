@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.5/css/responsive.dataTables.min.css">
-    <script src="../Scripts/ajaxCallsStub.js"></script>
+    <script src="../Scripts/ajaxCalls.js"></script>
     <script src="../Scripts/FlightsAutoComplete.js"></script>
     <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
@@ -74,15 +74,15 @@
                 $("#DiscountForm").hide();
                 $("#newBTN").hide();
                 $("#editDiv").hide();
-                $("#OrdersForm").show();
+               
 
 
                 if (AlreadyCalledOrders == 0) {
-                    ajaxCall("GET", "../api/Flights", "", getOrderSuccess, orderError);
+                    ajaxCall("GET", "../api/Manager", "", getOrderSuccess, orderError);
                     AlreadyCalledOrders++;
                 }
                 else {
-                    ajaxCall("GET", "../api/Flights", "", AlreadyOrderSuccess, AlreadyOrderError);
+                    ajaxCall("GET", "../api/Manager", "", AlreadyOrderSuccess, AlreadyOrderError);
                 }
             });
 
@@ -112,6 +112,10 @@
             $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
 
         });
+        //load gif
+        function uploadGif() {
+
+        }
 
         // this  is activated in case of a success
         function getOrderSuccess(OrdersData) {
@@ -132,11 +136,11 @@
                             },
                             data: null
                         },
-                        { data: "Name" },
+                        { data: "ClientName" },
                         { data: "Email" },
                         { data: "AirportFrom" },
                         { data: "AirportTo" },
-                        { data: "AirlineName" },
+                        { data: "AirlineID" },
                         { data: "Departure" },
                         { data: "Arrival" },
                         { data: "Price" },
@@ -145,6 +149,7 @@
                 });
                 buttonEventsOrder();
                 new $.fn.dataTable.FixedHeader(OrderTbl);
+                $("#OrdersForm").show();
 
             }
             catch (err) {
@@ -460,9 +465,9 @@
                         <th>Email</th>
                         <th>From</th>
                         <th>To</th>
+                        <th>AirlineName</th>
                         <th>DepartureTime</th>
                         <th>ArrivalTime</th>
-                        <th>AirlineName</th>
                         <th>Price</th>
                     </tr>
                 </thead>
@@ -555,6 +560,7 @@
                 <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
             </form>
         </div>
+       
     </div>
 </body>
 </html>
