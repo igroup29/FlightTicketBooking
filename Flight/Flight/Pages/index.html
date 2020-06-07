@@ -302,24 +302,29 @@
 
         function CheckIfOnSale(i) {
 
-            let Flightindex = i;
-            let DiscountStart = new Date(0);
-            let DiscountEnd = new Date(0);
-            let departure = new Date(0);
-            let flightdata = dataForTable[Flightindex];
-            departure.setUTCSeconds(flightdata.dTimeUTC);
-            let FlightDeparture = departure.toISOString();
+            if (typeof DiscountsFromManager == 'undefined') {
 
-            for (var j = 0; j < DiscountsFromManager.length; j++) {
+                let Flightindex = i;
+                let DiscountStart = new Date(0);
+                let DiscountEnd = new Date(0);
+                let departure = new Date(0);
+                let flightdata = dataForTable[Flightindex];
+                departure.setUTCSeconds(flightdata.dTimeUTC);
+                let FlightDeparture = departure.toISOString();
 
-                DiscountStart = (DiscountsFromManager[j].DiscountStart);
-                DiscountEnd = (DiscountsFromManager[j].DiscountEnd);
+                for (var j = 0; j < DiscountsFromManager.length; j++) {
 
-                if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd)) {
-                    return true;
+                    DiscountStart = (DiscountsFromManager[j].DiscountStart);
+                    DiscountEnd = (DiscountsFromManager[j].DiscountEnd);
+
+                    if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd)) {
+                        return true;
+                    }
                 }
+                return false;
+            } else {
+                return false;
             }
-            return false;
         }
 
         //Dynamically create a table and render the search results we have.
