@@ -432,53 +432,54 @@
 
   
 
-    <div class="container bg">
-        <div class="row">
-            <div class="col-sm-6 text-center">
-                <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+    <div class="container">
+        
+            <div class="row">
+                <div class="col-sm-6 text-center">
+                    <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+                </div>
+                <div class="col-sm-6 text-center">
+                    <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
+                </div>
             </div>
-            <div class="col-sm-6 text-center">
-                <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
-            </div>
-        </div>
 
-        <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
-        <form id="DiscountForm">
-            <table id="DiscountTable" class="display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>AirlineName</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>DiscountStart</th>
-                        <th>DiscountEnd</th>
-                        <th>AirlineDiscount</th>
-                    </tr>
-                </thead>
-            </table>
-        </form>
+            <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
+            <form id="DiscountForm">
+                <table id="DiscountTable" class="display nowrap" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>AirlineName</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>DiscountStart</th>
+                            <th>DiscountEnd</th>
+                            <th>AirlineDiscount</th>
+                        </tr>
+                    </thead>
+                </table>
+            </form>
 
-        <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
-        <!--Hide it at first only when Manager clicks Orders render the table and show it-->
-        <form id="OrdersForm">
-            <table id="OrdersTable" class="display nowrap " style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Passenger</th>
-                        <th>Email</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>AirlineName</th>
-                        <th>DepartureTime</th>
-                        <th>ArrivalTime</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-            </table>
-        </form>
-
+            <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
+            <!--Hide it at first only when Manager clicks Orders render the table and show it-->
+            <form id="OrdersForm">
+                <table id="OrdersTable" class="display nowrap " style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Passenger</th>
+                            <th>Email</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>AirlineName</th>
+                            <th>DepartureTime</th>
+                            <th>ArrivalTime</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                </table>
+            </form>
+       
         <div id="ViewDiv">
             <form id="OrderFlightsForm">
 

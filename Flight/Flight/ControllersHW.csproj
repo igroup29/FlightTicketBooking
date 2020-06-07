@@ -198,6 +198,7 @@
     <Content Include="PagesCSS\AutoComplete.css" />
     <Content Include="PagesCSS\NavigationBar.css" />
     <Content Include="PagesCSS\StyleSheet1.css" />
+    <Content Include="PagesCSS\ResponsiveTable.css" />
     <Content Include="PagesCSS\Test.css" />
     <Content Include="Pages\AirportsTest.html" />
     <Content Include="Pages\edit - class Ex solution.html" />
