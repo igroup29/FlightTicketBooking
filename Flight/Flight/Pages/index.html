@@ -35,7 +35,7 @@
             //First hide all the tables
             $("#NewOrderDiv").hide();
             $("#upload").hide();
-
+           
             // once the document is ready we fetch a list of Discounts from the server
             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
 
@@ -325,6 +325,7 @@
         //Dynamically create a table and render the search results we have.
         //parameter type will determine the table content, 0 for API results ,1 for results from server
         function generateTable(type) {
+
             var tableArea = document.getElementById("dynamicContent");
             var tableTitle = document.createElement('p');
             tableTitle.setAttribute("id", "tableTitle")
@@ -471,6 +472,9 @@
         // add new order to data base when clicking savebtn at order form
         function onSubmit() {
 
+            
+            let timeOfOrder = new Date(Date.now());
+            NowDate = timeOfOrder.toISOString();
             let flightID = dataForTable[clickedOrderBtnIndex].id;
             let airportFrom = dataForTable[clickedOrderBtnIndex].flyFrom;
             let airportTo = dataForTable[clickedOrderBtnIndex].flyTo;
@@ -515,6 +519,7 @@
                 ClientName: $("#ClientName").val(),
                 Email: $("#EMail").val(),
                 FlightID: flightID,
+                TimeOfOrder: NowDate,
                 AirlineID: legs[0].airline,
                 airportFrom: airportFrom,
                 airportTo: airportTo,
@@ -612,7 +617,7 @@
 
 </head>
 
-<body onload="getAllAirportsAutoComplete()" >
+<body onload="getAllAirportsAutoComplete()"class="bg"  >
    
     <!--<div class="topnav">
         <a class="active" href="#home">Home</a>
@@ -652,7 +657,7 @@
     </nav>
 
 
-    <div class="container bg">
+    <div class="container">
         <!--Make sure the form has the autocomplete function switched off:-->
         <form autocomplete="off" action="/action_page.php" id="flightForm">
             <div class="form-group">
@@ -712,13 +717,17 @@
     <div id="NewOrderDiv">
         <form id="NewOrderForm">
             <div class="form-group row">
-                <div class="form-group col-sm-6">
+                <div class="form-group col-sm-4">
                     <label for="ClientName"><span class="red-star">★ </span>ClientName</label>
                     <input type="text" class="form-control" id="ClientName" placeholder="Enter full name" required>
                 </div>
-                <div class="form-group col-sm-6">
+                <div class="form-group col-sm-4">
                     <label for="EMail"><span class="red-star">★ </span>E- Mail</label>
                     <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
+                </div>
+                <div class="form-group col-sm-4">
+                    <label for="Agree to Terms"><span class="red-star">★ </span>Agree to Terms:</label>
+                    <input type="checkbox" class="form-control" id="Agree" required>                  
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>

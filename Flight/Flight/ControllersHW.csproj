@@ -194,6 +194,7 @@
     <Content Include="Global.asax" />
     <Content Include="Images\airport.jpg" />
     <Content Include="Images\Background.jpg" />
+    <Content Include="Images\Background2.jpg" />
     <Content Include="Images\giphy.gif" />
     <Content Include="PagesCSS\AutoComplete.css" />
     <Content Include="PagesCSS\NavigationBar.css" />
@@ -201,7 +202,6 @@
     <Content Include="PagesCSS\ResponsiveTable.css" />
     <Content Include="PagesCSS\Test.css" />
     <Content Include="Pages\AirportsTest.html" />
-    <Content Include="Pages\edit - class Ex solution.html" />
     <Content Include="Pages\index.html" />
     <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />

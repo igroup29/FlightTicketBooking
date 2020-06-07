@@ -28,10 +28,6 @@
 
 
 
-
-</head>
-<body>
-
     <script>
         var AlreadyCalledDiscount = 0;
         var AlreadyCalledOrders = 0;
@@ -74,7 +70,7 @@
                 $("#DiscountForm").hide();
                 $("#newBTN").hide();
                 $("#editDiv").hide();
-               
+
 
 
                 if (AlreadyCalledOrders == 0) {
@@ -122,7 +118,7 @@
             Orders = OrdersData; // keep the cars array in a global variable;
             try {
                 OrderTbl = $('#OrdersTable').DataTable({
-                    
+
                     data: OrdersData,
                     pageLength: 9,
                     columns: [
@@ -138,6 +134,7 @@
                         },
                         { data: "ClientName" },
                         { data: "Email" },
+                        { data: "TimeOfOrder" },
                         { data: "AirportFrom" },
                         { data: "AirportTo" },
                         { data: "AirlineID" },
@@ -181,6 +178,7 @@
             order = getOrderId(OrderId);
             $("#Passenger").val(order.Name);
             $("#Email").val(order.Email);
+            $("#TimeOfOrder").val(order.TimeOfOrder);
             $("#FromOrder").val(order.AirportFrom);
             $("#ToOrder").val(order.AirportTo);
             $("#AirlineNameOrder").val(order.AirlineName);
@@ -230,7 +228,7 @@
             Discounts = DiscountsData; // keep the cars array in a global variable;
             try {
                 tbl = $('#DiscountTable').DataTable({
-                    data: DiscountsData,            
+                    data: DiscountsData,
                     pageLength: 7,
                     columns: [
                         {
@@ -251,7 +249,7 @@
                         { data: "DiscountEnd" },
                         { data: "AirlineDiscount" },
                     ],
-                     responsive:true
+                    responsive: true
                 });
                 new $.fn.dataTable.FixedHeader(tbl);
 
@@ -314,10 +312,10 @@
             if (mode == "edit") {
                 Id = discount.Id;
             }
-         
+
             let discountStart = new Date($("#DiscountStart").val()).toUTCString();
             let discountEnd = new Date($("#DiscountEnd").val()).toUTCString();
-          
+
             let dicountToSave = {
                 Id: Id,
                 AirlineName: $("#AirlineName").val(),
@@ -421,19 +419,19 @@
         }
 
     </script>
+   </head>
+   <body class="bg">
+        <div class="topnav">
+            <a class="active" href="index.html">Home</a>
+            <div class="login-container">
+                <label id="man">""</label>
+            </div>
+        </div>
 
-   
-    <div class="topnav">
-        <a class="active" href="index.html">Home</a>
-         <div class="login-container">
-           <label id="man">""</label>
-         </div>
-    </div>
 
-  
 
-    <div class="container">
-        
+        <div class="container">
+
             <div class="row">
                 <div class="col-sm-6 text-center">
                     <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
@@ -469,6 +467,7 @@
                             <th></th>
                             <th>Passenger</th>
                             <th>Email</th>
+                            <th>TimeOfOrder</th>
                             <th>From</th>
                             <th>To</th>
                             <th>AirlineName</th>
@@ -479,94 +478,98 @@
                     </thead>
                 </table>
             </form>
-       
-        <div id="ViewDiv">
-            <form id="OrderFlightsForm">
 
-                <div class="form-group row">
-                    <div class="form-group col-sm-6">
-                        <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
-                        <input type="text" class="form-control" id="Passenger" placeholder="Enter the Airline name" required>
-                    </div>
-                    <div class="form-group col-sm-6">
-                        <label for="Email"><span class="red-star">★ </span>Email</label>
-                        <input type="text" class="form-control" id="Email" placeholder="Enter From" required>
-                    </div>
-                </div>
+            <div id="ViewDiv">
+                <form id="OrderFlightsForm">
 
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                        <input type="text" class="form-control" id="AirlineNameOrder" placeholder="Enter the Airline name" required>
+                    <div class="form-group row">
+                        <div class="form-group col-sm-4">
+                            <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
+                            <input type="text" class="form-control" id="Passenger" placeholder="Enter the Airline name" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="Email"><span class="red-star">★ </span>Email</label>
+                            <input type="text" class="form-control" id="Email" placeholder="Enter From" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="TimeOfOrder"><span class="red-star">★ </span>TimeOfOrder</label>
+                            <input type="datetime-local" class="form-control" id="TimeOfOrder" placeholder="Enter From" required>
+                        </div>
                     </div>
-                    <div class="form-group col-sm-4">
-                        <label for="From"><span class="red-star">★ </span>From</label>
-                        <input type="text" class="form-control" id="FromOrder" placeholder="Enter From" required>
+
+                    <div class="form-group row">
+                        <div class="form-group col-sm-4">
+                            <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                            <input type="text" class="form-control" id="AirlineNameOrder" placeholder="Enter the Airline name" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="From"><span class="red-star">★ </span>From</label>
+                            <input type="text" class="form-control" id="FromOrder" placeholder="Enter From" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="To"><span class="red-star">★ </span>To</label>
+                            <input type="text" class="form-control" id="ToOrder" placeholder="Enter TO" required>
+                        </div>
                     </div>
-                    <div class="form-group col-sm-4">
-                        <label for="To"><span class="red-star">★ </span>To</label>
-                        <input type="text" class="form-control" id="ToOrder" placeholder="Enter TO" required>
-                    </div>
-                </div>
 
 
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
-                        <input type="datetime-local" class="form-control" id="DepartureTimeOrder" placeholder="Enter the Departure Time" required>
+                    <div class="form-group row">
+                        <div class="form-group col-sm-4">
+                            <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
+                            <input type="datetime-local" class="form-control" id="DepartureTimeOrder" placeholder="Enter the Departure Time" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
+                            <input type="datetime-local" class="form-control" id="ArrivalTimeOrder" placeholder="Enter the Arrival Time" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="Price"><span class="red-star">★ </span>Price</label>
+                            <input type="text" class="form-control" id="PriceOrder" />
+                        </div>
                     </div>
-                    <div class="form-group col-sm-4">
-                        <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
-                        <input type="datetime-local" class="form-control" id="ArrivalTimeOrder" placeholder="Enter the Arrival Time" required>
+                    <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
+                </form>
+            </div>
+
+
+            <div id="editDiv">
+                <form id="DiscountFlightForm">
+                    <div class="form-group row">
+                        <div class="form-group col-sm-4">
+                            <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                            <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="From"><span class="red-star">★ </span>From</label>
+                            <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="To"><span class="red-star">★ </span>To</label>
+                            <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
+                        </div>
                     </div>
-                    <div class="form-group col-sm-4">
-                        <label for="Price"><span class="red-star">★ </span>Price</label>
-                        <input type="text" class="form-control" id="PriceOrder" />
+
+
+                    <div class="form-group row">
+                        <div class="form-group col-sm-4">
+                            <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
+                            <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Departure Time" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
+                            <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Arrival Time" required>
+                        </div>
+                        <div class="form-group col-sm-4">
+                            <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
+                            <input type="text" class="form-control" id="AirlineDiscount" checked />
+                        </div>
                     </div>
-                </div>
-                <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
-            </form>
+
+                    <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+                    <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
+                </form>
+            </div>
+
         </div>
-
-
-        <div id="editDiv">
-            <form id="DiscountFlightForm">
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                        <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="From"><span class="red-star">★ </span>From</label>
-                        <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="To"><span class="red-star">★ </span>To</label>
-                        <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
-                    </div>
-                </div>
-
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
-                        <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Departure Time" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
-                        <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Arrival Time" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
-                        <input type="text" class="form-control" id="AirlineDiscount" checked />
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
-                <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
-            </form>
-        </div>
-
-    </div>
-</body>
+    </body>
 </html>

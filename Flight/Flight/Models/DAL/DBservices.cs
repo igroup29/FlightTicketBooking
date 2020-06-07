@@ -194,6 +194,7 @@ public class DBservices
                 order.OrderID = Convert.ToInt32(dr["OrderID"]);
                 order.ClientName = (string)dr["ClientName"];
                 order.Email = (string)dr["EMail"];
+                order.TimeOfOrder = Convert.ToDateTime(dr["TimeOfOrder"]);
                 order.FlightID = (string)dr["FlightID"];
                 order.AirlineID = (string)dr["AirlineName"];
                 order.AirportFrom = (string)dr["AirportFrom"];
@@ -483,8 +484,8 @@ public class DBservices
         StringBuilder sb = new StringBuilder();
         // use a string builder to create the dynamic string
         string format = "yyyy-MM-dd HH:mm:ss";
-        sb.AppendFormat("Values('{0}','{1}','{2}', '{3}','{4}','{5}', {6}, '{7}', '{8}' ,'{9}')",flight.ClientName,flight.Email, flight.FlightID,flight.AirlineID ,flight.AirportFrom, flight.AirportTo, flight.Price.ToString(), flight.Duration, flight.Departure.ToString(format),flight.Arrival.ToString(format));
-        String prefix = "INSERT INTO MyFlights_CS " + "(ClientName,EMail,FlightID,AirlineID,AirportFrom,AirportTo,Price,Duration,Departure,Arrival)";
+        sb.AppendFormat("Values('{0}','{1}','{2}','{3}','{4}','{5}','{6}', {7}, '{8}', '{9}' ,'{10}')",flight.ClientName,flight.Email,flight.TimeOfOrder.ToString(format), flight.FlightID,flight.AirlineID ,flight.AirportFrom, flight.AirportTo, flight.Price.ToString(), flight.Duration, flight.Departure.ToString(format),flight.Arrival.ToString(format));
+        String prefix = "INSERT INTO MyFlights_CS " + "(ClientName,EMail,TimeOfOrder,FlightID,AirlineID,AirportFrom,AirportTo,Price,Duration,Departure,Arrival)";
         command = prefix + sb.ToString();
 
         return command;

@@ -10,6 +10,7 @@ namespace ClassEX3.Models
         private int orderID;
         private string clientName;
         private string email;
+        private DateTime timeOfOrder;
         private string flightID;
         private string airlineID;
         private string airportFrom;
@@ -29,11 +30,12 @@ namespace ClassEX3.Models
 
         }
 
-        public Flights(int orderID, string name, string email, string flightID, string airlineID, string airportFrom, string airportTo, double price, string duration, DateTime departure, DateTime arrival, Leg[] legs)
+        public Flights(int orderID, string name, string email, DateTime timeOfOrder, string flightID, string airlineID, string airportFrom, string airportTo, double price, string duration, DateTime departure, DateTime arrival, Leg[] legs)
         {
             OrderID = orderID;
             ClientName = name;
             Email = email;
+            TimeOfOrder = timeOfOrder;
             FlightID = flightID;
             AirlineID = airlineID;
             AirportFrom = airportFrom;
@@ -56,7 +58,7 @@ namespace ClassEX3.Models
         public DateTime Departure { get => departure; set => departure = value; }
         public DateTime Arrival { get => arrival; set => arrival = value; }
         public Leg[] Legs { get => legs; set => legs = value; }
-       
+        public DateTime TimeOfOrder { get => timeOfOrder; set => timeOfOrder = value; }
 
         public int InsertFlight()
         {
