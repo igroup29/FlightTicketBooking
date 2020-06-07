@@ -14,6 +14,10 @@
     <link href="../PagesCSS/Test.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 
     <script>
         var dataForTable;
@@ -32,7 +36,7 @@
             $("#upload").hide();
 
             // once the document is ready we fetch a list of Discounts from the server
-             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
+            ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
 
             // wire the submit event when client press save order
             $("#NewOrderForm").submit(onSubmit);
@@ -102,7 +106,7 @@
         /////////////////////////////////////////////////////////////////////
         function DiscountsSuccess(DiscountsData) {
             //we'll use this to check if one of the flights is on sale
-             DiscountsFromManager = DiscountsData;
+            DiscountsFromManager = DiscountsData;
         }
 
         function DiscountsError(err) {
@@ -236,7 +240,7 @@
         function createAirportsList(object) {
             var arr = [];
             for (var k in object.locations) {
-                arr.push(object.locations[k].city.name + "(" + object.locations[k].id+")");
+                arr.push(object.locations[k].city.name + "(" + object.locations[k].id + ")");
             }
             return arr;
         }
@@ -291,13 +295,13 @@
 
 
         function compare_dates(FlightDeparture, DiscountStart, DiscountEnd) {
-            if (FlightDeparture > DiscountStart && FlightDeparture < DiscountEnd) return (true);       
+            if (FlightDeparture > DiscountStart && FlightDeparture < DiscountEnd) return (true);
             else return (false);
         }
 
         function CheckIfOnSale(i) {
-             
-            let Flightindex = i;             
+
+            let Flightindex = i;
             let DiscountStart = new Date(0);
             let DiscountEnd = new Date(0);
             let departure = new Date(0);
@@ -310,12 +314,11 @@
                 DiscountStart = (DiscountsFromManager[j].DiscountStart);
                 DiscountEnd = (DiscountsFromManager[j].DiscountEnd);
 
-                if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd))
-                {
+                if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd)) {
                     return true;
-                }          
+                }
             }
-            return false;        
+            return false;
         }
 
         //Dynamically create a table and render the search results we have.
@@ -345,18 +348,18 @@
                         row.appendChild(document.createElement('td'));//Add column to the row
                         //Check (j==7) if we are at the "order" feature so we can add a button.
 
-                            if (j == 7) {
-                                row.cells[j].appendChild(getDataForApiTable(i, headers[j], OnSale));
-                            }
-                            else {
-                                row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j], OnSale)));
+                        if (j == 7) {
+                            row.cells[j].appendChild(getDataForApiTable(i, headers[j], OnSale));
+                        }
+                        else {
+                            row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j], OnSale)));
 
-                                if (j == 6 && OnSale) {
-                                    row.cells[j].style.color = "Red";
-                                    
-                                }
+                            if (j == 6 && OnSale) {
+                                row.cells[j].style.color = "Red";
+
                             }
-                        
+                        }
+
                     }
                     table.appendChild(row);
                     Onsale = false;
@@ -389,7 +392,7 @@
         function getDataForApiTable(set, feature, OnSale) {
 
             if (feature == "cityFrom")//Origin
-            {             
+            {
                 return dataForTable[set][feature];
             }
             if (feature == "cityTo")//Destination
@@ -407,9 +410,9 @@
             }
             if (feature == "dTimeUTC")//Departure Time
             {
-                
+
                 let dep = new Date(0);//
-                dep.setUTCSeconds(dataForTable[set][feature]);         
+                dep.setUTCSeconds(dataForTable[set][feature]);
                 return dep.toUTCString();
             }
             if (feature == "aTimeUTC")//Arrival Time
@@ -428,10 +431,10 @@
 
                     return dataForTable[set][feature] + "EUR, Sale!!!";
                 }
-               
+
                 return dataForTable[set][feature] + " EUR";
             }
-           
+
             if (feature == "Order") {
                 let btn = document.createElement("button");
                 btn.setAttribute("id", "tableBtn" + (set + 1));
@@ -527,7 +530,7 @@
         }
         //success and error behavior
         function successFlight(data) {
-            $("#NewOrderDiv").show();
+            $("#NewOrderDiv").hide();
             swal("Added Successfuly!", "Inserted Flight into Database", "success");
         }
         function ErrorFlight(err) {
@@ -604,21 +607,15 @@
         function postErrorCB(err) {
             alert(err.responseJSON.ExceptionMessage);
         }
-
-
-
-
-
-
     </script>
 
 </head>
 <body onload="getAllAirportsAutoComplete()">
-    <div class="topnav">
+   
+    <!--<div class="topnav">
         <a class="active" href="#home">Home</a>
         <div class="login-container">
             <form id="loginForm">
-               
                 <label> Manager Login: </label>
                 <div>
                     <input type="text" placeholder="Username" name="username" id="user" required>
@@ -627,73 +624,82 @@
                 </div>
             </form>
         </div>
+    </div>-->
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+        <a class="navbar-brand" href="#">ManagerLogin</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <form id="loginForm">
+            <div class="collapse navbar-collapse" id="collapsibleNavbar">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <input type="text" placeholder="Username" name="username" id="user" required>
+                    </li>
+                    <li class="nav-item">
+                        <input type="text" placeholder="Password" name="psw" id="pass" required>
+                    </li>
+                    <li class="nav-item">
+                        <button id="login" class="btn btn-primary" type="submit">Login</button>
+                    </li>
+                </ul>
+            </div>
+        </form>
+
+    </nav>
+
+
+    <div class="container bg">
+        <!--Make sure the form has the autocomplete function switched off:-->
+        <form autocomplete="off" action="/action_page.php" id="flightForm">
+            <div class="form-group">
+                <label for="origin">Origin:</label>
+                <div class="autocomplete">
+                    <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="destination">Destination:</label>
+                <div class="autocomplete">
+                    <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sDate">Start Date:</label>
+                <div>
+                    <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
+                </div>
+            </div>
+
+            <div class="form-group">
+
+                <label for="eDate">Ends Date:</label>
+                <div>
+                    <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
+                </div>
+            </div>
+
+            <div>
+
+                <button type="submit" class="MainBTN" id="searchBTN">Search</button>
+                <button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button>
+
+                <!--
+                    <div class="form-group col-sm-3">
+                        <button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button>
+                    </div>
+
+                    <div class="form-group col-sm-3">
+                        <button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button>
+                    </div>
+                -->
+            </div>
+        </form>
     </div>
 
-    <!--<div class="Wrapper">-->
-    <div>
-        <!--<div class="inputDiv">-->
-        <div class="container">
-            <!--Make sure the form has the autocomplete function switched off:-->
-            <form autocomplete="off" action="/action_page.php" id="flightForm">
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="origin">Origin</label>
-                    </div>
-                    <div class="autocomplete form-group col-sm-8">
-                        <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required>
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="destination">Destination</label>
-                    </div>
-
-                    <div class="autocomplete form-group col-sm-8">
-                        <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required>
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="sDate">Start Date</label>
-                    </div>
-                    <div class="form-group col-sm-8">
-                        <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="eDate">Ends Date</label>
-                    </div>
-
-                    <div class="form-group col-sm-8">
-                        <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-3">
-                        <button type="submit" class="MainBTN" id="searchBTN">Search</button>
-                    </div>
-
-                    <div class="form-group col-sm-3">
-                        <button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button>
-                    </div>
-                    <!--
-                        <div class="form-group col-sm-3">
-                            <button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button>
-                        </div>
-
-                        <div class="form-group col-sm-3">
-                            <button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button>
-                        </div>
-                    -->
-                </div>
-            </form>
-        </div>
-    </div>
     <div id="upload">
         <img src="../Images/giphy.gif" />
     </div>
@@ -713,10 +719,6 @@
                     <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
                 </div>
             </div>
-            <!-- <div class="form-group col-sm-3">
-            <label for="LastName"><span class="red-star">★ </span>LastName</label>
-            <input type="text" class="form-control" id="LastName" placeholder="Enter Last name" required>
-             </div>-->
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
             <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>
