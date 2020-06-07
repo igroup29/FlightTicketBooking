@@ -457,7 +457,7 @@
             index = parseInt(index);
             index--;
             clickedOrderBtnIndex = index;
-            clearFields();
+            //clearFields();
             $("#dynamicContent").hide();
             $("#NewOrderDiv").show();
 
@@ -532,12 +532,30 @@
 
 
             ajaxCall("POST", "../api/Flights", JSON.stringify(OrderObject), successFlight, ErrorFlight);
+
             return false;
         }
         //success and error behavior
         function successFlight(data) {
             $("#NewOrderDiv").hide();
-            swal("Added Successfuly!", "Inserted Flight into Database", "success");
+            //swal("Added Successfuly!", "Inserted Flight into Database", "success");
+            swal({ // this will open a dialouge
+                title: "Inserted Flight into Database!!",
+                text: "Inserted Flight into Database",
+                icon: "success",
+                confirm: true,
+                
+            })
+                .then(function (BtnClicked) {
+                    if (BtnClicked) window.location.reload();
+                    else window.location.reload();
+                });
+               
+           
+           
+
+       
+           
         }
         function ErrorFlight(err) {
             console.log(err);
