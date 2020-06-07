@@ -226,7 +226,6 @@
             ajaxCall("GET", airports, "", successAP, errorAP);
         }
         function successAP(data) {
-            console.log(data);
             allAirportsData = data;
             airportsNames = createAirportsList(data);
 

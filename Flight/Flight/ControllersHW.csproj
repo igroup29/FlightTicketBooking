@@ -201,7 +201,6 @@
     <Content Include="PagesCSS\StyleSheet1.css" />
     <Content Include="PagesCSS\ResponsiveTable.css" />
     <Content Include="PagesCSS\Test.css" />
-    <Content Include="Pages\AirportsTest.html" />
     <Content Include="Pages\index.html" />
     <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />
