@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Manager API</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
 
@@ -143,7 +144,7 @@
                     responsive: true,
                 });
                 buttonEventsOrder();
-              //  new $.fn.dataTable.FixedHeader(OrderTbl);
+                //  new $.fn.dataTable.FixedHeader(OrderTbl);
                 $("#OrdersForm").show();
 
             }
@@ -162,7 +163,7 @@
                 $("#ViewDiv").show();
                 row.className = 'selected';
                 $("#ViewDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-               // $("#cancelOrder").atrr("disabled", "enabled");
+                // $("#cancelOrder").atrr("disabled", "enabled");
                 populateFieldsOrder(this.getAttribute('data-orderId'));
             });
         }
@@ -185,7 +186,7 @@
             $("#ArrivalTimeOrder").val(order.Arrival);
             $("#PriceOrder").val(order.Price);
         }
-       
+
         function getOrderId(id) {
             for (i in Orders) {
                 if (Orders[i].OrderID == id)
@@ -196,7 +197,7 @@
 
         // success callback function after update
         function AlreadyOrderSuccess(ordersData) {
-         //   OrderTbl.clear();
+            //   OrderTbl.clear();
             redrawTable(OrderTbl, ordersData);
             buttonEventsOrder();
             $("#OrdersForm").show();
@@ -251,7 +252,7 @@
                     ],
                     responsive: true
                 });
-               // new $.fn.dataTable.FixedHeader(tbl);
+                // new $.fn.dataTable.FixedHeader(tbl);
 
                 buttonEvents();
             }
@@ -419,157 +420,162 @@
         }
 
     </script>
-   </head>
-   <body class="bg">
-        <div class="topnav">
-            <a class="active" href="index.html">Home</a>
-            <div class="login-container">
-                <label id="man">""</label>
+</head>
+<body class="bg">
+
+    <!--OLD NAVIGATION BAR-->
+    <!--<div class="topnav">
+        <a class="active" href="index.html">Home</a>
+        <div class="login-container">
+            <label id="man">""</label>
+        </div>
+    </div>-->
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+        <a class="navbar-brand" href="index.html">HOME</a>     
+        <label id="man" style="color:white">""</label>
+    </nav>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-6 text-center">
+                <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+            </div>
+            <div class="col-sm-6 text-center">
+                <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
             </div>
         </div>
 
+        <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
+        <form id="DiscountForm">
+            <table id="DiscountTable" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>AirlineName</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>DiscountStart</th>
+                        <th>DiscountEnd</th>
+                        <th>AirlineDiscount</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
 
+        <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
+        <!--Hide it at first only when Manager clicks Orders render the table and show it-->
+        <form id="OrdersForm">
+            <table id="OrdersTable" class="display nowrap " style=" width:100% ">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Passenger</th>
+                        <th>Email</th>
+                        <th>TimeOfOrder</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>AirlineName</th>
+                        <th>DepartureTime</th>
+                        <th>ArrivalTime</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
 
-        <div class="container">
+        <div id="ViewDiv">
+            <form id="OrderFlightsForm">
 
-            <div class="row">
-                <div class="col-sm-6 text-center">
-                    <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
+                        <input type="text" class="form-control" id="Passenger" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Email"><span class="red-star">★ </span>Email</label>
+                        <input type="text" class="form-control" id="Email" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="TimeOfOrder"><span class="red-star">★ </span>TimeOfOrder</label>
+                        <input type="datetime-local" class="form-control" id="TimeOfOrder" required>
+                    </div>
                 </div>
-                <div class="col-sm-6 text-center">
-                    <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                        <input type="text" class="form-control" id="AirlineNameOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="From"><span class="red-star">★ </span>From</label>
+                        <input type="text" class="form-control" id="FromOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="To"><span class="red-star">★ </span>To</label>
+                        <input type="text" class="form-control" id="ToOrder" required>
+                    </div>
                 </div>
-            </div>
 
-            <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
-            <form id="DiscountForm">
-                <table id="DiscountTable" class="display nowrap" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>AirlineName</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>DiscountStart</th>
-                            <th>DiscountEnd</th>
-                            <th>AirlineDiscount</th>
-                        </tr>
-                    </thead>
-                </table>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
+                        <input type="datetime-local" class="form-control" id="DepartureTimeOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
+                        <input type="datetime-local" class="form-control" id="ArrivalTimeOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Price"><span class="red-star">★ </span>Price</label>
+                        <input type="text" class="form-control" id="PriceOrder" required />
+                    </div>
+                </div>
+                <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
             </form>
-
-            <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
-            <!--Hide it at first only when Manager clicks Orders render the table and show it-->
-            <form id="OrdersForm">
-                <table id="OrdersTable" class="display nowrap " style=" width:100% ">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Passenger</th>
-                            <th>Email</th>
-                            <th>TimeOfOrder</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>AirlineName</th>
-                            <th>DepartureTime</th>
-                            <th>ArrivalTime</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                </table>
-            </form>
-
-            <div id="ViewDiv">
-                <form id="OrderFlightsForm">
-
-                    <div class="form-group row">
-                        <div class="form-group col-sm-4">
-                            <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
-                            <input type="text" class="form-control" id="Passenger"  required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="Email"><span class="red-star">★ </span>Email</label>
-                            <input type="text" class="form-control" id="Email"  required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="TimeOfOrder"><span class="red-star">★ </span>TimeOfOrder</label>
-                            <input type="datetime-local" class="form-control" id="TimeOfOrder" required>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="form-group col-sm-4">
-                            <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                            <input type="text" class="form-control" id="AirlineNameOrder"  required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="From"><span class="red-star">★ </span>From</label>
-                            <input type="text" class="form-control" id="FromOrder" required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="To"><span class="red-star">★ </span>To</label>
-                            <input type="text" class="form-control" id="ToOrder" required>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group row">
-                        <div class="form-group col-sm-4">
-                            <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
-                            <input type="datetime-local" class="form-control" id="DepartureTimeOrder"  required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
-                            <input type="datetime-local" class="form-control" id="ArrivalTimeOrder"  required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="Price"><span class="red-star">★ </span>Price</label>
-                            <input type="text" class="form-control" id="PriceOrder"  required />
-                        </div>
-                    </div>
-                    <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
-                </form>
-            </div>
-
-
-            <div id="editDiv">
-                <form id="DiscountFlightForm">
-                    <div class="form-group row">
-                        <div class="form-group col-sm-4">
-                            <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                            <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="From"><span class="red-star">★ </span>From</label>
-                            <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="To"><span class="red-star">★ </span>To</label>
-                            <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
-                        </div>
-                    </div>
-
-
-                    <div class="form-group row">
-                        <div class="form-group col-sm-4">
-                            <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
-                            <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Discount Start" required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
-                            <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Discount End" required>
-                        </div>
-                        <div class="form-group col-sm-4">
-                            <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
-                            <input type="text" class="form-control" id="AirlineDiscount" checked />
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
-                    <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
-                </form>
-            </div>
-
         </div>
-    </body>
+
+
+        <div id="editDiv">
+            <form id="DiscountFlightForm">
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                        <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="From"><span class="red-star">★ </span>From</label>
+                        <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="To"><span class="red-star">★ </span>To</label>
+                        <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
+                        <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Discount Start" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
+                        <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Discount End" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
+                        <input type="text" class="form-control" id="AirlineDiscount" checked />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+                <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
+            </form>
+        </div>
+
+    </div>
+</body>
 </html>
