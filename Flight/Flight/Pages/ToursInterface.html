@@ -1,0 +1,581 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Manager API</title>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.5/css/responsive.dataTables.min.css">
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="../Scripts/FlightsAutoComplete.js"></script>
+    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
+    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
+    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src=" https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src=" https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
+    <script src=" https://cdn.datatables.net/responsive/2.2.5/js/responsive.bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/fixedheader/3.1.7/js/dataTables.fixedHeader.min.js"></script>
+
+
+
+    <script>
+        var AlreadyCalledDiscount = 0;
+        var AlreadyCalledOrders = 0;
+
+
+        // will run when the document is ready
+        $(document).ready(function () {
+
+            //Name of manager that logged in is shown in nav bar.
+            var man = JSON.parse(localStorage.getItem('man'));
+            document.getElementById("man").innerHTML = "Welcome " + man.username;
+            mode = "";
+
+            //First hide all the tables
+            $("#DiscountForm").hide();
+            $("#OrdersForm").hide();
+            $("#editDiv").hide();
+            $("#ViewDiv").hide();
+            $("#newBTN").hide();
+
+
+            $("#getDiscountBtn").click(function () {
+
+                $("#OrdersForm").hide();
+                $("#ViewDiv").hide();
+                $("#newBTN").show();
+                $("#DiscountForm").show();
+
+                if (AlreadyCalledDiscount == 0) {
+                    ajaxCall("GET", "../api/Discount", "", getDisSuccess, DisError);
+                    AlreadyCalledDiscount++;
+                }
+                else {
+                    ajaxCall("GET", "../api/Discount", "", AlreadyDisSuccess, AlreadyDisError);
+                }
+            });
+
+            $("#GetOrderBtn").click(function () {
+
+                $("#DiscountForm").hide();
+                $("#newBTN").hide();
+                $("#editDiv").hide();
+
+                if (AlreadyCalledOrders == 0) {
+                    ajaxCall("GET", "../api/Manager", "", getOrderSuccess, orderError);
+                    AlreadyCalledOrders++;
+                }
+                else {
+                    ajaxCall("GET", "../api/Manager", "", AlreadyOrderSuccess, AlreadyOrderError);
+                }
+            });
+
+            $("#cancelSaveBTN").on("click", function () {
+                discount = null;
+                $("#editDiv").hide();
+                if (mode == "new") $("#DiscountForm").show();
+                mode = "";
+            });
+
+            $("#cancelOrder").on("click", function () {
+                order = null;
+                $("#ViewtDiv").hide();
+                $("#OrdersForm").show();
+
+            });
+
+            $("#newBTN").on("click", function () {
+                discount = null;
+                mode = "new";
+                $("#DiscountForm").hide();
+                $("#editDiv").show();
+                clearFields();
+                $("#editDiv :input").prop("disabled", false); // new mode: enable all controls in the form
+            });
+
+            $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
+
+        });
+        //load gif
+        function uploadGif() {
+
+        }
+
+        // this  is activated in case of a success
+        function getOrderSuccess(OrdersData) {
+            Orders = OrdersData; // keep the cars array in a global variable;
+            try {
+                OrderTbl = $('#OrdersTable').DataTable({
+
+                    data: OrdersData,
+                    pageLength: 9,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataOrder = "data-orderId='" + row.OrderID + "'";
+
+                                viewBtnOrder = "<button type='button' class = 'viewBtnOrder btn btn-info' " + dataOrder + "> View </button>";
+
+                                return viewBtnOrder;
+                            },
+                            data: null
+                        },
+                        { data: "ClientName" },
+                        { data: "Email" },
+                        { data: "TimeOfOrder" },
+                        { data: "AirportFrom" },
+                        { data: "AirportTo" },
+                        { data: "AirlineID" },
+                        { data: "Departure" },
+                        { data: "Arrival" },
+                        { data: "Price" },
+                    ],
+                    responsive: true,
+                });
+                buttonEventsOrder();
+                //  new $.fn.dataTable.FixedHeader(OrderTbl);
+                $("#OrdersForm").show();
+
+            }
+            catch (err) {
+                alert(err);
+            }
+
+        }
+        // this function is activated in case of a failure
+        function orderError(err) {
+            swal("Error: " + err);
+        }
+        function buttonEventsOrder() {
+            $(document).on("click", ".viewBtnOrder", function () {
+                markSelectedOrder(this);
+                $("#ViewDiv").show();
+                row.className = 'selected';
+                $("#ViewDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                // $("#cancelOrder").atrr("disabled", "enabled");
+                populateFieldsOrder(this.getAttribute('data-orderId'));
+            });
+        }
+
+        function markSelectedOrder(btn) {
+            $("#OrdersTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
+            row = (btn.parentNode).parentNode; // button is in TD which is in Row
+            row.className = 'selected'; // mark as selected
+        }
+        // fill the form fields
+        function populateFieldsOrder(OrderId) {
+            order = getOrderId(OrderId);
+            $("#Passenger").val(order.ClientName);
+            $("#Email").val(order.Email);
+            $("#TimeOfOrder").val(order.TimeOfOrder);
+            $("#FromOrder").val(order.AirportFrom);
+            $("#ToOrder").val(order.AirportTo);
+            $("#AirlineNameOrder").val(order.AirlineID);
+            $("#DepartureTimeOrder").val(order.Departure);
+            $("#ArrivalTimeOrder").val(order.Arrival);
+            $("#PriceOrder").val(order.Price);
+        }
+
+        function getOrderId(id) {
+            for (i in Orders) {
+                if (Orders[i].OrderID == id)
+                    return Orders[i];
+            }
+            return null;
+        }
+
+        // success callback function after update
+        function AlreadyOrderSuccess(ordersData) {
+            //   OrderTbl.clear();
+            redrawTable(OrderTbl, ordersData);
+            buttonEventsOrder();
+            $("#OrdersForm").show();
+        }
+        // this function is activated in case of a failure
+        function AlreadyOrderError(err) {
+            swal("Error: " + err);
+        }
+
+
+
+        //////////////////////////////////////////
+        //////////////////////////////////////////
+
+
+        // success callback function after update
+        function AlreadyDisSuccess(discountData) {
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents();
+        }
+        // this function is activated in case of a failure
+        function AlreadyDisError(err) {
+            swal("Error: " + err);
+        }
+
+        // this function is activated in case of a success
+        function getDisSuccess(DiscountsData) {
+            Discounts = DiscountsData; // keep the cars array in a global variable;
+            try {
+                tbl = $('#DiscountTable').DataTable({
+                    data: DiscountsData,
+                    pageLength: 7,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataDiscount = "data-discountId='" + row.Id + "'";
+
+                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataDiscount + "> Edit </button>";
+                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataDiscount + "> View </button>";
+                                deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataDiscount + "> Delete </button>";
+                                return editBtn + viewBtn + deleteBtn;
+                            },
+                            data: null
+                        },
+                        { data: "AirlineName" },
+                        { data: "From" },
+                        { data: "To" },
+                        { data: "DiscountStart" },
+                        { data: "DiscountEnd" },
+                        { data: "AirlineDiscount" },
+                    ],
+                    responsive: true
+                });
+                // new $.fn.dataTable.FixedHeader(tbl);
+
+                buttonEvents();
+            }
+            catch (err) {
+                alert(err);
+            }
+
+        }
+
+        // this function is activated in case of a failure
+        function DisError(err) {
+            swal("Error: " + err);
+        }
+
+        // success callback function after update
+        function updateSuccess(discountData) {
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Updated Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // success callback function after update
+        function insertSuccess(discountData) {
+            $("#DiscountForm").show();
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Inserted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // success callback function after delete
+        function deleteSuccess(discountData) {
+            tbl.clear();
+            redrawTable(tbl, discountData);
+            buttonEvents(); // after redrawing the table, we must wire the new buttons
+            $("#editDiv").hide();
+            swal("Deleted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+
+        // redraw a datatable with new data
+        function redrawTable(tbl, data) {
+            tbl.clear();
+            for (var i = 0; i < data.length; i++) {
+                tbl.row.add(data[i]);
+            }
+            tbl.draw();
+        }
+
+        function onSubmitFunc() {
+
+            var Id = -1;
+            if (mode == "edit") {
+                Id = discount.Id;
+            }
+
+            let discountStart = new Date($("#DiscountStart").val()).toUTCString();
+            let discountEnd = new Date($("#DiscountEnd").val()).toUTCString();
+
+            let dicountToSave = {
+                Id: Id,
+                AirlineName: $("#AirlineName").val(),
+                From: $("#From").val(),//Origin
+                To: $("#To").val(),
+                DiscountStart: discountStart,
+                DiscountEnd: discountEnd,
+                AirlineDiscount: $("#AirlineDiscount").val(),
+            }
+
+            // add a new Car record to the server
+            if (mode == "edit")
+                ajaxCall("PUT", "../api/Discount", JSON.stringify(dicountToSave), updateSuccess, error);
+            else if (mode == "new")
+                ajaxCall("POST", "../api/Discount", JSON.stringify(dicountToSave), insertSuccess, error);
+            return false;
+        }
+
+        // wire all the buttons to their functions
+        function buttonEvents() {
+
+            $(document).on("click", ".editBtn", function () {
+                mode = "edit";
+                markSelected(this);
+                $("#editDiv").show();
+                $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
+                populateFields(this.getAttribute('data-discountId')); // fill the form fields according to the selected row
+            });
+
+            $(document).on("click", ".viewBtn", function () {
+                mode = "view";
+                markSelected(this);
+                $("#editDiv").show();
+                row.className = 'selected';
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                populateFields(this.getAttribute('data-discountId'));
+            });
+
+            $(document).on("click", ".deleteBtn", function () {
+                mode = "delete";
+                markSelected(this);
+                var discountId = this.getAttribute('data-discountId');
+                discountDel = getDiscountId(discountId);
+                swal({ // this will open a dialouge
+                    title: "Are you sure ??",
+                    text: "",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true
+                })
+                    .then(function (willDelete) {
+                        if (willDelete) DeleteDiscount(discountDel);
+                        else swal("Not Deleted!");
+                    });
+            });
+        }
+
+        // Delete a car from the server
+        function DeleteDiscount(discountDel) {
+            ajaxCall("DELETE", "../api/Discount/", JSON.stringify(discountDel), deleteSuccess, error);
+        }
+        function error(err) {
+            swal("Error: " + err);
+        }
+
+        // mark the selected row
+        function markSelected(btn) {
+            $("#DiscountTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
+            row = (btn.parentNode).parentNode; // button is in TD which is in Row
+            row.className = 'selected'; // mark as selected
+        }
+
+        // fill the form fields
+        function clearFields() {
+            $("#AirlineName").val("");
+            $("#From").val("");
+            $("#To").val("");
+            $("#DiscountStart").val("");
+            $("#DiscountEnd").val("");
+            $("#AirlineDiscount").val("");
+        }
+
+        // fill the form fields
+        function populateFields(DiscountId) {
+            discount = getDiscountId(DiscountId);
+            $("#AirlineName").val(discount.AirlineName);
+            $("#From").val(discount.From);
+            $("#To").val(discount.To);
+            $("#DiscountStart").val(discount.DiscountStart);
+            $("#DiscountEnd").val(discount.DiscountEnd);
+            $("#AirlineDiscount").val(discount.AirlineDiscount);
+        }
+
+        // get a car according to its Id
+        function getDiscountId(id) {
+            for (i in Discounts) {
+                if (Discounts[i].Id == id)
+                    return Discounts[i];
+            }
+            return null;
+        }
+
+    </script>
+</head>
+<body class="bg">
+
+    <!--OLD NAVIGATION BAR-->
+    <!--<div class="topnav">
+        <a class="active" href="index.html">Home</a>
+        <div class="login-container">
+            <label id="man">""</label>
+        </div>
+    </div>-->
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+        <a class="navbar-brand" href="index.html">HOME</a>     
+        <label id="man" style="color:white">""</label>
+    </nav>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-6 text-center">
+                <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+            </div>
+            <div class="col-sm-6 text-center">
+                <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
+            </div>
+        </div>
+
+        <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
+        <form id="DiscountForm">
+            <table id="DiscountTable" class="display nowrap" style="width:100%">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>AirlineName</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>DiscountStart</th>
+                        <th>DiscountEnd</th>
+                        <th>AirlineDiscount</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
+
+        <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
+        <!--Hide it at first only when Manager clicks Orders render the table and show it-->
+        <form id="OrdersForm">
+            <table id="OrdersTable" class="display nowrap " style=" width:100% ">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Passenger</th>
+                        <th>Email</th>
+                        <th>TimeOfOrder</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>AirlineName</th>
+                        <th>DepartureTime</th>
+                        <th>ArrivalTime</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+            </table>
+        </form>
+
+        <div id="ViewDiv">
+            <form id="OrderFlightsForm">
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
+                        <input type="text" class="form-control" id="Passenger" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Email"><span class="red-star">★ </span>Email</label>
+                        <input type="text" class="form-control" id="Email" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="TimeOfOrder"><span class="red-star">★ </span>TimeOfOrder</label>
+                        <input type="datetime-local" class="form-control" id="TimeOfOrder" required>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                        <input type="text" class="form-control" id="AirlineNameOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="From"><span class="red-star">★ </span>From</label>
+                        <input type="text" class="form-control" id="FromOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="To"><span class="red-star">★ </span>To</label>
+                        <input type="text" class="form-control" id="ToOrder" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
+                        <input type="datetime-local" class="form-control" id="DepartureTimeOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
+                        <input type="datetime-local" class="form-control" id="ArrivalTimeOrder" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="Price"><span class="red-star">★ </span>Price</label>
+                        <input type="text" class="form-control" id="PriceOrder" required />
+                    </div>
+                </div>
+                <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
+            </form>
+        </div>
+
+
+        <div id="editDiv">
+            <form id="DiscountFlightForm">
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
+                        <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="From"><span class="red-star">★ </span>From</label>
+                        <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="To"><span class="red-star">★ </span>To</label>
+                        <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="form-group col-sm-4">
+                        <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
+                        <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Discount Start" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
+                        <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Discount End" required>
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
+                        <input type="text" class="form-control" id="AirlineDiscount" checked />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+                <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
+            </form>
+        </div>
+
+    </div>
+</body>
+</html>
