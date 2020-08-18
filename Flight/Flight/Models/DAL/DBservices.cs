@@ -602,9 +602,9 @@ public class DBservices
 
         StringBuilder sb = new StringBuilder();
         // use a string builder to create the dynamic string
-        string format = "yyyy-MM-dd HH:mm:ss";
-        sb.AppendFormat("Values('{0}',{1},'{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}',{10},'{11}','{12}','{13}','{14}','{15}')", leg.LegID, leg.LegNum.ToString(), leg.FlightID, leg.Flight_no.ToString(), leg.AirportFrom, leg.AirportTo, leg.Duration, leg.Departure.ToString(format), leg.Arrival.ToString(format), leg.AirlineID);
-        String prefix = "INSERT INTO Leg_CS " + "(LegID,LegNum,FlightID,Flight_no,AirportFrom, AirportTo,Duration,Departure,Arrival,AirlineID) ";
+       
+        sb.AppendFormat("Values('{0}','{1}','{2}','{3}',{4},{5},'{6}','{7}','{8}','{9}','{10}',{11})", tour.City, tour.TourID, tour.TourName,tour.TourCategory,tour.PlaceCategory,tour.Score.ToString(),tour.Price.ToString(),tour.Currency,tour.Image,tour.Description,tour.Duration,tour.Transportation.ToString());
+        String prefix = "INSERT INTO Leg_CS " + "(TourCity,TourID,TourName,TourCategory,PlaceCategory,Score, Price,Currency,TourImage,TourDescription,Duration,Transportation) ";
         command = prefix + sb.ToString();
 
         return command;
