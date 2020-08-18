@@ -551,7 +551,7 @@ public class DBservices
         return command;
     }
     //Insert LegMethod
-    public int insertTour(Tours tour)
+    public int InsertTour(Tours tour)
     {
 
         SqlConnection con;
