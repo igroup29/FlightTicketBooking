@@ -54,8 +54,62 @@ public class DBservices
         return cmd;
     }
 
+    public int deleteSelectedTour(int id)
+    {
 
-   
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("DBConnectionString"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        String cStr = BuildDeleteCommandDiscounts(id);      // helper method to build the insert string
+
+        cmd = CreateCommand(cStr, con);             // create the command
+
+        try
+        {
+            int numEffected = cmd.ExecuteNonQuery(); // execute the command
+            return numEffected;
+        }
+        catch (Exception ex)
+        {
+            return 0;
+            //Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
+    //--------------------------------------------------------------------
+    // Build the Delete Command String
+    //--------------------------------------------------------------------
+    private String BuildDeleteCommandTours(int id)
+    {
+        String command;
+        StringBuilder sb = new StringBuilder();
+        // use a string builder to create the dynamic string
+        String prefix = "Delete From Tours_CS WHERE id = '" + id + "'";
+        command = prefix;
+
+        return command;
+    }
+
     public int deleteSelectedDiscount(int id)
     {
 
@@ -99,7 +153,7 @@ public class DBservices
 
     }
     //--------------------------------------------------------------------
-    // Build the Insert command String
+    // Build the Delete Command String
     //--------------------------------------------------------------------
     private String BuildDeleteCommandDiscounts(int id)
     {
@@ -269,7 +323,87 @@ public class DBservices
         }
     }
 
+    //getTours
+    public List<Tours> getTours()
+    {
+        List<Tours> ToursList = new List<Tours>();
+        SqlConnection con = null;
 
+        try
+        {
+            con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
+
+            String selectSTR = "SELECT * FROM Tours_CS";
+            SqlCommand cmd = new SqlCommand(selectSTR, con);
+
+            // get a reader
+            SqlDataReader dr = cmd.ExecuteReader(CommandBehavior.CloseConnection); // CommandBehavior.CloseConnection: the connection will be closed after reading has reached the end
+
+            while (dr.Read())
+            {   // Read till the end of the data into a row
+                Tours tour = new Tours();
+
+                tour.Id = Convert.ToInt32(dr["id"]);
+                tour.City = (string)dr["City"];
+                tour.TourID = (string)dr["TourID"];
+                tour.TourCategory = (string)dr["TourCategory"];
+                tour.PlaceCategory = (string)dr["PlaceCategory"];
+                tour.Score = Convert.ToDouble(dr["Score"]);
+                tour.Description = (string)dr["TourDescription"];
+                tour.Duration = (string)dr["Duration"];
+                tour.Transportation = Convert.ToInt32(dr["Transportation"]);
+                tour.Price = Convert.ToDouble(dr["Price"]);
+                tour.Currency = (string)dr["Currency"];
+                tour.Image = (string)dr["ToursImage"];
+                ToursList.Add(tour);
+            }
+
+            return ToursList;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        finally
+        {
+            if (con != null)
+            {
+                con.Close();
+            }
+
+        }
+    }
+    //
+    public DBservices readTour()
+    {
+        SqlConnection con = null;
+        try
+        {
+            con = connect("DBConnectionString");
+            da = new SqlDataAdapter("select * from Tours_CS", con);
+            SqlCommandBuilder builder = new SqlCommandBuilder(da);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            dt = ds.Tables[0];
+        }
+
+        catch (Exception ex)
+        {
+            // write errors to log file
+            // try to handle the error
+            throw ex;
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                con.Close();
+            }
+        }
+        return this;
+    }
     //
     public DBservices readDiscounts()
     {
@@ -550,7 +684,7 @@ public class DBservices
 
         return command;
     }
-    //Insert LegMethod
+    //Insert TourMethod
     public int InsertTour(Tours tour)
     {
 
