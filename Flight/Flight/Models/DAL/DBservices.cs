@@ -550,6 +550,65 @@ public class DBservices
 
         return command;
     }
+    //Insert LegMethod
+    public int insertTour(Tours tour)
+    {
+
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("DBConnectionString"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        String cStr = BuildInsertCommandLegs(tour);      // helper method to build the insert string
+
+        cmd = CreateCommand(cStr, con);             // create the command
+
+        try
+        {
+            int numEffected = cmd.ExecuteNonQuery(); // execute the command
+            return numEffected;
+        }
+        catch (Exception ex)
+        {
+            return 0;
+            //  Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
+    //--------------------------------------------------------------------
+    // Build the Insert command String
+    //--------------------------------------------------------------------
+    private String BuildInsertCommandLegs(Tours tour)
+    {
+        String command;
+
+        StringBuilder sb = new StringBuilder();
+        // use a string builder to create the dynamic string
+        string format = "yyyy-MM-dd HH:mm:ss";
+        sb.AppendFormat("Values('{0}',{1},'{2}',{3},'{4}','{5}','{6}','{7}','{8}','{9}',{10},'{11}','{12}','{13}','{14}','{15}')", leg.LegID, leg.LegNum.ToString(), leg.FlightID, leg.Flight_no.ToString(), leg.AirportFrom, leg.AirportTo, leg.Duration, leg.Departure.ToString(format), leg.Arrival.ToString(format), leg.AirlineID);
+        String prefix = "INSERT INTO Leg_CS " + "(LegID,LegNum,FlightID,Flight_no,AirportFrom, AirportTo,Duration,Departure,Arrival,AirlineID) ";
+        command = prefix + sb.ToString();
+
+        return command;
+    }
 
     //---------------------------------------------------------------------------------
     // Read Loans using a DataSet

@@ -32,25 +32,30 @@
     <script>
         var AlreadyCalledDiscount = 0;
         var AlreadyCalledOrders = 0;
-
-
+        var apiCounter = 0;
+        var EatingOut = "", SightSeeing = "", Tours = "";
+        var allAirportsData, airportsNames;
         // will run when the document is ready
         $(document).ready(function () {
 
             //Name of manager that logged in is shown in nav bar.
-            var man = JSON.parse(localStorage.getItem('man'));
-            document.getElementById("man").innerHTML = "Welcome " + man.username;
-            mode = "";
+            //var man = JSON.parse(localStorage.getItem('man'));
+            //document.getElementById("man").innerHTML = "Welcome " + man.username;
+            //mode = "";
+
+            //wire the submit event when client press search
+            $("#SearchForm").submit(getTours);
 
             //First hide all the tables
-            $("#DiscountForm").hide();
+            $("#ToursDBForm").hide();
             $("#OrdersForm").hide();
             $("#editDiv").hide();
             $("#ViewDiv").hide();
             $("#newBTN").hide();
+            $("#SearchForm").hide();
 
-
-            $("#getDiscountBtn").click(function () {
+            $("#getToursBtn").click(function () {
+              
 
                 $("#OrdersForm").hide();
                 $("#ViewDiv").hide();
@@ -98,7 +103,8 @@
             $("#newBTN").on("click", function () {
                 discount = null;
                 mode = "new";
-                $("#DiscountForm").hide();
+                $("#ToursDBForm").hide();
+                $("#SearchForm").show();
                 $("#editDiv").show();
                 clearFields();
                 $("#editDiv :input").prop("disabled", false); // new mode: enable all controls in the form
@@ -107,11 +113,47 @@
             $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
 
         });
-        //load gif
-        function uploadGif() {
 
+        //GET (AjaxCall) from the skypicker api server using the values we input
+        function getTours() {
+            let destination = $("#CountryTB").val();
+            
+            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10" 
+            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10" 
+            let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10"; 
+
+            
+            ajaxCall("GET", apiEatingOut, "", successEating, errorCBF);
+            ajaxCall("GET", apiSightseeing, "", successSight, errorCBF);
+            ajaxCall("GET", apiTours, "", successTours, errorCBF);
+
+            return false;
         }
 
+        function successEating(eating) {
+            EatingOut = eating;
+            apiCounter++;
+            if (apiCounter == 3)
+                SlideShow();
+        }
+
+        function successSight(sight) {
+            SightSeeing = sight;
+            apiCounter++;
+            if (apiCounter == 3)
+                SlideShow();
+        }
+
+        function successTours(tours) {
+            Tours = tours;
+            apiCounter++;
+            if (apiCounter == 3)
+                SlideShow();
+        }
+
+        function SlideShow() {
+
+        }
         // this  is activated in case of a success
         function getOrderSuccess(OrdersData) {
             Orders = OrdersData; // keep the cars array in a global variable;
@@ -378,6 +420,7 @@
         function DeleteDiscount(discountDel) {
             ajaxCall("DELETE", "../api/Discount/", JSON.stringify(discountDel), deleteSuccess, error);
         }
+
         function error(err) {
             swal("Error: " + err);
         }
@@ -418,23 +461,45 @@
             }
             return null;
         }
+        
+        ///Airports AutoComplete Section
+        ////////////////////////////////////////////////////
 
+        function getAllAirportsAutoComplete() {
+
+            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
+            ajaxCall("GET", airports, "", successAP, errorAP);
+        }
+        function successAP(data) {
+            allAirportsData = data;
+            airportsNames = createAirportsList(data);
+
+            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+            autocomplete(document.getElementById("CityTB"), airportsNames);
+        }
+        function errorAP(err) {
+            console.log(err.responseJSON.ExceptionMessage);
+        }
+        function createAirportsList(object)
+        {
+            var arr = [];
+            for (var k in object.locations)
+            {
+                if (!arr.includes(object.locations[k].city.name))
+                    arr.push(object.locations[k].city.name);
+            }
+            return arr;
+        }
     </script>
 </head>
-<body class="bg">
+<body onload="getAllAirportsAutoComplete()"class="bg">
 
-    <!--OLD NAVIGATION BAR-->
-    <!--<div class="topnav">
-        <a class="active" href="index.html">Home</a>
-        <div class="login-container">
-            <label id="man">""</label>
-        </div>
-    </div>-->
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
-        <a class="navbar-brand" href="index.html">HOME</a>     
+        <a class="navbar-brand" href="index.html">HOME</a>
         <label id="man" style="color:white">""</label>
     </nav>
+
 
     <div class="container">
 
@@ -443,22 +508,49 @@
                 <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
             </div>
             <div class="col-sm-6 text-center">
-                <button type="button" class="MainBTN" id="getDiscountBtn">Get Discounts</button>
+                <button type="button" class="MainBTN" id="getToursBtn">Get Tours</button>
             </div>
         </div>
 
         <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
-        <form id="DiscountForm">
+
+        <!--Make sure the form has the autocomplete function switched off:-->
+        <form autocomplete="off" action="/action_page.php" id="SearchForm">
+            <div class="form-group">
+                <label for="City">City:</label>
+                <div class="autocomplete">
+                    <input type="text" class="form-control" id="CityTB" name="City" placeholder="EnterCity" required>
+                </div>
+            </div>
+
+
+            <div>
+
+                <button type="submit" class="MainBTN" id="searchBTN">Search</button>
+
+            </div>
+        </form>
+    </div>
+        <form id="ToursDBForm">
             <table id="DiscountTable" class="display nowrap" style="width:100%">
                 <thead>
                     <tr>
                         <th></th>
-                        <th>AirlineName</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>DiscountStart</th>
-                        <th>DiscountEnd</th>
-                        <th>AirlineDiscount</th>
+                        <th>City</th>
+                        <th>TourID</th>
+                        <th>TourName</th>
+                        <th>TourCategory</th>
+                        <th>PlaceCategory</th>
+                        <th>Score</th>
+                        <th>Description</th>
+                        <th>Duration</th>
+                        <th>OpenFrom</th>
+                        <th>ClosedAt</th>
+                        <th>WorkingDays</th>
+                        <th>Transportation</th>
+                        <th>Price</th>
+                        <th>Currency</th>
+                        <th>Image</th>
                     </tr>
                 </thead>
             </table>
