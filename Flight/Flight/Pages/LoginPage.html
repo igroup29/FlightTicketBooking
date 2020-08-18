@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <!-- Login CSS -->
+    <link href="../PagesCSS/LoginPage.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="../Scripts/ajaxCalls.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+
+            // wire the submit event when manager wish to login
+            $("#modalLoginForm").submit(LoginCheck);
+        });
+
+
+        function LoginCheck() {
+            var user = $("#user").val();
+            var pass = $("#pass").val();
+
+            manager = {
+                username: user,
+                password: pass
+            }
+            ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
+            return false;
+        }
+
+        function successLogin(data) {
+            if (data) {
+                alert("LogIn Success");
+
+                manager = {
+                    username: data.Username,
+                    password: data.Password
+                }
+                localStorage.setItem('man', JSON.stringify(manager));
+
+
+                window.location.replace("ManagerInterface.html");
+
+            }
+            else {
+                alert("Failed");
+            }
+        }
+
+        function errorLogin(err) {
+            alert("unauthorized User Information")
+        }
+
+
+    </script>
+
+</head>
+
+
+<body class="bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <h1>What would you like to do?</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <a href="../Pages/index.html"><input class="btn btn-primary" type="button" value="Search Flight" /></a>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <a href="" data-toggle="modal" data-target="#modalLoginForm"><input class="btn btn-primary" type="button" value="Login" /></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal Form (Hidden) -->
+    <form class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Sign in </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+]                    <div class="modal-body mx-3">
+                         <div class="md-form mb-5">
+                             <label data-error="wrong" data-success="right" for="defaultForm-email">Your UserName</label>
+                             <input type="text" placeholder="Username" name="username" id="user" required>
+                         </div>
+
+                        <div class="md-form mb-4">
+                            <label data-error="wrong" data-success="right" for="defaultForm-pass">Your Password</label>
+                            <input type="text" placeholder="Password" name="psw" id="pass" required>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <!-- <button class="btn btn-default">Login</button>-->
+                        <button id="login" class="btn btn-primary" type="submit">Login</button>
+                    </div>
+]            </div>
+        </div>
+    </form>
+
+</body>
+</html>

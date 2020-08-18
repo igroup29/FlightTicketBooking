@@ -8,13 +8,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="../Scripts/FlightsAutoComplete.js"></script>
-    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
+    <link href="../PagesCSS/Index.css" rel="stylesheet" />
     <link href="../PagesCSS/ResponsiveTable.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
-    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
-    <link href="../PagesCSS/Test.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
+
+    <!--<link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />-->
+    <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -28,14 +31,13 @@
         var clickedOrderBtnIndex;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
         var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
-
         //buttons function binding
         $(document).ready(function () {
 
             //First hide all the tables
             $("#NewOrderDiv").hide();
-            $("#upload").hide();
-           
+            $("#loadingGif").hide();
+
             // once the document is ready we fetch a list of Discounts from the server
             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
 
@@ -46,6 +48,8 @@
             $("#flightForm").submit(getFlight);
             //wire the click event when client press myFlights
             $("#myFlightsBTN").click(getMyFlights);
+            $("#switchBTN").click(switchInputs);
+
             //wire get airports button behavior
             $("#getAirportsBTN").click(function () {
                 alert("getAirports was clicked,Please wait a few seconds until recieve a message");
@@ -58,8 +62,9 @@
                 GetAirlines();
                 $(this).slideUp();
             });
+
             // wire the submit event when manager wish to login
-            $("#loginForm").submit(LoginCheck);
+            // $("#loginForm").submit(LoginCheck);
 
             //
             $("#cancelSaveBTN").click(function () {
@@ -67,40 +72,7 @@
                 $("#dynamicContent").show();
             });
         });
-
-        function LoginCheck() {
-            var user = $("#user").val();
-            var pass = $("#pass").val();
-            manager = {
-                username: user,
-                password: pass
-            }
-            ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
-            return false;
-        }
-        function successLogin(data) {
-            if (data) {
-                alert("LogIn Success");
-
-                manager = {
-                    username: data.Username,
-                    password: data.Password
-                }
-                localStorage.setItem('man', JSON.stringify(manager));
-
-
-                window.location.replace("ManagerInterface.html");
-
-            }
-            else {
-                alert("Failed");
-            }
-        }
-        function errorLogin(err) {
-            alert("unauthorized User Information")
-        }
-
-
+    
 
         var DiscountsFromManager;
         //Handling the discountsList we fetched from the database
@@ -114,9 +86,6 @@
 
             alert(err);
         }
-
-
-
 
         //Inserting Airlines to database
         ////////////////////////////////////////////////
@@ -162,17 +131,23 @@
             alert("error");
         }
 
+        //Inserting Airports to database
+        function switchInputs() {
+            let from = $("#originTB").val();
+            let To = $("#destinationTB").val();
 
-
+            $("#originTB").val(To);
+            $("#destinationTB").val(from);
+        }
 
         //Inserting Airports to database
         ///////////////////////////////////////////////////////////
-
         function GetAirports() {
             getAllAirports();
             return false; // the return false will prevent the form from being submitted
             // hence the page will not reload
         }
+
 
         function getAllAirports() {
 
@@ -214,9 +189,6 @@
         }
 
 
-
-
-
         ///Airports AutoComplete Section
         ////////////////////////////////////////////////////
 
@@ -254,11 +226,16 @@
         function clearSearch() {
             $("#originTB").val("");
             $("#destinationTB").val("");
-            $("#startDateTB").val()
-            $("#endDateTB").val()
+            $("#startDateTB").val();
+            $("#endDateTB").val();
+            $("#loadingGif").hide();
+
         }
         //GET (AjaxCall) from the skypicker api server using the values we input
         function getFlight() {
+
+            $("#loadingGif").show();
+
             let originIndex = airportsNames.indexOf($("#originTB").val());
             let origin = allAirportsData.locations[originIndex].id;
             let destinationIndex = airportsNames.indexOf($("#destinationTB").val());
@@ -277,6 +254,9 @@
         }
 
         function successCBF(data) {
+
+            $("#loadingGif").hide();
+
             console.log(data);
             document.getElementById("dynamicContent").innerHTML = "";
             if (tableType == 0) {
@@ -365,7 +345,6 @@
 
                             }
                         }
-
                     }
                     table.appendChild(row);
                     Onsale = false;
@@ -475,8 +454,6 @@
         }
         // add new order to data base when clicking savebtn at order form
         function onSubmit() {
-
-            
             let timeOfOrder = new Date(Date.now());
             NowDate = timeOfOrder.toISOString();
             let flightID = dataForTable[clickedOrderBtnIndex].id;
@@ -548,18 +525,13 @@
                 text: "Inserted Flight into Database",
                 icon: "success",
                 confirm: true,
-                
+
             })
                 .then(function (BtnClicked) {
                     if (BtnClicked) window.location.reload();
                     else window.location.reload();
                 });
-               
-           
-           
 
-       
-           
         }
         function ErrorFlight(err) {
             console.log(err);
@@ -631,7 +603,6 @@
                 alert("You already ordered that! :)");
             }
         }
-
         function postErrorCB(err) {
             alert(err.responseJSON.ExceptionMessage);
         }
@@ -639,103 +610,73 @@
 
 </head>
 
-<body onload="getAllAirportsAutoComplete()"class="bg"  >
-   
-    <!--<div class="topnav">
-        <a class="active" href="#home">Home</a>
-        <div class="login-container">
-            <form id="loginForm">
-                <label> Manager Login: </label>
-                <div>
-                    <input type="text" placeholder="Username" name="username" id="user" required>
-                    <input type="text" placeholder="Password" name="psw" id="pass" required>
-                    <button id="login" type="submit">Login</button>
-                </div>
-            </form>
-        </div>
-    </div>-->
-
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
-        <a class="navbar-brand" href="#">ManagerLogin</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <form id="loginForm">
-            <div class="collapse navbar-collapse" id="collapsibleNavbar">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <input type="text" placeholder="Username" name="username" id="user" required>
-                    </li>
-                    <li class="nav-item">
-                        <input type="text" placeholder="Password" name="psw" id="pass" required>
-                    </li>
-                    <li class="nav-item">
-                        <button id="login" class="btn btn-primary" type="submit">Login</button>
-                    </li>
-                </ul>
-            </div>
-        </form>
-    </nav>
+<!--Class bg is for the background image-->
+<body onload="getAllAirportsAutoComplete()" class="bg">
 
 
+    <!--/////////////////////NEW Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
+
+    <!--/////////////////////END Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
+
+    <!--/////////////////////START NEW SEARCH\\\\\\\\\\\\\\\\\\\\\\-->
     <div class="container">
-        <!--Make sure the form has the autocomplete function switched off:-->
         <form autocomplete="off" action="/action_page.php" id="flightForm">
-            <div class="form-group">
-                <label for="origin">Origin:</label>
-                <div class="autocomplete">
-                    <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="FromAirport" required>
+            <div class="form-row justify-content-md-center">
+
+                <div class="form-group col-md-5 autocomplete">
+                    <!--We must add autocomplete-->
+                    <label for="origin" class="MainLabel">From</label>
+                    <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="From" required>
+                </div>
+                <div class="form-group col-md-2 text-center">
+                    <!--We must add autocomplete-->
+                    <label style="width:100%; min-height:18px;"></label>
+                    <button style="width:100px" type="button" class="btn btn-primary" id="switchBTN"><i class="fas fa-exchange-alt" style="font-size:20px;"></i></button>
+                </div>
+                <div class="form-group col-md-5 autocomplete">
+                    <label for="destination" class="MainLabel">To:</label>
+                    <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="To" required />
                 </div>
             </div>
+            <div class="form-row justify-content-md-center">
 
-            <div class="form-group">
-                <label for="destination">Destination:</label>
-                <div class="autocomplete">
-                    <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="ToAirport" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="sDate">Start Date:</label>
-                <div>
+                <div class="form-group col-md-5">
+                    <label for="sDate" class="MainLabel">Depart</label>
                     <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
                 </div>
-            </div>
 
-            <div class="form-group">
-
-                <label for="eDate">Ends Date:</label>
-                <div>
+                <div class="form-group col-md-5 offset-md-2">
+                    <!--We need offset to create an empty space in the middle-->
+                    <label for="eDate" class="MainLabel">Return</label>
                     <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
                 </div>
             </div>
-
-            <div>
-
-                <button type="submit" class="MainBTN" id="searchBTN">Search</button>
-                <button type="button" class="MainBTN" id="myFlightsBTN">MYFlights</button>
-
-                <!--
-                    <div class="form-group col-sm-3">
-                        <button type="button" class="MainBTN" id="getAirportsBTN">Get Airports</button>
-                    </div>
-
-                    <div class="form-group col-sm-3">
-                        <button type="button" class="MainBTN" id="getAirlinesBTN">Get Airlines</button>
-                    </div>
-                -->
+            <div class="form-row">
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary" id="searchBTN" style="font-size:x-large">Search Flights</button>
+                </div>
+                <div class="col-md-3">
+                    <input type="checkbox" id="NonStop" name="nonStop">
+                    <label for="vehicle1">Non-stop flights only</label>
+                </div>
             </div>
         </form>
     </div>
-
-    <div id="upload">
-        <img src="../Images/giphy.gif" />
+    <!--///////////////////////////END NEW SEARCH\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\-->
+    <!--We will be adding an uploadingGif for cool affects-->
+    <div id="loadingGif" class="text-center" style="display:none;">
+        <img src="../Images/PlaneGif4.gif" style="width:400px; height:300px;" />
     </div>
+
+    
+    <!--For the dynamic content [Tables]-->
     <div id="dynamicContent">
 
     </div>
 
-    <div id="NewOrderDiv">
+
+    <!--Hidden form, show only when the client is done choosing a flight-->
+    <div id="NewOrderDiv" style="display:none;">
         <form id="NewOrderForm">
             <div class="form-group row">
                 <div class="form-group col-sm-4">
@@ -748,7 +689,7 @@
                 </div>
                 <div class="form-group col-sm-4">
                     <label for="Agree to Terms"><span class="red-star">★ </span>Agree to Terms:</label>
-                    <input type="checkbox" class="form-control" id="Agree" required>                  
+                    <input type="checkbox" class="form-control" id="Agree" required>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>

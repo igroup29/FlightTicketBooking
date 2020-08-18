@@ -1,6 +1,21 @@
-﻿
+﻿body {
+
+    /*font: 90%/1.45em "Helvetica Neue", HelveticaNeue, Verdana, Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #fff;*/
+}
+
+
+
 button {
     margin-left: 10px;
+}
+
+.MainLabel {
+    font-size: 20px;
+    font-weight: bold;
 }
 
 .colorDiv {
@@ -13,53 +28,21 @@ button {
     background-color: blueviolet;
     margin-bottom: 10px;
 }
+
 #backBTN {
     background-color: blueviolet;
     margin-bottom: 10px;
 }
 
-.floatleft{
-
-    float:left;
+.floatleft {
+    float: left;
 }
 
-
-table {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-}
-td, th {
-    border: 1px solid #ddd;
-    padding: 8px;
-}   
-
-tr:nth-child(even) {
-    background-color: #fbfbfb;
-}
-tr:nth-child(odd) {
-    background-color: #f2f2f2;
+#searchTable {
+    float: left;
 }
 
-
-tr:hover {
-    background-color: #ddd;
-}
-
-th {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    text-align: left;
-    background-color: #4CAF50;
-    color: white;
-}
-
-#searchTable{
-    float:left;
-}
-
-
-input[type=date], input[type=text] {
+/*input[type=date], input[type=text] {
     width: 50%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -67,7 +50,8 @@ input[type=date], input[type=text] {
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
-}
+}*/
+
 
 .MainBTN {
     width: 50%;
@@ -80,37 +64,33 @@ input[type=date], input[type=text] {
     cursor: pointer;
 }
 
-    button:hover {
-        background-color: #45a049;
-    }
-
+button:hover {
+    background-color: #45a049;
+}
 
 .Wrapper {
     width: 100%;
-    display:flex;
+    display: flex;
 }
 
 .inputDiv {
-    width:100%;
-    float:left;
+    width: 100%;
+    float: left;
     border-radius: 5px;
     background-color: #f2f2f2;
     padding: 20px;
 }
 
-.imgDiv {
-    width: 60%;
-}
-
 #AirportID {
-
-    width:600px;
-    height:450px;
+    width: 600px;
+    height: 450px;
 }
+
 .btnHolder {
     float: left;
     width: 50%;
 }
+
 .ManagerBTN {
     width: inherit;
     background-color: #4CAF50;
@@ -122,15 +102,34 @@ input[type=date], input[type=text] {
     cursor: pointer;
 }
 
-
 .bg {
     /* The image used */
     background-image: url("../Images/Background.jpg");
     /*/* Half height */
-    height: 50%;
+    height: 100%;
     /* Center and scale the image nicely */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+}
+
+
+/*/*Responsive Table using CSS*/
+table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+}
+
+tr:nth-of-type(odd) {
+    background: #f2f2f2;
+}
+
+tr:nth-child(even) {
+    background-color: #D3D3D3;
+}
+
+table td:hover {
+    background-color: white;
+    opacity: 1.0;
 }
 
