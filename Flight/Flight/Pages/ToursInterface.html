@@ -6,21 +6,22 @@
     <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">-->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <!--<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>-->
 
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.7/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.5/css/responsive.dataTables.min.css">
     <script src="../Scripts/ajaxCalls.js"></script>
+    <!--<script src="../Scripts/AjaxCallsToursStubjs.js"></script>-->
     <script src="../Scripts/FlightsAutoComplete.js"></script>
-    <link href="../PagesCSS/StyleSheet1.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
-    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+    <link href="../PagesCSS/ManagerInterface.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/a  jax/libs/jquery/3.3.1/jquery.min.js"></script>-->
     <script src=" https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src=" https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.5/js/dataTables.responsive.min.js"></script>
@@ -29,274 +30,179 @@
 
 
 
+    
     <script>
         var AlreadyCalledDiscount = 0;
         var AlreadyCalledOrders = 0;
         var apiCounter = 0;
-        var EatingOut = "", SightSeeing = "", Tours = "";
+        var EatingOut = "", SightSeeing = "", ToursData = "";
+        var CityTour = "";
+        var ToursArr = [];
+
         var allAirportsData, airportsNames;
         // will run when the document is ready
         $(document).ready(function () {
 
             //Name of manager that logged in is shown in nav bar.
-            //var man = JSON.parse(localStorage.getItem('man'));
-            //document.getElementById("man").innerHTML = "Welcome " + man.username;
-            //mode = "";
+            var man = JSON.parse(localStorage.getItem('man'));
+            document.getElementById("man").innerHTML = man.username;
+            mode = "";
 
-            //wire the submit event when client press search
+            //wire the submit event when Manager press search
             $("#SearchForm").submit(getTours);
-
-            //First hide all the tables
-            $("#ToursDBForm").hide();
-            $("#OrdersForm").hide();
-            $("#editDiv").hide();
-            $("#ViewDiv").hide();
-            $("#newBTN").hide();
-            $("#SearchForm").hide();
-
-            $("#getToursBtn").click(function () {
-              
-
-                $("#OrdersForm").hide();
-                $("#ViewDiv").hide();
-                $("#newBTN").show();
-                $("#DiscountForm").show();
-
-                if (AlreadyCalledDiscount == 0) {
-                    ajaxCall("GET", "../api/Discount", "", getDisSuccess, DisError);
-                    AlreadyCalledDiscount++;
-                }
-                else {
-                    ajaxCall("GET", "../api/Discount", "", AlreadyDisSuccess, AlreadyDisError);
-                }
-            });
-
-            $("#GetOrderBtn").click(function () {
-
-                $("#DiscountForm").hide();
-                $("#newBTN").hide();
-                $("#editDiv").hide();
-
-                if (AlreadyCalledOrders == 0) {
-                    ajaxCall("GET", "../api/Manager", "", getOrderSuccess, orderError);
-                    AlreadyCalledOrders++;
-                }
-                else {
-                    ajaxCall("GET", "../api/Manager", "", AlreadyOrderSuccess, AlreadyOrderError);
-                }
+            $("#ToursFormEDIT").submit(InsertToDatabase);
+            
+            $("#newBTN").on("click", function () {
+                $("#ToursForm").hide();
+                tour = null;
+                mode = "new";
+                $("#SearchForm").show();
             });
 
             $("#cancelSaveBTN").on("click", function () {
-                discount = null;
+                tour = null;
                 $("#editDiv").hide();
-                if (mode == "new") $("#DiscountForm").show();
+                if (mode == "new") $("#ToursForm").show();
                 mode = "";
             });
 
-            $("#cancelOrder").on("click", function () {
-                order = null;
-                $("#ViewtDiv").hide();
-                $("#OrdersForm").show();
 
-            });
-
-            $("#newBTN").on("click", function () {
-                discount = null;
-                mode = "new";
-                $("#ToursDBForm").hide();
-                $("#SearchForm").show();
-                $("#editDiv").show();
-                clearFields();
-                $("#editDiv :input").prop("disabled", false); // new mode: enable all controls in the form
-            });
-
-            $("#DiscountFlightForm").submit(onSubmitFunc); // wire the submit event to a function called f1
 
         });
+        //Insert selected Tour to DataBase
+        function InsertToDatabase() {
+
+         
+        }
 
         //GET (AjaxCall) from the skypicker api server using the values we input
         function getTours() {
-            let destination = $("#CountryTB").val();
-            
-            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10" 
-            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10" 
-            let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10"; 
 
-            
-            ajaxCall("GET", apiEatingOut, "", successEating, errorCBF);
-            ajaxCall("GET", apiSightseeing, "", successSight, errorCBF);
-            ajaxCall("GET", apiTours, "", successTours, errorCBF);
+            let destination = $("#CitySearch").val();
+            CityTour = destination;
+            destination = destination.replace(/ /g, "_");
 
+
+            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=sightseeing&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10&fields=id,name,score,price,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j";
+
+            $.get(apiTours).done(successTours);
+            $.get(apiTours).fail(errorCBF);
+            $.get(apiSightseeing).done(successSight);
+            $.get(apiSightseeing).fail(errorCBF);
+            $.get(apiEatingOut).done(successEating);
+            $.get(apiEatingOut).fail(errorCBF);
             return false;
+        }
+      
+        // this function is activated in case of a failure
+        function errorCBF(err) {
+            swal("Error: " + err);
         }
 
         function successEating(eating) {
+             
             EatingOut = eating;
             apiCounter++;
-            if (apiCounter == 3)
-                SlideShow();
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
         }
 
         function successSight(sight) {
+
             SightSeeing = sight;
             apiCounter++;
-            if (apiCounter == 3)
-                SlideShow();
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
         }
 
         function successTours(tours) {
-            Tours = tours;
+
+            ToursData = tours;
             apiCounter++;
-            if (apiCounter == 3)
-                SlideShow();
+
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
         }
 
-        function SlideShow() {
 
+        function PrepareJson() {
+
+            $("#SearchForm").hide();
+
+            JsonLoop(ToursData.results,"Tour");
+            JsonLoop(SightSeeing.results,"SightSeeing");
+            JsonLoop(EatingOut.results,"EatingOut");      
+            buildTable(ToursArr);            
         }
-        // this  is activated in case of a success
-        function getOrderSuccess(OrdersData) {
-            Orders = OrdersData; // keep the cars array in a global variable;
+
+        function JsonLoop(JsonData,Mode) {
+            console.log(JsonData);
+
+            if (Mode == "EatingOut" || Mode=="SightSeeing") {
+
+                for (var k in JsonData) {
+                    eating = {
+                        TourID: JsonData[k].id,
+                        Name: JsonData[k].name,
+                        Score: JsonData[k].score,
+                        Price: "0",
+                        Intro: JsonData[k].intro,
+                        City: CityTour,
+                    };
+                    ToursArr.push(eating);
+                }
+            }
+            else {
+                for (var k in JsonData) {
+                    Tour = {
+                        TourID: JsonData[k].id,
+                        Name: JsonData[k].name,
+                        Score: JsonData[k].score,
+                        Price: JsonData[k].price.amount,
+                        Intro: JsonData[k].intro,
+                        City: CityTour,
+                    };
+                    ToursArr.push(Tour);
+                }
+            }           
+        }
+
+        // SuccessFunction - Build a TourTable based on 
+        function buildTable(Data) {
+            NewTours = Data; // 
+
             try {
-                OrderTbl = $('#OrdersTable').DataTable({
-
-                    data: OrdersData,
-                    pageLength: 9,
-                    columns: [
-                        {
-                            render: function (data, type, row, meta) {
-                                let dataOrder = "data-orderId='" + row.OrderID + "'";
-
-                                viewBtnOrder = "<button type='button' class = 'viewBtnOrder btn btn-info' " + dataOrder + "> View </button>";
-
-                                return viewBtnOrder;
-                            },
-                            data: null
-                        },
-                        { data: "ClientName" },
-                        { data: "Email" },
-                        { data: "TimeOfOrder" },
-                        { data: "AirportFrom" },
-                        { data: "AirportTo" },
-                        { data: "AirlineID" },
-                        { data: "Departure" },
-                        { data: "Arrival" },
-                        { data: "Price" },
-                    ],
+                tbl = $('#ToursTable').DataTable({
+                    data: NewTours,
                     responsive: true,
-                });
-                buttonEventsOrder();
-                //  new $.fn.dataTable.FixedHeader(OrderTbl);
-                $("#OrdersForm").show();
-
-            }
-            catch (err) {
-                alert(err);
-            }
-
-        }
-        // this function is activated in case of a failure
-        function orderError(err) {
-            swal("Error: " + err);
-        }
-        function buttonEventsOrder() {
-            $(document).on("click", ".viewBtnOrder", function () {
-                markSelectedOrder(this);
-                $("#ViewDiv").show();
-                row.className = 'selected';
-                $("#ViewDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                // $("#cancelOrder").atrr("disabled", "enabled");
-                populateFieldsOrder(this.getAttribute('data-orderId'));
-            });
-        }
-
-        function markSelectedOrder(btn) {
-            $("#OrdersTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
-            row = (btn.parentNode).parentNode; // button is in TD which is in Row
-            row.className = 'selected'; // mark as selected
-        }
-        // fill the form fields
-        function populateFieldsOrder(OrderId) {
-            order = getOrderId(OrderId);
-            $("#Passenger").val(order.ClientName);
-            $("#Email").val(order.Email);
-            $("#TimeOfOrder").val(order.TimeOfOrder);
-            $("#FromOrder").val(order.AirportFrom);
-            $("#ToOrder").val(order.AirportTo);
-            $("#AirlineNameOrder").val(order.AirlineID);
-            $("#DepartureTimeOrder").val(order.Departure);
-            $("#ArrivalTimeOrder").val(order.Arrival);
-            $("#PriceOrder").val(order.Price);
-        }
-
-        function getOrderId(id) {
-            for (i in Orders) {
-                if (Orders[i].OrderID == id)
-                    return Orders[i];
-            }
-            return null;
-        }
-
-        // success callback function after update
-        function AlreadyOrderSuccess(ordersData) {
-            //   OrderTbl.clear();
-            redrawTable(OrderTbl, ordersData);
-            buttonEventsOrder();
-            $("#OrdersForm").show();
-        }
-        // this function is activated in case of a failure
-        function AlreadyOrderError(err) {
-            swal("Error: " + err);
-        }
-
-
-
-        //////////////////////////////////////////
-        //////////////////////////////////////////
-
-
-        // success callback function after update
-        function AlreadyDisSuccess(discountData) {
-            tbl.clear();
-            redrawTable(tbl, discountData);
-            buttonEvents();
-        }
-        // this function is activated in case of a failure
-        function AlreadyDisError(err) {
-            swal("Error: " + err);
-        }
-
-        // this function is activated in case of a success
-        function getDisSuccess(DiscountsData) {
-            Discounts = DiscountsData; // keep the cars array in a global variable;
-            try {
-                tbl = $('#DiscountTable').DataTable({
-                    data: DiscountsData,
-                    pageLength: 7,
                     columns: [
                         {
                             render: function (data, type, row, meta) {
-                                let dataDiscount = "data-discountId='" + row.Id + "'";
+                                let dataTours = "data-tourId='" + row.TourID + "'";
 
-                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataDiscount + "> Edit </button>";
-                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataDiscount + "> View </button>";
-                                deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataDiscount + "> Delete </button>";
-                                return editBtn + viewBtn + deleteBtn;
+                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataTours + "> Edit </button>";
+                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataTours + "> View </button>";
+                                return editBtn + viewBtn;
                             },
-                            data: null
-                        },
-                        { data: "AirlineName" },
-                        { data: "From" },
-                        { data: "To" },
-                        { data: "DiscountStart" },
-                        { data: "DiscountEnd" },
-                        { data: "AirlineDiscount" },
-                    ],
-                    responsive: true
-                });
-                // new $.fn.dataTable.FixedHeader(tbl);
 
+                            data: null,
+                            className: "details-control"
+                        },
+                        { data: "Name" },
+                        { data: "Score" },
+                        { data: "Price" },
+                        { data: "Intro" },
+
+                    ]
+                });
+                //new $.fn.dataTable.FixedHeader(tbl);
                 buttonEvents();
+                $("#ToursForm").show();
             }
             catch (err) {
                 alert(err);
@@ -308,75 +214,6 @@
         function DisError(err) {
             swal("Error: " + err);
         }
-
-        // success callback function after update
-        function updateSuccess(discountData) {
-            tbl.clear();
-            redrawTable(tbl, discountData);
-            buttonEvents();
-            $("#editDiv").hide();
-            swal("Updated Successfuly!", "Great Job", "success");
-            mode = "";
-        }
-
-        // success callback function after update
-        function insertSuccess(discountData) {
-            $("#DiscountForm").show();
-            tbl.clear();
-            redrawTable(tbl, discountData);
-            buttonEvents();
-            $("#editDiv").hide();
-            swal("Inserted Successfuly!", "Great Job", "success");
-            mode = "";
-        }
-
-        // success callback function after delete
-        function deleteSuccess(discountData) {
-            tbl.clear();
-            redrawTable(tbl, discountData);
-            buttonEvents(); // after redrawing the table, we must wire the new buttons
-            $("#editDiv").hide();
-            swal("Deleted Successfuly!", "Great Job", "success");
-            mode = "";
-        }
-
-        // redraw a datatable with new data
-        function redrawTable(tbl, data) {
-            tbl.clear();
-            for (var i = 0; i < data.length; i++) {
-                tbl.row.add(data[i]);
-            }
-            tbl.draw();
-        }
-
-        function onSubmitFunc() {
-
-            var Id = -1;
-            if (mode == "edit") {
-                Id = discount.Id;
-            }
-
-            let discountStart = new Date($("#DiscountStart").val()).toUTCString();
-            let discountEnd = new Date($("#DiscountEnd").val()).toUTCString();
-
-            let dicountToSave = {
-                Id: Id,
-                AirlineName: $("#AirlineName").val(),
-                From: $("#From").val(),//Origin
-                To: $("#To").val(),
-                DiscountStart: discountStart,
-                DiscountEnd: discountEnd,
-                AirlineDiscount: $("#AirlineDiscount").val(),
-            }
-
-            // add a new Car record to the server
-            if (mode == "edit")
-                ajaxCall("PUT", "../api/Discount", JSON.stringify(dicountToSave), updateSuccess, error);
-            else if (mode == "new")
-                ajaxCall("POST", "../api/Discount", JSON.stringify(dicountToSave), insertSuccess, error);
-            return false;
-        }
-
         // wire all the buttons to their functions
         function buttonEvents() {
 
@@ -385,7 +222,7 @@
                 markSelected(this);
                 $("#editDiv").show();
                 $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
-                populateFields(this.getAttribute('data-discountId')); // fill the form fields according to the selected row
+                populateFields(this.getAttribute('data-tourId')); // fill the form fields according to the selected row
             });
 
             $(document).on("click", ".viewBtn", function () {
@@ -394,74 +231,47 @@
                 $("#editDiv").show();
                 row.className = 'selected';
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                populateFields(this.getAttribute('data-discountId'));
+                $("#Image").attr("disabled", false);
+                $("#Currency").attr("disabled", false);
+                $("#Category").attr("disabled", false);
+                $("#Duration").attr("disabled", false);
+                $("#Transportaion").attr("disabled", false);
+                $("#saveBTN").attr("disabled", false);
+                $("#cancelSaveBTN").attr("disabled", false);
+
+                populateFields(this.getAttribute('data-tourId'));
             });
-
-            $(document).on("click", ".deleteBtn", function () {
-                mode = "delete";
-                markSelected(this);
-                var discountId = this.getAttribute('data-discountId');
-                discountDel = getDiscountId(discountId);
-                swal({ // this will open a dialouge
-                    title: "Are you sure ??",
-                    text: "",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true
-                })
-                    .then(function (willDelete) {
-                        if (willDelete) DeleteDiscount(discountDel);
-                        else swal("Not Deleted!");
-                    });
-            });
-        }
-
-        // Delete a car from the server
-        function DeleteDiscount(discountDel) {
-            ajaxCall("DELETE", "../api/Discount/", JSON.stringify(discountDel), deleteSuccess, error);
-        }
-
-        function error(err) {
-            swal("Error: " + err);
+      
         }
 
         // mark the selected row
         function markSelected(btn) {
-            $("#DiscountTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
+            $("#ToursTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
             row = (btn.parentNode).parentNode; // button is in TD which is in Row
             row.className = 'selected'; // mark as selected
         }
 
-        // fill the form fields
-        function clearFields() {
-            $("#AirlineName").val("");
-            $("#From").val("");
-            $("#To").val("");
-            $("#DiscountStart").val("");
-            $("#DiscountEnd").val("");
-            $("#AirlineDiscount").val("");
-        }
 
         // fill the form fields
-        function populateFields(DiscountId) {
-            discount = getDiscountId(DiscountId);
-            $("#AirlineName").val(discount.AirlineName);
-            $("#From").val(discount.From);
-            $("#To").val(discount.To);
-            $("#DiscountStart").val(discount.DiscountStart);
-            $("#DiscountEnd").val(discount.DiscountEnd);
-            $("#AirlineDiscount").val(discount.AirlineDiscount);
+        function populateFields(TourID) {
+            tour = getTourID(TourID);
+            $("#Name").val(tour.Name);
+            $("#Score").val(tour.Score);
+            $("#Price").val(tour.Price);
+            $("#Intro").val(tour.Intro);
+
         }
 
         // get a car according to its Id
-        function getDiscountId(id) {
-            for (i in Discounts) {
-                if (Discounts[i].Id == id)
-                    return Discounts[i];
+        function getTourID(id) {
+            for (i in NewTours) {
+                if (NewTours[i].TourID == id)
+                    return NewTours[i];
             }
             return null;
         }
-        
+
+
         ///Airports AutoComplete Section
         ////////////////////////////////////////////////////
 
@@ -475,16 +285,14 @@
             airportsNames = createAirportsList(data);
 
             /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-            autocomplete(document.getElementById("CityTB"), airportsNames);
+            autocomplete(document.getElementById("CitySearch"), airportsNames);
         }
         function errorAP(err) {
             console.log(err.responseJSON.ExceptionMessage);
         }
-        function createAirportsList(object)
-        {
+        function createAirportsList(object) {
             var arr = [];
-            for (var k in object.locations)
-            {
+            for (var k in object.locations) {
                 if (!arr.includes(object.locations[k].city.name))
                     arr.push(object.locations[k].city.name);
             }
@@ -492,179 +300,121 @@
         }
     </script>
 </head>
-<body onload="getAllAirportsAutoComplete()"class="bg">
+<body onload="getAllAirportsAutoComplete()" class="bg">
 
-
+    <!------------------Navigation Bar-------------->
     <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
-        <a class="navbar-brand" href="index.html">HOME</a>
-        <label id="man" style="color:white">""</label>
+        <div class="container">
+            <div class="row justify-content-sm-center">
+                <div class="col-sm-2">
+                    <a class="navbar-brand" href="index.html"><label style="text-decoration: underline overline;">HomePage</label></a>
+                </div>
+                <div class="col-sm-2 offset-sm-2">
+                    <label id="man" style="color:white">""</label>
+                </div>
+                <div class="col-sm-6">
+                    <label style="color:white">Welcome to ToursInterface</label>
+                </div>
+            </div>
+        </div>
     </nav>
+    <!-----------------End Navigation Bar------------->
+
 
 
     <div class="container">
-
         <div class="row">
-            <div class="col-sm-6 text-center">
-                <button type="button" class="MainBTN" id="GetOrderBtn">Get Orders</button>
+            <div class="col-md-6 text-center">
+                <input type="button" value="Add a New Tour" class="MainBTN" id="newBTN" />
             </div>
-            <div class="col-sm-6 text-center">
-                <button type="button" class="MainBTN" id="getToursBtn">Get Tours</button>
+            <div class="col-md-6 text-center">
+                <button type="button" class="MainBTN" id="GetToursBTN">Get Tours</button>
             </div>
         </div>
 
-        <input type="button" value="New" class="btn btn-primary btn-lg" id="newBTN" />
 
         <!--Make sure the form has the autocomplete function switched off:-->
-        <form autocomplete="off" action="/action_page.php" id="SearchForm">
-            <div class="form-group">
-                <label for="City">City:</label>
-                <div class="autocomplete">
-                    <input type="text" class="form-control" id="CityTB" name="City" placeholder="EnterCity" required>
+        <form autocomplete="off" action="/action_page.php" id="SearchForm" style="display:none">
+            <div class="form-row justify-content-md-center">
+                <div class="form-group col-md-5 autocomplete">
+                    <!--We must add autocomplete-->
+                    <label for="origin" class="MainLabel">City</label>
+                    <input type="text" class="form-control" id="CitySearch" name="myOrigin" placeholder="From" required>
                 </div>
-            </div>
-
-
-            <div>
-
-                <button type="submit" class="MainBTN" id="searchBTN">Search</button>
-
+                <div class="col-md-3 col-xs-offset-2">
+                    <label style="width:100%; min-height:18px;"></label>
+                    <button type="submit" class="btn btn-primary" id="searchBTN" style="font-size:large">Search Cities</button>
+                </div>
             </div>
         </form>
     </div>
-        <form id="ToursDBForm">
-            <table id="DiscountTable" class="display nowrap" style="width:100%">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>City</th>
-                        <th>TourID</th>
-                        <th>TourName</th>
-                        <th>TourCategory</th>
-                        <th>PlaceCategory</th>
-                        <th>Score</th>
-                        <th>Description</th>
-                        <th>Duration</th>
-                        <th>Transportation</th>
-                        <th>Price</th>
-                        <th>Currency</th>
-                        <th>Image</th>
-                    </tr>
-                </thead>
-            </table>
+
+    <form id="ToursForm" style="display:none;">
+        <table id="ToursTable"  class="display center" style="width:90%;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Price</th>
+                    <th>Intro</th>
+                </tr>
+            </thead>
+        </table>
+    </form>
+
+
+    <!---//////////////////////////////////////////////////////////////////////////////-->
+
+
+    <div id="editDiv" style="display:none">
+        <form id="ToursFormEDIT" style="width:90%">
+            <div class="form-group row">
+                <div class="form-group col-sm-3">
+                    <label for="Name"><span class="red-star">★ </span>Name</label>
+                    <input type="text" class="form-control" id="Name" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="Score"><span class="red-star">★ </span>Score</label>
+                    <input type="text" class="form-control" id="Score" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="Price"><span class="red-star">★ </span>Price</label>
+                    <input type="text" class="form-control" id="Price" required>
+                </div>
+                <div class="form-group col-sm-3">
+                    <label for="Currency"><span class="red-star">★ </span>Currency</label>
+                    <input type="text" class="form-control" id="Currency" placeholder="Enter Currency to Save" required>
+                </div>
+
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-sm-4">
+                    <label for="Intro"><span class="red-star">★ </span>Intro</label>
+                    <textarea id="Intro" class="form-control" rows="5" cols="50" disabled required>  </textarea>
+                </div>
+                <div class="form-group col-sm-2 ">
+                    <label for="Category"><span class="red-star">★ </span>Category</label>
+                    <input type="text" class="form-control" id="Category" placeholder="Enter Category to save" required>
+                </div>
+                <div class="form-group col-sm-2 ">
+                    <label for="Duration"><span class="red-star">★ </span>Duration</label>
+                    <input type="text" class="form-control" id="Duration" placeholder="Enter Duration to save" required>
+                </div>
+                <div class="form-group col-sm-3 ">
+                    <label for="Image"><span class="red-star">★ </span>Image{URL}</label>
+                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save" required>
+                </div>
+                <div class="form-group col-sm-1 ">
+                    <label for="Transportaion"><span class="red-star">★ </span>Transportaion?</label>
+                    <input type="checkbox" class="form-control" id="Transportaion" placeholder="Enter Transportaion URL to save" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
+            <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>
-
-        <!--This is Very new, And no (EDIT/VIEW/DELETE) needed here-->
-        <!--Hide it at first only when Manager clicks Orders render the table and show it-->
-        <form id="OrdersForm">
-            <table id="OrdersTable" class="display nowrap " style=" width:100% ">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Passenger</th>
-                        <th>Email</th>
-                        <th>TimeOfOrder</th>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>AirlineName</th>
-                        <th>DepartureTime</th>
-                        <th>ArrivalTime</th>
-                        <th>Price</th>
-                    </tr>
-                </thead>
-            </table>
-        </form>
-
-        <div id="ViewDiv">
-            <form id="OrderFlightsForm">
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="Passenger"><span class="red-star">★ </span>Passenger</label>
-                        <input type="text" class="form-control" id="Passenger" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="Email"><span class="red-star">★ </span>Email</label>
-                        <input type="text" class="form-control" id="Email" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="TimeOfOrder"><span class="red-star">★ </span>TimeOfOrder</label>
-                        <input type="datetime-local" class="form-control" id="TimeOfOrder" required>
-                    </div>
-                </div>
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                        <input type="text" class="form-control" id="AirlineNameOrder" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="From"><span class="red-star">★ </span>From</label>
-                        <input type="text" class="form-control" id="FromOrder" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="To"><span class="red-star">★ </span>To</label>
-                        <input type="text" class="form-control" id="ToOrder" required>
-                    </div>
-                </div>
-
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="DepartureTime"><span class="red-star">★ </span>DepartureTime</label>
-                        <input type="datetime-local" class="form-control" id="DepartureTimeOrder" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="ArrivalTime"><span class="red-star">★ </span>ArrivalTime</label>
-                        <input type="datetime-local" class="form-control" id="ArrivalTimeOrder" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="Price"><span class="red-star">★ </span>Price</label>
-                        <input type="text" class="form-control" id="PriceOrder" required />
-                    </div>
-                </div>
-                <input type="button" class="btn btn-warning btn-lg" id="cancelOrder" value="Cancel" />
-            </form>
-        </div>
-
-
-        <div id="editDiv">
-            <form id="DiscountFlightForm">
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
-                        <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="From"><span class="red-star">★ </span>From</label>
-                        <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="To"><span class="red-star">★ </span>To</label>
-                        <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
-                    </div>
-                </div>
-
-
-                <div class="form-group row">
-                    <div class="form-group col-sm-4">
-                        <label for="DiscountStart"><span class="red-star">★ </span>DiscountStart</label>
-                        <input type="datetime-local" class="form-control" id="DiscountStart" placeholder="Enter the Discount Start" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="DiscountEnd"><span class="red-star">★ </span>DiscountEnd</label>
-                        <input type="datetime-local" class="form-control" id="DiscountEnd" placeholder="Enter the Discount End" required>
-                    </div>
-                    <div class="form-group col-sm-4">
-                        <label for="AirlineDiscount"><span class="red-star">★ </span>AirlineDiscount?</label>
-                        <input type="text" class="form-control" id="AirlineDiscount" checked />
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
-                <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
-            </form>
-        </div>
-
     </div>
 </body>
 </html>

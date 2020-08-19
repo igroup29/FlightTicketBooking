@@ -1,13 +1,10 @@
-﻿body {
-
-    /*font: 90%/1.45em "Helvetica Neue", HelveticaNeue, Verdana, Arial, Helvetica, sans-serif;
-    margin: 0;
-    padding: 0;
-    color: #333;
-    background-color: #fff;*/
+﻿body, html {
+    height: 100%;
 }
 
-
+.center {
+    margin-left: 40px;
+}
 
 button {
     margin-left: 10px;
@@ -114,8 +111,8 @@ button:hover {
 }
 
 
-/*/*Responsive Table using CSS*/
-table {
+/*Responsive Table using CSS*/
+/*table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
 }
@@ -131,5 +128,5 @@ tr:nth-child(even) {
 table td:hover {
     background-color: white;
     opacity: 1.0;
-}
+}*/
 
