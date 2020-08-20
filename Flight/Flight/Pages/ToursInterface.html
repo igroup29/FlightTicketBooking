@@ -37,6 +37,7 @@
         var apiCounter = 0;
         var EatingOut = "", SightSeeing = "", ToursData = "";
         var CityTour = "";
+        var tour = "";
         var ToursArr = [];
 
         var allAirportsData, airportsNames;
@@ -71,9 +72,46 @@
         });
         //Insert selected Tour to DataBase
         function InsertToDatabase() {
+            var Id = -1;
+            if (mode == "edit") {
+                Id = tour.TourID;
+            }
 
-         
+            let TourToInsert = {
+                TourID: TourID,
+                Name: $("#Name").val(),
+                Score: $("#Score").val(),
+                Price: $("#Price").val(),
+                Intro: $("#Intro").val(),
+                Currency: $("#Currency").val(),
+                Category: $("#Category").val(),
+                Transportaion: $("#Transportaion").val(),
+                Duration: $("#Duration").val(),
+                Image: $("#Image").val(),
+                City: CityTour,              
+            }
+
+            
+            ajaxCall("POST", "../api/ToursController", JSON.stringify(TourToInsert), insertSuccess, Inserterror);
+            return false;
         }
+
+        // success callback function after update
+        function insertSuccess(TourData) {
+            $("#ToursForm").show();
+            tbl.clear();
+            redrawTable(tbl, TourData);
+            buttonEvents();
+            $("#editDiv").hide();
+            swal("Inserted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+        // this function is activated in case of a failure
+        function Inserterror(err) {
+            swal("Error: " + err);
+        }
+
+
 
         //GET (AjaxCall) from the skypicker api server using the values we input
         function getTours() {
@@ -185,9 +223,8 @@
                             render: function (data, type, row, meta) {
                                 let dataTours = "data-tourId='" + row.TourID + "'";
 
-                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataTours + "> Edit </button>";
                                 viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataTours + "> View </button>";
-                                return editBtn + viewBtn;
+                                return  viewBtn;
                             },
 
                             data: null,

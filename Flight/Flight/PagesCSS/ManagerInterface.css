@@ -112,7 +112,7 @@ button:hover {
 
 
 /*Responsive Table using CSS*/
-/*table {
+table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
 }
@@ -128,5 +128,5 @@ tr:nth-child(even) {
 table td:hover {
     background-color: white;
     opacity: 1.0;
-}*/
+}
 
