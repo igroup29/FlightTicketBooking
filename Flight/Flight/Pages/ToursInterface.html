@@ -32,8 +32,7 @@
 
     
     <script>
-        var AlreadyCalledDiscount = 0;
-        var AlreadyCalledOrders = 0;
+        var FunctionAlreadyCalled = 0;
         var apiCounter = 0;
         var EatingOut = "", SightSeeing = "", ToursData = "";
         var CityTour = "";
@@ -52,7 +51,22 @@
             //wire the submit event when Manager press search
             $("#SearchForm").submit(getTours);
             $("#ToursFormEDIT").submit(InsertToDatabase);
-            
+
+            //Get all tours stored in dataBase
+            $("#GetToursBTN").on("click", function () {
+                $("#ToursForm").hide();
+                $("#editDiv").hide();
+               
+                if (FunctionAlreadyCalled == 0) {
+                    ajaxCall("GET", "../api/Tours", "", GetSuccess, GetError);
+                    FunctionAlreadyCalled++;
+                }
+                else {
+                    ajaxCall("GET", "../api/Tours", "", AlreadyGetSuccess, GetError);
+                }
+            });
+
+            //Choose New City To check tours in it.
             $("#newBTN").on("click", function () {
                 $("#ToursForm").hide();
                 tour = null;
@@ -60,25 +74,125 @@
                 $("#SearchForm").show();
             });
 
+            //Cancel Button
             $("#cancelSaveBTN").on("click", function () {
                 tour = null;
                 $("#editDiv").hide();
                 if (mode == "new") $("#ToursForm").show();
                 mode = "";
             });
-
-
-
         });
+
+
+        //GET (AjaxCall) from the skypicker api server using the values we input
+        function getTours() {
+
+            let destination = $("#CitySearch").val();
+            CityTour = destination;
+            destination = destination.replace(/ /g, "_");
+
+            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=sightseeing&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10&fields=id,name,score,price,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j";
+            //All Tours Places
+            $.get(apiTours).done(successTours);
+            $.get(apiTours).fail(errorCBF);
+            //All Sightseeing Places
+            $.get(apiSightseeing).done(successSight);
+            $.get(apiSightseeing).fail(errorCBF);
+            //All Eatingout Places
+            $.get(apiEatingOut).done(successEating);
+            $.get(apiEatingOut).fail(errorCBF);
+            return false;
+        }
+
+        // this function is activated in case of a failure
+        function errorCBF(err) {
+            swal("Error: " + err);
+        }
+
+        function successEating(eating) {
+            EatingOut = eating;
+            apiCounter++;
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
+        }
+
+        function successSight(sight) {
+            SightSeeing = sight;
+            apiCounter++;
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
+        }
+
+        function successTours(tours) {
+            ToursData = tours;
+            apiCounter++;
+            if (apiCounter == 3) {
+                PrepareJson();
+            }
+        }
+
+        // SuccessFunction - Build a Stored Tours based on data 
+        function GetSuccess(Data) {
+            NewTours = Data; // 
+
+            try {
+                tblStored = $('#ToursTableStored').DataTable({
+                    data: NewTours,
+                    responsive: true,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataTours = "data-tourId='" + row.TourID + "'";
+
+                                viewBtn = "<button type='button' class = 'viewBtnStored btn btn-info' " + dataTours + "> View </button>";
+                                return viewBtn;
+                            },
+
+                            data: null,
+                            className: "details-control"
+                        },
+                        { data: "Name" },
+                        { data: "Score" },
+                        { data: "Price" },
+                        { data: "Intro" },
+                        { data: "City"},
+                    ]
+                });
+                //new $.fn.dataTable.FixedHeader(tbl);
+                buttonEvents();
+                $("#ToursStored").show();
+            }
+            catch (err) {
+                alert(err);
+            }
+        }
+
+            // success callback function after update
+            function AlreadyGetSuccess(ToursData) {
+                tblStored.clear();
+                redrawTable(tblStored, ToursData);
+                buttonEvents();
+                $("#ToursStored").show();
+            }
+            // this function is activated in case of a failure
+            function GetError(err) {
+                swal("Error: " + err);
+            }
+
+
         //Insert selected Tour to DataBase
         function InsertToDatabase() {
             var Id = -1;
-            if (mode == "edit") {
+            if (mode == "view") {
                 Id = tour.TourID;
             }
 
             let TourToInsert = {
-                TourID: TourID,
+                TourID: Id,
                 Name: $("#Name").val(),
                 Score: $("#Score").val(),
                 Price: $("#Price").val(),
@@ -113,75 +227,92 @@
 
 
 
-        //GET (AjaxCall) from the skypicker api server using the values we input
-        function getTours() {
 
-            let destination = $("#CitySearch").val();
-            CityTour = destination;
-            destination = destination.replace(/ /g, "_");
+     
+        // SuccessFunction - Build a TourTable based on 
+        function buildTable(Data) {
+            NewTours = Data; // 
 
+            try {
+                tbl = $('#ToursTable').DataTable({
+                    data: NewTours,
+                    responsive: true,
+                    columns: [
+                        {
+                            render: function (data, type, row, meta) {
+                                let dataTours = "data-tourId='" + row.TourID + "'";
 
-            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
-            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=sightseeing&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
-            let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10&fields=id,name,score,price,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j";
+                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataTours + "> Insert </button>";
+                                return  viewBtn;
+                            },
 
-            $.get(apiTours).done(successTours);
-            $.get(apiTours).fail(errorCBF);
-            $.get(apiSightseeing).done(successSight);
-            $.get(apiSightseeing).fail(errorCBF);
-            $.get(apiEatingOut).done(successEating);
-            $.get(apiEatingOut).fail(errorCBF);
-            return false;
+                            data: null,
+                            className: "details-control"
+                        },
+                        { data: "Name" },
+                        { data: "Score" },
+                        { data: "Price" },
+                        { data: "Intro" },
+
+                    ]
+                });
+                //new $.fn.dataTable.FixedHeader(tbl);
+                buttonEvents();
+                $("#ToursForm").show();
+            }
+            catch (err) {
+                alert(err);
+            }
+
         }
+   
+
+        // wire all the buttons to their functions
+        function buttonEvents() {
+
+            $(document).on("click", ".viewBtn", function () {
+                mode = "view";
+                markSelected(this);
+                $("#editDiv").show();
+                row.className = 'selected';
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                $("#Image").attr("disabled", false);
+                $("#Currency").attr("disabled", false);
+                $("#Category").attr("disabled", false);
+                $("#Duration").attr("disabled", false);
+                $("#Transportaion").attr("disabled", false);
+                $("#saveBTN").attr("disabled", false);
+                $("#cancelSaveBTN").attr("disabled", false);
+
+                populateFields(this.getAttribute('data-tourId'));
+            });
+
+            $(document).on("click", ".viewBtnStored", function () {
+                mode = "view";
+                markSelected(this);
+                $("#editDiv").show();
+                row.className = 'selected';
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
+                
+                populateFieldsStored(this.getAttribute('data-tourId'));
+            });
       
-        // this function is activated in case of a failure
-        function errorCBF(err) {
-            swal("Error: " + err);
         }
 
-        function successEating(eating) {
-             
-            EatingOut = eating;
-            apiCounter++;
-            if (apiCounter == 3) {
-                PrepareJson();
-            }
-        }
-
-        function successSight(sight) {
-
-            SightSeeing = sight;
-            apiCounter++;
-            if (apiCounter == 3) {
-                PrepareJson();
-            }
-        }
-
-        function successTours(tours) {
-
-            ToursData = tours;
-            apiCounter++;
-
-            if (apiCounter == 3) {
-                PrepareJson();
-            }
-        }
-
-
+        //General Function
+////////////////////////////////////////////////////////////////>>
         function PrepareJson() {
-
             $("#SearchForm").hide();
-
-            JsonLoop(ToursData.results,"Tour");
-            JsonLoop(SightSeeing.results,"SightSeeing");
-            JsonLoop(EatingOut.results,"EatingOut");      
-            buildTable(ToursArr);            
+            JsonLoop(ToursData.results, "Tour");
+            JsonLoop(SightSeeing.results, "SightSeeing");
+            JsonLoop(EatingOut.results, "EatingOut");
+            buildTable(ToursArr);
         }
 
-        function JsonLoop(JsonData,Mode) {
+        function JsonLoop(JsonData, Mode) {
             console.log(JsonData);
 
-            if (Mode == "EatingOut" || Mode=="SightSeeing") {
+            if (Mode == "EatingOut" || Mode == "SightSeeing") {
 
                 for (var k in JsonData) {
                     eating = {
@@ -207,80 +338,8 @@
                     };
                     ToursArr.push(Tour);
                 }
-            }           
-        }
-
-        // SuccessFunction - Build a TourTable based on 
-        function buildTable(Data) {
-            NewTours = Data; // 
-
-            try {
-                tbl = $('#ToursTable').DataTable({
-                    data: NewTours,
-                    responsive: true,
-                    columns: [
-                        {
-                            render: function (data, type, row, meta) {
-                                let dataTours = "data-tourId='" + row.TourID + "'";
-
-                                viewBtn = "<button type='button' class = 'viewBtn btn btn-info' " + dataTours + "> View </button>";
-                                return  viewBtn;
-                            },
-
-                            data: null,
-                            className: "details-control"
-                        },
-                        { data: "Name" },
-                        { data: "Score" },
-                        { data: "Price" },
-                        { data: "Intro" },
-
-                    ]
-                });
-                //new $.fn.dataTable.FixedHeader(tbl);
-                buttonEvents();
-                $("#ToursForm").show();
             }
-            catch (err) {
-                alert(err);
-            }
-
         }
-
-        // this function is activated in case of a failure
-        function DisError(err) {
-            swal("Error: " + err);
-        }
-        // wire all the buttons to their functions
-        function buttonEvents() {
-
-            $(document).on("click", ".editBtn", function () {
-                mode = "edit";
-                markSelected(this);
-                $("#editDiv").show();
-                $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
-                populateFields(this.getAttribute('data-tourId')); // fill the form fields according to the selected row
-            });
-
-            $(document).on("click", ".viewBtn", function () {
-                mode = "view";
-                markSelected(this);
-                $("#editDiv").show();
-                row.className = 'selected';
-                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                $("#Image").attr("disabled", false);
-                $("#Currency").attr("disabled", false);
-                $("#Category").attr("disabled", false);
-                $("#Duration").attr("disabled", false);
-                $("#Transportaion").attr("disabled", false);
-                $("#saveBTN").attr("disabled", false);
-                $("#cancelSaveBTN").attr("disabled", false);
-
-                populateFields(this.getAttribute('data-tourId'));
-            });
-      
-        }
-
         // mark the selected row
         function markSelected(btn) {
             $("#ToursTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
@@ -298,6 +357,20 @@
             $("#Intro").val(tour.Intro);
 
         }
+        // fill the form fields
+        function populateFieldsStored(TourID) {
+            tour = getTourID(TourID);
+            $("#Name").val(tour.Name);
+            $("#Score").val(tour.Score);
+            $("#Price").val(tour.Price);
+            $("#Intro").val(tour.Intro);
+            $("#Category").val(tour.Category);
+            $("#Curreny").val(tour.Currency);
+            $("#Duration").val(tour.Duration);
+            $("#Image").val(tour.Image);
+            $("#Transportaion").val(tour.Transportaion);
+
+        }
 
         // get a car according to its Id
         function getTourID(id) {
@@ -308,9 +381,18 @@
             return null;
         }
 
+        //Redraw Table
+        function redrawTable(tbl, data) {
+            tbl.clear();
+            for (var i = 0; i < data.length; i++) {
+                tbl.row.add(data[i]);
+            }
+            tbl.draw();
+        }
+
 
         ///Airports AutoComplete Section
-        ////////////////////////////////////////////////////
+       ////////////////////////////////////////////////////
 
         function getAllAirportsAutoComplete() {
 
@@ -337,6 +419,7 @@
         }
     </script>
 </head>
+
 <body onload="getAllAirportsAutoComplete()" class="bg">
 
     <!------------------Navigation Bar-------------->
@@ -365,7 +448,7 @@
                 <input type="button" value="Add a New Tour" class="MainBTN" id="newBTN" />
             </div>
             <div class="col-md-6 text-center">
-                <button type="button" class="MainBTN" id="GetToursBTN">Get Tours</button>
+                <button type="button" class="MainBTN" id="GetToursBTN">Get Inserted Tours</button>
             </div>
         </div>
 
@@ -387,7 +470,7 @@
     </div>
 
     <form id="ToursForm" style="display:none;">
-        <table id="ToursTable"  class="display center" style="width:90%;">
+        <table id="ToursTable" class="display center" style="width:90%;">
             <thead>
                 <tr>
                     <th></th>
@@ -400,7 +483,19 @@
         </table>
     </form>
 
-
+    <form id="ToursStored" style="display:none;">
+        <table id="ToursTableStored" class="display center" style="width:90%;">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Score</th>
+                    <th>Price</th>
+                    <th>Intro</th>
+                </tr>
+            </thead>
+        </table>
+    </form>
     <!---//////////////////////////////////////////////////////////////////////////////-->
 
 
