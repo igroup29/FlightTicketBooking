@@ -53,7 +53,48 @@ public class DBservices
 
         return cmd;
     }
+    public int SelectedTourExist(string id)
+    {
 
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("DBConnectionString"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        
+        String cStr = "Select * From Tours_CS WHERE TourID = '" + id + "'";    // helper method to build the insert string
+
+        cmd = CreateCommand(cStr, con);             // create the command
+
+        try
+        {
+            int numEffected = cmd.ExecuteNonQuery(); // execute the command
+            return numEffected;
+        }
+        catch (Exception ex)
+        {
+            return 0;
+            //Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
     public int deleteSelectedTour(int id)
     {
 
@@ -346,6 +387,7 @@ public class DBservices
                 tour.Id = Convert.ToInt32(dr["id"]);
                 tour.City = (string)dr["City"];
                 tour.TourID = (string)dr["TourID"];
+                tour.TourName = (string)dr["TourName"];
                 tour.Category = (string)dr["Category"];
                 tour.Score = Convert.ToDouble(dr["Score"]);
                 tour.Description = (string)dr["TourDescription"];
@@ -403,6 +445,8 @@ public class DBservices
         }
         return this;
     }
+
+
     //
     public DBservices readDiscounts()
     {
