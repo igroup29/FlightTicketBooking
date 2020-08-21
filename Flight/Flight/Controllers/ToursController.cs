@@ -28,7 +28,7 @@ namespace ClassEX3.Controllers
         {
             Tours t = new Tours();
             t.InsertTour(tour);
-            return t.getAllTour();
+            return null;
         }
 
         // PUT api/<controller>/5

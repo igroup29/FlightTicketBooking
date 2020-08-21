@@ -53,10 +53,20 @@ namespace ClassEX3.Models
         public string Currency { get => currency; set => currency = value; }
         public string Image { get => image; set => image = value; }
 
+        public int CheckIfExist(Tours tour)
+        {
+            DBservices dbs = new DBservices();
+            int numAffected = dbs.SelectedTourExist(tour.TourID);
+            return numAffected;
+        }
+
         public int InsertTour(Tours tour)
         {
             DBservices dbs = new DBservices();
-            int numAffected = dbs.InsertTour(tour);
+            int numAffected=0;
+            if (CheckIfExist(tour)==0)
+                 numAffected = dbs.InsertTour(tour);
+
             return numAffected;
         }
 
