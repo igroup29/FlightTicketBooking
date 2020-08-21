@@ -346,15 +346,14 @@ public class DBservices
                 tour.Id = Convert.ToInt32(dr["id"]);
                 tour.City = (string)dr["City"];
                 tour.TourID = (string)dr["TourID"];
-                tour.TourCategory = (string)dr["TourCategory"];
-                tour.PlaceCategory = (string)dr["PlaceCategory"];
+                tour.Category = (string)dr["Category"];
                 tour.Score = Convert.ToDouble(dr["Score"]);
                 tour.Description = (string)dr["TourDescription"];
                 tour.Duration = (string)dr["Duration"];
                 tour.Transportation = Convert.ToInt32(dr["Transportation"]);
                 tour.Price = Convert.ToDouble(dr["Price"]);
                 tour.Currency = (string)dr["Currency"];
-                tour.Image = (string)dr["ToursImage"];
+                tour.Image = (string)dr["TourImage"];
                 ToursList.Add(tour);
             }
 
@@ -737,8 +736,8 @@ public class DBservices
         StringBuilder sb = new StringBuilder();
         // use a string builder to create the dynamic string
        
-        sb.AppendFormat("Values('{0}','{1}','{2}','{3}',{4},{5},'{6}','{7}','{8}','{9}','{10}',{11})", tour.City, tour.TourID, tour.TourName,tour.TourCategory,tour.PlaceCategory,tour.Score.ToString(),tour.Price.ToString(),tour.Currency,tour.Image,tour.Description,tour.Duration,tour.Transportation.ToString());
-        String prefix = "INSERT INTO Leg_CS " + "(TourCity,TourID,TourName,TourCategory,PlaceCategory,Score, Price,Currency,TourImage,TourDescription,Duration,Transportation) ";
+        sb.AppendFormat("Values('{0}','{1}','{2}','{3}',{4},{5},'{6}','{7}','{8}','{9}',{10})", tour.City, tour.TourID, tour.TourName,tour.Category,tour.Score.ToString(),tour.Price.ToString(),tour.Currency,tour.Image,tour.Description,tour.Duration,tour.Transportation.ToString());
+        String prefix = "INSERT INTO Tours_CS " + "(City,TourID,TourName,Category,Score, Price,Currency,TourImage,TourDescription,Duration,Transportation) ";
         command = prefix + sb.ToString();
 
         return command;

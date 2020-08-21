@@ -43,10 +43,10 @@
         // will run when the document is ready
         $(document).ready(function () {
 
-            //Name of manager that logged in is shown in nav bar.
-            var man = JSON.parse(localStorage.getItem('man'));
-            document.getElementById("man").innerHTML = man.username;
-            mode = "";
+            ////Name of manager that logged in is shown in nav bar.
+            //var man = JSON.parse(localStorage.getItem('man'));
+            //document.getElementById("man").innerHTML = man.username;
+            //mode = "";
 
             //wire the submit event when Manager press search
             $("#SearchForm").submit(getTours);
@@ -78,6 +78,7 @@
             $("#cancelSaveBTN").on("click", function () {
                 tour = null;
                 $("#editDiv").hide();
+                $("#ToursForm").show();
                 if (mode == "new") $("#ToursForm").show();
                 mode = "";
             });
@@ -193,20 +194,20 @@
 
             let TourToInsert = {
                 TourID: Id,
-                Name: $("#Name").val(),
+                TourName: $("#Name").val(),
                 Score: $("#Score").val(),
                 Price: $("#Price").val(),
-                Intro: $("#Intro").val(),
+                Description: $("#Intro").val(),
                 Currency: $("#Currency").val(),
                 Category: $("#Category").val(),
-                Transportaion: $("#Transportaion").val(),
+                Transportaion: +$("#Transportaion").is('checked'),
                 Duration: $("#Duration").val(),
                 Image: $("#Image").val(),
                 City: CityTour,              
             }
 
             
-            ajaxCall("POST", "../api/ToursController", JSON.stringify(TourToInsert), insertSuccess, Inserterror);
+            ajaxCall("POST", "../api/Tours", JSON.stringify(TourToInsert), insertSuccess, Inserterror);
             return false;
         }
 
@@ -273,6 +274,7 @@
             $(document).on("click", ".viewBtn", function () {
                 mode = "view";
                 markSelected(this);
+                $("#ToursForm").hide();
                 $("#editDiv").show();
                 row.className = 'selected';
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form

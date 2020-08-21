@@ -12,27 +12,25 @@ namespace ClassEX3.Models
         private string city;
         private string tourID;
         private string tourName;
-        private string tourCategory;
-        private string placeCategory;
+        private string category;
         private double score;
         private double price;
+        private string currency;
         private string description;
         private string duration;
         private int transportation;
-        private string currency;
         private string image;
 
         //No Argument Constructor
         public Tours(){}
 
-        public Tours(int id, string city, string tourID, string tourName, string tourCategory, string placeCategory, double score, string description, string duration, int transportation, double price, string currency, string image)
+        public Tours(int id, string city, string tourID, string tourName, string category, double score, string description, string duration, int transportation, double price, string currency, string image)
         {
             this.Id = id;
             this.City = city;
             this.TourID = tourID;
             this.TourName = tourName;
-            this.TourCategory = tourCategory;
-            this.PlaceCategory = placeCategory;
+            this.Category = category;
             this.Score = score;
             this.Description = description;
             this.Duration = duration;
@@ -46,8 +44,7 @@ namespace ClassEX3.Models
         public string City { get => city; set => city = value; }
         public string TourID { get => tourID; set => tourID = value; }
         public string TourName { get => tourName; set => tourName = value; }
-        public string TourCategory { get => tourCategory; set => tourCategory = value; }
-        public string PlaceCategory { get => placeCategory; set => placeCategory = value; }
+        public string Category { get => category; set => category = value; }
         public double Score { get => score; set => score = value; }
         public string Description { get => description; set => description = value; }
         public string Duration { get => duration; set => duration = value; }
@@ -59,7 +56,7 @@ namespace ClassEX3.Models
         public int InsertTour(Tours tour)
         {
             DBservices dbs = new DBservices();
-            int numAffected = dbs.InsertTour(this);
+            int numAffected = dbs.InsertTour(tour);
             return numAffected;
         }
 
@@ -95,13 +92,12 @@ namespace ClassEX3.Models
                 {
                     dr["City"] = tour.City ;
                     dr["TourId"] = tour.TourID;
-                    dr["TourCategory"] = tour.TourCategory;
-                    dr["PlaceCategory"] = tour.PlaceCategory;
+                    dr["TourCategory"] = tour.Category;
                     dr["Score"] = tour.Score;
                     dr["Price"] = tour.Price;
                     dr["Currency"] = tour.Currency;
                     dr["TourImage"] = tour.Image;
-                    dr["Tourdescription"] = tour.Description;
+                    dr["TourDescription"] = tour.Description;
                     dr["Duration"] = tour.Duration;
                     dr["Tarnportation"] = tour.Transportation;
                 }
