@@ -56,6 +56,8 @@
             $("#GetToursBTN").on("click", function () {
                 $("#ToursForm").hide();
                 $("#editDiv").hide();
+                $("#SearchForm").hide();
+
                
                 if (FunctionAlreadyCalled == 0) {
                     ajaxCall("GET", "../api/Tours", "", GetSuccess, GetError);
@@ -69,6 +71,8 @@
             //Choose New City To check tours in it.
             $("#newBTN").on("click", function () {
                 $("#ToursForm").hide();
+                $("#ToursStored").hide();
+
                 tour = null;
                 mode = "new";
                 $("#SearchForm").show();
@@ -138,29 +142,30 @@
 
         // SuccessFunction - Build a Stored Tours based on data 
         function GetSuccess(Data) {
-            NewTours = Data; // 
+            StoredTours = Data; // 
 
             try {
                 tblStored = $('#ToursTableStored').DataTable({
-                    data: NewTours,
+                    data: StoredTours,
                     responsive: true,
                     columns: [
                         {
                             render: function (data, type, row, meta) {
                                 let dataTours = "data-tourId='" + row.TourID + "'";
-
                                 viewBtn = "<button type='button' class = 'viewBtnStored btn btn-info' " + dataTours + "> View </button>";
-                                return viewBtn;
+                                editBtn = "<button type='button' class = 'editBtn btn btn-success' " + dataTours + "> Edit </button>";
+                                deleteBtn = "<button type='button' class = 'deleteBtn btn btn-danger' " + dataTours + "> Delete </button>";
+                                return viewBtn + editBtn + deleteBtn;
                             },
-
                             data: null,
                             className: "details-control"
                         },
-                        { data: "Name" },
+                        { data: "TourName" },
+                        { data: "City" },
                         { data: "Score" },
+                        { data: "Duration"},
                         { data: "Price" },
-                        { data: "Intro" },
-                        { data: "City"},
+                        { data: "Currency"},
                     ]
                 });
                 //new $.fn.dataTable.FixedHeader(tbl);
@@ -212,10 +217,10 @@
         }
 
         // success callback function after update
-        function insertSuccess(TourData) {
+        function insertSuccess() {
             $("#ToursForm").show();
             tbl.clear();
-            redrawTable(tbl, TourData);
+            redrawTable(tbl, NewTours);
             buttonEvents();
             $("#editDiv").hide();
             swal("Inserted Successfuly!", "Great Job", "success");
@@ -226,10 +231,6 @@
             swal("Error: " + err);
         }
 
-
-
-
-     
         // SuccessFunction - Build a TourTable based on 
         function buildTable(Data) {
             NewTours = Data; // 
@@ -291,12 +292,42 @@
 
             $(document).on("click", ".viewBtnStored", function () {
                 mode = "view";
+                $("#ToursForm").hide();
                 markSelected(this);
                 $("#editDiv").show();
                 row.className = 'selected';
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
                 
                 populateFieldsStored(this.getAttribute('data-tourId'));
+            });
+
+            $(document).on("click", ".editBtn", function () {
+                mode = "edit";
+                $("#ToursForm").hide();
+                markSelected(this);
+                $("#editDiv").show();
+                $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
+                populateFields(this.getAttribute('data-tourId')); // fill the form fields according to the selected row
+            });
+
+            $(document).on("click", ".deleteBtn", function () {
+                $("#ToursForm").hide();
+
+                mode = "delete";
+                markSelected(this);
+                //var tourid = this.getAttribute('data-tourId');
+                tourDel = getTourID(this.getAttribute('data-tourId'););
+                swal({ // this will open a dialouge
+                    title: "Are you sure ??",
+                    text: "",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true
+                })
+                    .then(function (willDelete) {
+                        if (willDelete) DeleteDiscount(tourDel);
+                        else swal("Not Deleted!");
+                    });
             });
       
         }
@@ -486,14 +517,17 @@
     </form>
 
     <form id="ToursStored" style="display:none;">
-        <table id="ToursTableStored" class="display center" style="width:90%;">
+        <table id="ToursTableStored" class="display center" style="width:90%; margin-left:auto;margin-right:auto">
             <thead>
                 <tr>
+           
                     <th></th>
-                    <th>Name</th>
+                    <th>TourName</th>
+                    <th>City</th>
                     <th>Score</th>
+                    <th>Duration</th>
                     <th>Price</th>
-                    <th>Intro</th>
+                    <th>Currency</th>
                 </tr>
             </thead>
         </table>
@@ -538,11 +572,11 @@
                 </div>
                 <div class="form-group col-sm-3 ">
                     <label for="Image"><span class="red-star">★ </span>Image{URL}</label>
-                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save" required>
+                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save" >
                 </div>
                 <div class="form-group col-sm-1 ">
                     <label for="Transportaion"><span class="red-star">★ </span>Transportaion?</label>
-                    <input type="checkbox" class="form-control" id="Transportaion" placeholder="Enter Transportaion URL to save" required>
+                    <input type="checkbox" class="form-control" id="Transportaion" placeholder="Enter Transportaion URL to save" >
                 </div>
             </div>
 
