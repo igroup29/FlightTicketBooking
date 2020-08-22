@@ -454,6 +454,8 @@
         }
 
         function getSelectedToursSuccess(toursList) {
+            alert("RON");
+            console.log(toursList);
             ToursSelectedFlight = toursList;
             CaruselGenerator();
         }
@@ -465,7 +467,7 @@
         function getLegs(legs) {
             let tempString = "";
             for (var i = 0; i < legs.length; i++) {
-                tempString += legs[i].cityFrom;
+                tempString += legs[i].cityTo;
                 if (i == legs.length - 1)
                     break;
                 tempString += ",";
