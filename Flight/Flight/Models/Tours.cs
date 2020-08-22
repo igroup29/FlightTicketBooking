@@ -63,10 +63,12 @@ namespace ClassEX3.Models
         public int InsertTour(Tours tour)
         {
             DBservices dbs = new DBservices();
-            int numAffected=0;
-            if (CheckIfExist(tour)==0)
-                 numAffected = dbs.InsertTour(tour);
+            int numAffected = CheckIfExist(tour);
+            if (numAffected == 0)
+            { 
+                 dbs.InsertTour(tour);
 
+            }
             return numAffected;
         }
 
@@ -101,22 +103,22 @@ namespace ClassEX3.Models
 
         public DataTable TourTable(Tours tour, DataTable dt)
         {
-            int id;
+            string Tourid;
             foreach (DataRow dr in dt.Rows)
             {
-                id = Convert.ToInt32(dr["DiscountsId"]);
-                if (id == tour.Id)
+                Tourid = (string)dr["TourId"];
+                if (Tourid == tour.TourID)
                 {
                     dr["City"] = tour.City ;
                     dr["TourId"] = tour.TourID;
-                    dr["TourCategory"] = tour.Category;
+                    dr["Category"] = tour.Category;
                     dr["Score"] = tour.Score;
                     dr["Price"] = tour.Price;
                     dr["Currency"] = tour.Currency;
                     dr["TourImage"] = tour.Image;
                     dr["TourDescription"] = tour.Description;
                     dr["Duration"] = tour.Duration;
-                    dr["Tarnportation"] = tour.Transportation;
+                    dr["Transportation"] = tour.Transportation;
                 }
             }
             return dt;
