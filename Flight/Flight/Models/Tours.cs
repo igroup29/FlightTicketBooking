@@ -72,13 +72,6 @@ namespace ClassEX3.Models
             return numAffected;
         }
 
-        public List<Tours> getSelectedTours(string legs)
-        {
-            DBservices dbs = new DBservices();
-            string[] arrLegs = legs.Split(',');
-            return dbs.getSelectedTours(arrLegs);
-        }
-
         public List<Tours> getAllTour()
         {
             DBservices dbs = new DBservices();
