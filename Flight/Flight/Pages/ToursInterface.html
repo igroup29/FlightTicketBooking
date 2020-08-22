@@ -336,8 +336,8 @@
                 $("#editDiv").show();
                 row.className = 'selected';
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                $("#Image").attr("disabled", false);
                 $("#Currency").attr("disabled", false);
+                $("#Price").attr("disabled", false);
                 $("#Category").attr("disabled", false);
                 $("#Duration").attr("disabled", false);
                 $("#Transportaion").attr("disabled", false);
@@ -352,7 +352,7 @@
                 $("#ToursStored").hide();
                 $("#editDiv").show();
                 row.className = 'selected';
-                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form                
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form            
                 populateFieldsStored(this.getAttribute('data-tourId'));
                 $("#cancelSaveBTN").attr("disabled", false);
 
@@ -510,7 +510,10 @@
             $("#Price").val(tour.Price);
             $("#Intro").val(tour.Intro);
             $("#Image").val(tour.Image);
-
+            $("#Category").val("");
+            $("#Currency").val("");
+            $("#Duration").val("");
+            document.getElementById("Transportaion").checked = false;
         }
         // fill the form fields
         function populateFieldsStored(TourID) {
@@ -533,7 +536,7 @@
             }
 
         }
-
+        
         // get a car according to its Id
         function getTouridStored(id) {
             for (i in StoredTours) {
