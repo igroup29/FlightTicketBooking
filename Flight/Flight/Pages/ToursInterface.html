@@ -58,10 +58,13 @@
          
             //Get all tours stored in dataBase
             $("#GetToursBTN").on("click", function () {
+
                 $("#ToursForm").hide();
                 $("#ToursForm").hide();
                 $("#editDiv").hide();
                 $("#SearchForm").hide();
+                $("#loadingGif").show();
+
                 CancelMode = "StoredTours";
                
                 if (FunctionAlreadyCalled == 0) {
@@ -189,6 +192,8 @@
                 });
                 //new $.fn.dataTable.FixedHeader(tbl);
                 buttonEvents();
+                $("#loadingGif").hide();
+
                 $("#ToursStored").show();
             }
             catch (err) {
@@ -202,6 +207,7 @@
                 tblStored.clear();
                 redrawTable(tblStored, ToursData);
                 buttonEvents();
+                $("#loadingGif").hide();
                 $("#ToursStored").show();
             }
             // this function is activated in case of a failure

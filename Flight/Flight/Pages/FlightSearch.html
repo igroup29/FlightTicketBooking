@@ -18,6 +18,7 @@
 
     <!--<link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />-->
     <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
+    <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -842,9 +843,9 @@
                     function cardCreator(cardID) {
                         let col = document.createElement('div');
                         if (cardID == ToursSelectedFlight.length - 1)
-                            col.setAttribute("class", "col-md-4 fadeIn wow");
+                            col.setAttribute("class", "col-md-4 fadeIn wow text-center");
                         else
-                            col.setAttribute("class", "col-md-4");
+                            col.setAttribute("class", "col-md-4 text-center");
 
                         let card = document.createElement('div');
                         card.setAttribute("class", "card");
@@ -854,7 +855,6 @@
 
                         let Img = document.createElement('img');
                         Img.setAttribute("class", "img-fluid");
-                        //"https://lp-cms-production.imgix.net/2019-06/8ec64b64e1d0805b1101f6c70c7f5b31-tel-aviv.jpg?auto=format&fit=crop&vib=20&sharp=10&ixlib=react-8.6.4"
                         Img.setAttribute("src", ToursSelectedFlight[cardID].Image);
                         Img.setAttribute("alt", "Carusel" + cardID);
 
@@ -919,37 +919,36 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-3 card">
+                            <div class="col-sm-3 card">
                                 <label>City:</label>
                                 <p id="ModalCardCity"></p>
                             </div>
-                            <div class="col-3 card">
+                            <div class="col-sm-3 card">
                                 <label>Category:</label>
                                 <p id="ModalCardCategory"></p>
                             </div>
-                            <div class="col-3 card">
+                            <div class="col-sm-3 card">
                                 <label>Duration:</label>
                                 <p id="ModalCardDuration"></p>
                             </div>
-                            <div class="col-3 card">
-                                <label>Transportation:</label>
-                                <p id="ModalCardTrans"></p>
+                            <div class="col-sm-3 card">
+                                <label>Price:</label>
+                                <p id="ModalCardPrice:"></p>
+                              
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-4 card">
-                                <label>Price:</label>
-                                <p id="ModalCardPrice:"></p>
+                            <div class="col-sm-4 card">
+                                <label>Transportation:</label>
+                                <p id="ModalCardTrans"></p>
                             </div>
-
-                            <div class="col-4 card">
+                            <div class="col-sm-4 card">
                                 <label>Currency:</label>
                                 <p id="ModalCardCurrency"></p>
                             </div>
-                            <div class="col-4 card">
+                            <div class="col-sm-4 card">
                                 <label>Score:</label>
                                 <p id="ModalCardScore"></p>
-
                             </div>
 
                         </div>
