@@ -24,10 +24,11 @@ namespace ClassEX3.Controllers
         }
 
         // POST api/<controller>
-        public int Post([FromBody]Tours tour)
+        public List<Tours> Post([FromBody]Tours tour)
         {
             Tours t = new Tours();
-            return t.InsertTour(tour);
+            t.InsertTour(tour);
+            return null;
         }
 
         // PUT api/<controller>/5

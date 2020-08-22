@@ -69,13 +69,13 @@ public class DBservices
             throw (ex);
         }
         
-        String cStr = "Select COUNT(*) From Tours_CS WHERE TourID = '" + id + "'";    // helper method to build the insert string
+        String cStr = "Select * From Tours_CS WHERE TourID = '" + id + "'";    // helper method to build the insert string
 
         cmd = CreateCommand(cStr, con);             // create the command
 
         try
         {
-            int numEffected = (int)cmd.ExecuteScalar(); // execute the command
+            int numEffected = cmd.ExecuteNonQuery(); // execute the command
             return numEffected;
         }
         catch (Exception ex)
@@ -111,7 +111,7 @@ public class DBservices
             throw (ex);
         }
 
-        String cStr = BuildDeleteCommandTours(id);      // helper method to build the insert string
+        String cStr = BuildDeleteCommandDiscounts(id);      // helper method to build the insert string
 
         cmd = CreateCommand(cStr, con);             // create the command
 
