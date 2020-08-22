@@ -399,8 +399,13 @@
             {
                 let temp = dataForTable[set][feature];
                 let stringToReturn = "";
+                let index=0;
                 for (var k in temp) {
-                    stringToReturn += (temp[k].cityTo + ",");
+                    if (index != (temp.length - 1)) {
+                        stringToReturn += (temp[k].cityTo + ",");
+                    }
+                    index++;
+
                 }
                 return stringToReturn;
             }
