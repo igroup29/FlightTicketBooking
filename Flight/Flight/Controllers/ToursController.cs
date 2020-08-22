@@ -22,7 +22,11 @@ namespace ClassEX3.Controllers
         {
             return "value";
         }
-
+        public List<Tours> Get(string legs)
+        {
+            Tours t = new Tours();
+            return t.getSelectedTours(legs);
+        }
         // POST api/<controller>
         public int Post([FromBody]Tours tour)
         {

@@ -11,6 +11,7 @@
     <link href="../PagesCSS/Index.css" rel="stylesheet" />
     <link href="../PagesCSS/ResponsiveTable.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
+    <link href="../PagesCSS/SlideCard.css" rel="stylesheet" />
     <!-- Add icon library -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
@@ -24,11 +25,12 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 
     <script>
-        var dataForTable;
+        var dataForTable;  //returned data from api to generate flight table
         var allAirportsData;
         var airportsNames;
-        var tableType;
+        var tableType;    //to save the optiot for generate table
         var clickedOrderBtnIndex;
+        var ToursSelectedFlight;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
         var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
         //buttons function binding
@@ -37,6 +39,9 @@
             //First hide all the tables
             $("#NewOrderDiv").hide();
             $("#loadingGif").hide();
+            $("#SectionTitle").hide();
+            $("#postsCarousel").hide();
+
 
             // once the document is ready we fetch a list of Discounts from the server
             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
@@ -72,7 +77,7 @@
                 $("#dynamicContent").show();
             });
         });
-    
+
 
         var DiscountsFromManager;
         //Handling the discountsList we fetched from the database
@@ -440,11 +445,32 @@
             index = parseInt(index);
             index--;
             clickedOrderBtnIndex = index;
+            let stringLegs = getLegs(dataForTable[clickedOrderBtnIndex].route);
+            ajaxCall("GET", "../api/Tours", stringLegs, getSelectedToursSuccess, getSelectedToursError);
+            $("#loadingGif").show();
             //clearFields();
             $("#dynamicContent").hide();
-            $("#NewOrderDiv").show();
 
+        }
 
+        function getSelectedToursSuccess(toursList) {
+            ToursSelectedFlight = toursList;
+            CaruselGenerator();
+        }
+
+        function getSelectedToursError(err) {
+            alert(err.responseJSON.ExceptionMessage);
+        }
+        //build json from database with tours from selected flight legs
+        function getLegs(legs) {
+            let tempString = "";
+            for (var i = 0; i < legs.length; i++) {
+                tempString += legs[i].cityFrom;
+                if (i == legs.length - 1)
+                    break;
+                tempString += ",";
+            }
+            return tempString;
         }
         // clear the form fields
         function clearFields() {
@@ -696,6 +722,230 @@
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
             <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
         </form>
+        <section class="container p-t-3" id="SectionTitle">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h3>Insted of long wait in the teminal,find out about alternetive for you waiting</h3>
+                </div>
+            </div>
+        </section>
+        <section  class="carousel slide" data-ride="carousel" id="postsCarousel">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 text-md-right lead">
+                        <a class="btn btn-secondary-outline prev" href="" title="go back"><i class="fa fa-lg fa-chevron-left"></i></a>
+                        <a class="btn btn-secondary-outline next" href="" title="more"><i class="fa fa-lg fa-chevron-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div id="innerCarusel" class="container p-t-0 m-t-2 carousel-inner">
+                <script>
+                    (function ($) {
+                        "use strict";
+
+                        // manual carousel controls
+                        $('.next').click(function () { $('.carousel').carousel('next'); return false; });
+                        $('.prev').click(function () { $('.carousel').carousel('prev'); return false; });
+
+                    })(jQuery);
+
+                    function CaruselGenerator() {
+                        let carusel = document.getElementById("innerCarusel");
+                        let numOfRow = Math.floor(ToursSelectedFlight.length / 3);
+                        let lastRowNumOfCards = ToursSelectedFlight.length % 3;
+                        if (numOfRow == 0) {
+                            let row1 = cardRowCreator(1, lastRowNumOfCards);
+                            carusel.appendChild(row1);
+                        }
+                        if (numOfRow == 1 && lastRowNumOfCards == 0) {
+                            let row1 = cardRowCreator(numOfRow, 3);
+                            carusel.appendChild(row1);
+                        }
+                        if (numOfRow == 1 && lastRowNumOfCards != 0) {
+                            let row1 = cardRowCreator(1, 3);
+                            let row2 = cardRowCreator(2, lastRowNumOfCards);
+                            carusel.appendChild(row1);
+                            carusel.appendChild(row2);
+                        }
+                        if (numOfRow == 2 && lastRowNumOfCards == 0) {
+                            let row1 = cardRowCreator(1, 3);
+                            let row2 = cardRowCreator(2, 3);
+                            carusel.appendChild(row1);
+                            carusel.appendChild(row2);
+                        }
+                        if (numOfRow == 2 && lastRowNumOfCards != 0) {
+                            let row1 = cardRowCreator(1, 3);
+                            let row2 = cardRowCreator(2, 3);
+                            let row3 = cardRowCreator(3, lastRowNumOfCards);
+                            carusel.appendChild(row1);
+                            carusel.appendChild(row2);
+                            carusel.appendChild(row3);
+                        }
+                        if (numOfRow == 3) {
+                            let row1 = cardRowCreator(1, 3);
+                            let row2 = cardRowCreator(2, 3);
+                            let row3 = cardRowCreator(3, 3);
+                            carusel.appendChild(row1);
+                            carusel.appendChild(row2);
+                            carusel.appendChild(row3);
+                        }
+
+                        $("#loadingGif").hide();
+                        $("#SectionTitle").show();
+                        $("#postsCarousel").show();
+                        $("#NewOrderDiv").show();
+                    }
+
+                    function cardRowCreator(rowId, numOfCards) {
+                        let row = document.createElement('div');
+                        row.setAttribute("id", "CaruselRow" + rowId);
+                        if (rowId == 1)
+                            row.setAttribute("class", "row row-equal carousel-item active m-t-0");
+                        else
+                            row.setAttribute("class", "row row-equal carousel-item  m-t-0");
+                        let tempCard;
+                        let tempCardId = (rowId - 1) * 3;
+                        for (var i = 0; i < numOfCards; i++) {
+                            tempCard = cardCreator(tempCardId + i);
+                            row.appendChild(tempCard);
+                        }
+                        return row;
+                    }
+
+                    function cardCreator(cardID) {
+                        let col = document.createElement('div');
+                        if (cardID == ToursSelectedFlight.length - 1)
+                            col.setAttribute("class", "col-md-4 fadeIn wow");
+                        else
+                            col.setAttribute("class", "col-md-4");
+
+                        let card = document.createElement('div');
+                        card.setAttribute("class", "card");
+
+                        let divImg = document.createElement('div');
+                        divImg.setAttribute("class", "card-img-top card-img-top-250");
+
+                        let Img = document.createElement('img');
+                        Img.setAttribute("class", "img-fluid");
+                        Img.setAttribute("src", "https://lp-cms-production.imgix.net/2019-06/8ec64b64e1d0805b1101f6c70c7f5b31-tel-aviv.jpg?auto=format&fit=crop&vib=20&sharp=10&ixlib=react-8.6.4");
+                        Img.setAttribute("alt", "Carusel" + cardID);
+
+                        let cardDiv = document.createElement('div');
+                        cardDiv.setAttribute("class", "card-block p-t-2");
+
+                        let header = document.createElement('h4');
+                        header.setAttribute("class", "large text-wide p-b-2");
+                        header.innerText = ToursSelectedFlight[cardID].TourName;
+                        let category = document.createElement('h6');
+                        category.setAttribute("class", "small text-wide p-b-2");
+                        category.innerText = ToursSelectedFlight[cardID].Category;
+                        let btn = document.createElement('button');
+                        btn.setAttribute("id", "tourBTN" + cardID);
+                        btn.setAttribute("class", "btn btn-primary");
+                        btn.innerText = "View";
+                        btn.onclick = function () {
+                            showModal(this)
+                        }
+                        cardDiv.appendChild(header);
+                        cardDiv.appendChild(category);
+                        cardDiv.appendChild(btn);
+                        divImg.appendChild(Img);
+                        card.appendChild(divImg);
+                        card.appendChild(cardDiv);
+                        col.appendChild(card);
+
+                        return col;
+                    }
+                    function ShowModal(selectedCard) {
+                        let index = selectedCard.id;
+                        index = index.replace(/\D/g, '');
+                        index = parseInt(index);
+                    }
+                </script>
+                <!--<div class="row row-equal carousel-item active m-t-0">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="http://i.imgur.com/EW5FgJM.png" alt="Carousel 1">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2">Insight</h6>
+                    <h2>
+                        <a href>Why Stuff Happens Every Year.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="http://i.imgur.com/Hw7sWGU.png" alt="Carousel 2">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2">Development</h6>
+                    <h2>
+                        <a href>How to Make Every Line Count.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="http://i.imgur.com/g27lAMl.png" alt="Carousel 3">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2">Design</h6>
+                    <h2>
+                        <a href>Responsive is Essential.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-equal carousel-item m-t-0">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="//visualhunt.com/photos/l/1/office-student-work-study.jpg" alt="Carousel 4">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2">Another</h6>
+                    <h2>
+                        <a href>Tagline or Call-to-action.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="//visualhunt.com/photos/l/1/working-woman-technology-computer.jpg" alt="Carousel 5">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2"><span class="pull-xs-right">12.04</span> Category 1</h6>
+                    <h2>
+                        <a href>This is a Blog Title.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 fadeIn wow">
+            <div class="card">
+                <div class="card-img-top card-img-top-250">
+                    <img class="img-fluid" src="//visualhunt.com/photos/l/1/people-office-team-collaboration.jpg" alt="Carousel 6">
+                </div>
+                <div class="card-block p-t-2">
+                    <h6 class="small text-wide p-b-2">Category 3</h6>
+                    <h2>
+                        <a href>Catchy Title of a Blog Post.</a>
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>-->
+            </div>
+        </section>
     </div>
 </body>
 </html>
