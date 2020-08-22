@@ -53,6 +53,64 @@ public class DBservices
 
         return cmd;
     }
+    public List<Tours> getSelectedTours(string[] legs)
+    {
+        List<Tours> toursList = new List<Tours>();
+        SqlConnection con = null;
+
+        try
+        {
+            con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
+            String selectSTR = "select Top(9)* from Tours_CS Where City = ";
+
+            for (int i = 0; i < legs.Length; i++)
+            {
+                selectSTR += legs[i];
+                if (i == legs.Length - 1)
+                    break;
+                selectSTR += "OR City = ";
+            }
+            selectSTR += " order by Score desc";
+            SqlCommand cmd = new SqlCommand(selectSTR, con);
+
+            // get a reader
+            SqlDataReader dr = cmd.ExecuteReader(CommandBehavior.CloseConnection); // CommandBehavior.CloseConnection: the connection will be closed after reading has reached the end
+
+            while (dr.Read())
+            {   // Read till the end of the data into a row
+                Tours tour = new Tours();
+
+                tour.Id = Convert.ToInt32(dr["ID"]);
+                tour.City = (string)dr["City"];
+                tour.TourID = (string)dr["TourID"];
+                tour.TourName = (string)dr["TourName"];
+                tour.Category = (string)dr["Category"];
+                tour.Score = Convert.ToDouble(dr["Score"]);
+                tour.Price = Convert.ToDouble(dr["Price"]);
+                tour.Currency = (string)dr["Currency"];
+                tour.Duration = (string)dr["Duration"];
+                tour.Transportation = Convert.ToInt32(dr["Transportation"]);
+                tour.Description = (string)dr["TourDescription"];
+                tour.Image = (string)dr["TourImage"];
+                toursList.Add(tour);
+            }
+
+            return toursList;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        finally
+        {
+            if (con != null)
+            {
+                con.Close();
+            }
+
+        }
+    }
     public int SelectedTourExist(string id)
     {
 
