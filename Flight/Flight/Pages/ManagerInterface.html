@@ -13,7 +13,8 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowreorder/1.2.7/css/rowReorder.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.5/css/responsive.dataTables.min.css">
     <script src="../Scripts/ajaxCalls.js"></script>
-
+    <script src="../Scripts/FlightsAutoComplete.js"></script>
+    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
     <link href="../PagesCSS/ManagerInterface.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
@@ -31,7 +32,8 @@
     <script>
         var AlreadyCalledDiscount = 0;
         var AlreadyCalledOrders = 0;
-
+        var allAirportsData, AirportsNames;
+        var allAirlineData, AirlineNames;
 
         // will run when the document is ready
         $(document).ready(function () {
@@ -255,7 +257,7 @@
             buttonEvents();
             $("#DiscountForm").show();
 
-            
+
         }
         // this function is activated in case of a failure
         function AlreadyDisError(err) {
@@ -313,12 +315,16 @@
 
             let discountStart = new Date($("#DiscountStart").val()).toUTCString();
             let discountEnd = new Date($("#DiscountEnd").val()).toUTCString();
+            let originIndex = AirportsNames.indexOf($("#From").val()); 
+            let origin = allAirportsData.locations[originIndex].id;
+            let destinationIndex = AirportsNames.indexOf($("#To").val());
+            let destination = allAirportsData.locations[destinationIndex].id;
 
             let dicountToSave = {
                 Id: Id,
                 AirlineName: $("#AirlineName").val(),
-                From: $("#From").val(),//Origin
-                To: $("#To").val(),
+                From: origin,//Origin
+                To: destination,
                 DiscountStart: discountStart,
                 DiscountEnd: discountEnd,
                 AirlineDiscount: $("#AirlineDiscount").val(),
@@ -415,10 +421,60 @@
             }
             return null;
         }
+        ///Airports AutoComplete Section
+        ////////////////////////////////////////////////////
 
+        function getAutoComplete() {
+
+            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
+            ajaxCall("GET", airports, "", successAirport, errorAirport);
+            ajaxCall("GET", "../api/Airlines", "", successAirlines, errorAirlines);
+        }
+        function successAirport(data) {
+            allAirportsData = data;
+            AirportsNames = createAirportsList(data);
+
+            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+            autocomplete(document.getElementById("From"), AirportsNames);
+            autocomplete(document.getElementById("To"), AirportsNames);
+        }
+        function errorAirport(err) {
+            console.log(err.responseJSON.ExceptionMessage);
+        }
+        function createAirportsList(object) {
+            var arr = [];
+            for (var k in object.locations) {
+                arr.push(object.locations[k].city.name + "(" + object.locations[k].id + ")");
+
+            }
+            return arr;
+        }
+        function getAirportId(AirportFull) {
+            let airportID = AirportsNames.indexOf(AirportFull);
+            return airportID;
+        }
+
+        function successAirlines(data) {
+            allAirlineData = data;
+            AirlineNames = createAirlineList(data);
+
+            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
+            autocomplete(document.getElementById("AirlineName"), AirlineNames);
+        }
+        function errorAirlines(err) {
+            console.log(err.responseJSON.ExceptionMessage);
+        }
+        function createAirlineList(object) {
+            var arr = [];
+            for (var k = 0; k < object.length;k++) {
+                if (!arr.includes(object[k].AirlineName))
+                    arr.push(object[k].AirlineName);
+            }
+            return arr;
+        }
     </script>
 </head>
-<body class="bg">
+<body onload="getAutoComplete()" class="bg">
     <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
         <div class="container">
             <div class="row justify-content-sm-center">
@@ -536,17 +592,17 @@
 
 
         <div id="editDiv" style="display:none;">
-            <form id="DiscountFlightForm">
+            <form autocomplete="off" id="DiscountFlightForm">
                 <div class="form-group row">
-                    <div class="form-group col-sm-4">
+                    <div class="form-group col-sm-4 autocomplete">
                         <label for="AirlineName"><span class="red-star">★ </span>AirlineName</label>
                         <input type="text" class="form-control" id="AirlineName" placeholder="Enter the Airline name" required>
                     </div>
-                    <div class="form-group col-sm-4">
+                    <div class="form-group col-sm-4 autocomplete">
                         <label for="From"><span class="red-star">★ </span>From</label>
                         <input type="text" class="form-control" id="From" placeholder="Enter Origin" required>
                     </div>
-                    <div class="form-group col-sm-4">
+                    <div class="form-group col-sm-4 autocomplete">
                         <label for="To"><span class="red-star">★ </span>To</label>
                         <input type="text" class="form-control" id="To" placeholder="Enter Destination" required>
                     </div>

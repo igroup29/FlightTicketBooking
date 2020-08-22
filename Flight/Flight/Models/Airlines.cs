@@ -27,6 +27,13 @@ namespace ClassEX3.Models
             int numAffected = dbs.insertAirlines(this);
             return numAffected;
         }
+
+        public List<Airlines> getAllAirlines()
+        {
+            DBservices dbs = new DBservices();
+            return dbs.getAllAirlines();
+        }
+
         public string AirlineID { get => airlineID; set => airlineID = value; }
         public string AirlineName { get => airlineName; set => airlineName = value; }
     }

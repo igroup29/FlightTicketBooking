@@ -11,9 +11,10 @@ namespace ClassEX3.Controllers
     public class AirlinesController : ApiController
     {
         // GET api/<controller>
-        public IEnumerable<string> Get()
+        public IEnumerable<Airlines> Get()
         {
-            return new string[] { "value1", "value2" };
+            Airlines airlines = new Airlines();
+            return airlines.getAllAirlines();
         }
 
         // GET api/<controller>/5

@@ -111,6 +111,49 @@ public class DBservices
 
         }
     }
+    public List<Airlines> getAllAirlines()
+    {
+        List<Airlines> airlineList = new List<Airlines>();
+        SqlConnection con = null;
+
+        try
+        {
+            con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
+            String selectSTR = "select * from Airlines_CS";
+
+            SqlCommand cmd = new SqlCommand(selectSTR, con);
+
+            // get a reader
+            SqlDataReader dr = cmd.ExecuteReader(CommandBehavior.CloseConnection); // CommandBehavior.CloseConnection: the connection will be closed after reading has reached the end
+
+            while (dr.Read())
+            {   // Read till the end of the data into a row
+                Airlines airline = new Airlines();
+
+                airline.AirlineID = (string)dr["AirlineID"];
+                airline.AirlineName = (string)dr["AirlineName"];
+        
+                airlineList.Add(airline);
+            }
+
+            
+return airlineList;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        finally
+        {
+            if (con != null)
+            {
+                con.Close();
+            }
+
+        }
+    }
+
     public int SelectedTourExist(string id)
     {
 
@@ -153,6 +196,7 @@ public class DBservices
         }
 
     }
+
     public int deleteSelectedTour(int id)
     {
 
