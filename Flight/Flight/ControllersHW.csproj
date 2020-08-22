@@ -205,6 +205,7 @@
     <Content Include="PagesCSS\NavigationBar.css" />
     <Content Include="PagesCSS\ResponsiveTableVersion2.css" />
     <Content Include="PagesCSS\ResponsiveTable.css" />
+    <Content Include="PagesCSS\SlideCard.css" />
     <Content Include="Pages\index.html" />
     <Content Include="Pages\LoginPage.html" />
     <Content Include="Pages\ToursInterface.html" />
