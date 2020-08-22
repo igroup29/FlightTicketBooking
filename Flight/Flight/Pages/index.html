@@ -1,872 +1,151 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
     <title></title>
+
+    <!-- Login CSS -->
+    <link href="../PagesCSS/LoginPage.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="../Scripts/ajaxCalls.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-    <script src="../Scripts/FlightsAutoComplete.js"></script>
-    <link href="../PagesCSS/Index.css" rel="stylesheet" />
-    <link href="../PagesCSS/ResponsiveTable.css" rel="stylesheet" />
-    <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
-    <link href="../PagesCSS/SlideCard.css" rel="stylesheet" />
-    <!-- Add icon library -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
-
-    <!--<link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />-->
-    <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-
     <script>
-        var dataForTable;  //returned data from api to generate flight table
-        var allAirportsData;
-        var airportsNames;
-        var tableType;    //to save the optiot for generate table
-        var clickedOrderBtnIndex;
-        var ToursSelectedFlight;
-        var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
-        var headers = ["From", "To", "Stops", "DepartureTime", "ArrivalTime", "AirlineName", "Price", "Order"];
-        //buttons function binding
+
         $(document).ready(function () {
 
-            //First hide all the tables
-            $("#NewOrderDiv").hide();
-            $("#loadingGif").hide();
-            $("#SectionTitle").hide();
-            $("#postsCarousel").hide();
-
-
-            // once the document is ready we fetch a list of Discounts from the server
-            ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
-
-            // wire the submit event when client press save order
-            $("#NewOrderForm").submit(onSubmit);
-
-            //wire the submit event when client press search
-            $("#flightForm").submit(getFlight);
-            //wire the click event when client press myFlights
-            $("#myFlightsBTN").click(getMyFlights);
-            $("#switchBTN").click(switchInputs);
-
-            //wire get airports button behavior
-            $("#getAirportsBTN").click(function () {
-                alert("getAirports was clicked,Please wait a few seconds until recieve a message");
-                GetAirports();
-                $(this).slideUp();
-            });
-            //set get airlines button behavior
-            $("#getAirlinesBTN").click(function () {
-                alert("getAirlines was clicked,Please wait a few seconds until recieve a message");
-                GetAirlines();
-                $(this).slideUp();
-            });
-
             // wire the submit event when manager wish to login
-            // $("#loginForm").submit(LoginCheck);
-
-            //
-            $("#cancelSaveBTN").click(function () {
-                $("#NewOrderDiv").hide();
-                $("#dynamicContent").show();
-            });
+            $("#modalLoginForm").submit(LoginCheck);
         });
 
-
-        var DiscountsFromManager;
-        //Handling the discountsList we fetched from the database
-        /////////////////////////////////////////////////////////////////////
-        function DiscountsSuccess(DiscountsData) {
-            //we'll use this to check if one of the flights is on sale
-            DiscountsFromManager = DiscountsData;
-        }
-
-        function DiscountsError(err) {
-
-            alert(err);
-        }
-
-        //Inserting Airlines to database
-        ////////////////////////////////////////////////
-        function GetAirlines() {
-            getAllAirlines();
-            return false; // the return false will prevent the form from being submitted
-            // hence the page will not reload
-        }
-        function getAllAirlines() {
-
-            let airlines = "https://api.skypicker.com/airlines";
-            ajaxCall("GET", airlines, "", successAirline, errorAirline);
-        }
-        function successAirline(data) {
-            AirlinesData = data;
-            //  swal("Get Airlines json Success!", "", "success");
-            AddAllAirline();
-        }
-        function errorAirline(err) {
-            alert("error");
-        }
-        function AddAllAirline() {
-            var AirlinesArr = [];
-            for (var k in AirlinesData) {
-
-                if (AirlinesData[k].type == 'airline') {
-                    Airline = { // Note that the name of the fields must be identical to the names of the properties of the object in the server
-                        airlineID: AirlinesData[k].id,
-                        airlineName: AirlinesData[k].name,
-
-                    };
-                    AirlinesArr.push(Airline);
-                }
-            }
-            ajaxCall("POST", "../api/Airlines", JSON.stringify(AirlinesArr), successPostAirline, errorPost);
-        }
-
-
-        function successPostAirline(data) {
-            swal("Added Successfuly!", "Inserted all Airlines into Database", "success");
-        }
-        function errorPost(err) {
-            alert("error");
-        }
-
-        //Inserting Airports to database
-        function switchInputs() {
-            let from = $("#originTB").val();
-            let To = $("#destinationTB").val();
-
-            $("#originTB").val(To);
-            $("#destinationTB").val(from);
-        }
-
-        //Inserting Airports to database
-        ///////////////////////////////////////////////////////////
-        function GetAirports() {
-            getAllAirports();
-            return false; // the return false will prevent the form from being submitted
-            // hence the page will not reload
-        }
-
-
-        function getAllAirports() {
-
-            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
-            ajaxCall("GET", airports, "", successAirports, errorAirports);
-        }
-        function successAirports(data) {
-            AirportsData = data.locations;
-            //  swal("Get Airports json Success!", "", "success");
-            AddAllAirport();
-        }
-        function errorAirports(err) {
-            alert("error");
-        }
-
-        function AddAllAirport() {
-            var AirportsArr = [];
-            for (var k in AirportsData) {
-
-                Airport = { // Note that the name of the fields must be identical to the names of the properties of the object in the server
-                    airportID: AirportsData[k].id,
-                    airportName: AirportsData[k].name,
-                    city: AirportsData[k].city.name,
-                    country: AirportsData[k].city.country.name,
-                    airportLong: AirportsData[k].location.lon,
-                    airportLat: AirportsData[k].location.lat
-                };
-                AirportsArr.push(Airport);
-            }
-            ajaxCall("POST", "../api/Airports", JSON.stringify(AirportsArr), success, Error);
-        }
-
-        function success(data) {
-
-            swal("Added Successfuly!", "Inserted all airports into Database", "success");
-        }
-        function Error(err) {
-            console.log(err);
-        }
-
-
-        ///Airports AutoComplete Section
-        ////////////////////////////////////////////////////
-
-        function getAllAirportsAutoComplete() {
-
-            let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
-            ajaxCall("GET", airports, "", successAP, errorAP);
-        }
-        function successAP(data) {
-            allAirportsData = data;
-            airportsNames = createAirportsList(data);
-
-            /*initiate the autocomplete function on the "myInput" element, and pass along the countries array as possible autocomplete values:*/
-            autocomplete(document.getElementById("originTB"), airportsNames);
-            autocomplete(document.getElementById("destinationTB"), airportsNames);
-        }
-        function errorAP(err) {
-            console.log(err.responseJSON.ExceptionMessage);
-        }
-
-        function createAirportsList(object) {
-            var arr = [];
-            for (var k in object.locations) {
-                arr.push(object.locations[k].city.name + "(" + object.locations[k].id + ")");
-            }
-            return arr;
-        }
-
-        //get my flight list from server
-        function getMyFlights() {
-            tableType = 1;
-            ajaxCall("GET", "../api/Flight", "", successCBF, errorCBF);
-        }
-        //clean search input
-        function clearSearch() {
-            $("#originTB").val("");
-            $("#destinationTB").val("");
-            $("#startDateTB").val();
-            $("#endDateTB").val();
-            $("#loadingGif").hide();
-
-        }
-        //GET (AjaxCall) from the skypicker api server using the values we input
-        function getFlight() {
-
-            $("#loadingGif").show();
-
-            let originIndex = airportsNames.indexOf($("#originTB").val());
-            let origin = allAirportsData.locations[originIndex].id;
-            let destinationIndex = airportsNames.indexOf($("#destinationTB").val());
-            let destination = allAirportsData.locations[destinationIndex].id;
-            let start = convertDateType($("#startDateTB").val());
-            let end = convertDateType($("#endDateTB").val());
-            if (start > end) {
-                alert("start date cant be bigger then end date");
-                clearSearch();
-                return false;
-            }
-            let api = "https://api.skypicker.com/flights?flyFrom=" + origin + "&to=" + destination + "&dateFrom=" + start + "&dateTo=" + end + "&partner=picky";
-            tableType = 0;
-            ajaxCall("GET", api, "", successCBF, errorCBF);
-            return false;
-        }
-
-        function successCBF(data) {
-
-            $("#loadingGif").hide();
-
-            console.log(data);
-            document.getElementById("dynamicContent").innerHTML = "";
-            if (tableType == 0) {
-                dataForTable = data.data;
-                generateTable(0);
-            }
-            else {
-                dataForTable = data;
-                generateTable(1);
-            }
-        }
-
-        function errorCBF(err) {
-            console.log(err.responseJSON.ExceptionMessage);
-        }
-
-
-        function compare_dates(FlightDeparture, DiscountStart, DiscountEnd) {
-            if (FlightDeparture > DiscountStart && FlightDeparture < DiscountEnd) return (true);
-            else return (false);
-        }
-
-        function CheckIfOnSale(i) {
-
-            if (typeof DiscountsFromManager == 'undefined') {
-
-                let Flightindex = i;
-                let DiscountStart = new Date(0);
-                let DiscountEnd = new Date(0);
-                let departure = new Date(0);
-                let flightdata = dataForTable[Flightindex];
-                departure.setUTCSeconds(flightdata.dTimeUTC);
-                let FlightDeparture = departure.toISOString();
-
-                for (var j = 0; j < DiscountsFromManager.length; j++) {
-
-                    DiscountStart = (DiscountsFromManager[j].DiscountStart);
-                    DiscountEnd = (DiscountsFromManager[j].DiscountEnd);
-
-                    if (flightdata.cityCodeFrom == DiscountsFromManager[j].From && flightdata.airlines[0] == DiscountsFromManager[j].AirlineName && compare_dates(FlightDeparture, DiscountStart, DiscountEnd)) {
-                        return true;
-                    }
-                }
-                return false;
-            } else {
-                return false;
-            }
-        }
-
-        //Dynamically create a table and render the search results we have.
-        //parameter type will determine the table content, 0 for API results ,1 for results from server
-        function generateTable(type) {
-
-            var tableArea = document.getElementById("dynamicContent");
-            var tableTitle = document.createElement('p');
-            tableTitle.setAttribute("id", "tableTitle")
-            //create new table element
-            var table = document.createElement('table');
-            table.setAttribute("id", "flightTbl");// set table id to - flightTbl
-            var limit;
-            var handler;
-            var OnSale;
-
-            if (type == 0)//generate search flight table
-            {
-                limit = headers.length;
-                handler = propertyFromApi;
-                //Decide how many rows you want to see
-                for (var i = 0; i < dataForTable.length; i++) {    ///dataForTable.length
-                    var row = document.createElement('tr');
-
-                    OnSale = CheckIfOnSale(i);
-
-                    for (var j = 0; j < limit; j++) {
-                        row.appendChild(document.createElement('td'));//Add column to the row
-                        //Check (j==7) if we are at the "order" feature so we can add a button.
-
-                        if (j == 7) {
-                            row.cells[j].appendChild(getDataForApiTable(i, headers[j], OnSale));
-                        }
-                        else {
-                            row.cells[j].appendChild(document.createTextNode(getDataForApiTable(i, handler[j], OnSale)));
-
-                            if (j == 6 && OnSale) {
-                                row.cells[j].style.color = "Red";
-
-                            }
-                        }
-                    }
-                    table.appendChild(row);
-                    Onsale = false;
-                }
-                tableTitle.innerText = "Search Results - ";
-                tableArea.appendChild(tableTitle);
-                tableArea.appendChild(table);
-                setTablesHeaders(headers.length, table.id);
-            }
-            else // generate my flight table
-            {
-                limit = propertyFromApi.length;
-                handler = headers;
-                for (var i = 0; i < dataForTable.length; i++) {    ///dataForTable.length
-                    var row = document.createElement('tr');
-                    for (var j = 0; j < limit; j++) {
-                        row.appendChild(document.createElement('td'));//Add column to the row
-                        row.cells[j].appendChild(document.createTextNode(dataForTable[i][handler[j]]));
-                    }
-                    table.appendChild(row);
-                }
-                tableTitle.innerText = "My Flights List - ";
-                tableArea.appendChild(tableTitle);
-                tableArea.appendChild(table);
-                setTablesHeaders(propertyFromApi.length, table.id);
-            }
-        }
-
-        //extract relevant data for search table from api object
-        function getDataForApiTable(set, feature, OnSale) {
-
-            if (feature == "cityFrom")//Origin
-            {
-                return dataForTable[set][feature];
-            }
-            if (feature == "cityTo")//Destination
-            {
-                return dataForTable[set][feature];
-            }
-            if (feature == "route")//num of stops
-            {
-                let temp = dataForTable[set][feature];
-                let stringToReturn = "";
-                for (var k in temp) {
-                    stringToReturn += (temp[k].cityTo + ",");
-                }
-                return stringToReturn;
-            }
-            if (feature == "dTimeUTC")//Departure Time
-            {
-
-                let dep = new Date(0);//
-                dep.setUTCSeconds(dataForTable[set][feature]);
-                return dep.toUTCString();
-            }
-            if (feature == "aTimeUTC")//Arrival Time
-            {
-                let Arv = new Date(0);
-                Arv.setUTCSeconds(dataForTable[set][feature]);
-                return Arv.toUTCString();
-            }
-            if (feature == "airlines")//AirLine Name
-            {
-                return dataForTable[set][feature][0];
-            }
-            if (feature == "price")//Price
-            {
-                if (OnSale) {
-
-                    return dataForTable[set][feature] + "EUR, Sale!!!";
-                }
-
-                return dataForTable[set][feature] + " EUR";
-            }
-
-            if (feature == "Order") {
-                let btn = document.createElement("button");
-                btn.setAttribute("id", "tableBtn" + (set + 1));
-                //btn.setAttribute("name", "Order Row " + (set+1));
-                btn.innerHTML = "Order Row " + (set + 1);
-                btn.onclick = function () {
-                    // postFlight(this);
-                    InsertFlight(this);
-                };
-                return btn
-            }
-        }
-
-        // extract the index from clicked orderBtn and show order form
-        function InsertFlight(btnClicked) {
-            let index = btnClicked.id;
-            index = index.replace(/\D/g, '');
-            index = parseInt(index);
-            index--;
-            clickedOrderBtnIndex = index;
-            let stringLegs = getLegs(dataForTable[clickedOrderBtnIndex].route);
-            ajaxCall("GET", "../api/Tours", stringLegs, getSelectedToursSuccess, getSelectedToursError);
-            $("#loadingGif").show();
-            //clearFields();
-            $("#dynamicContent").hide();
-
-        }
-
-        function getSelectedToursSuccess(toursList) {
-            alert("RON");
-            console.log(toursList);
-            ToursSelectedFlight = toursList;
-            CaruselGenerator();
-        }
-
-        function getSelectedToursError(err) {
-            alert(err.responseJSON.ExceptionMessage);
-        }
-        //build json from database with tours from selected flight legs
-        function getLegs(legs) {
-            let tempString = "";
-            for (var i = 0; i < legs.length; i++) {
-                tempString += legs[i].cityTo;
-                if (i == legs.length - 1)
+        function getSelectedOption(sel) {
+            var opt;
+            for (var i = 0, len = sel.options.length; i < len; i++) {
+                opt = sel.options[i];
+                if (opt.selected === true) {
                     break;
-                tempString += ",";
-            }
-            return tempString;
-        }
-        // clear the form fields
-        function clearFields() {
-            $("#ClientName").val("");
-            $("#EMail").val("");
-
-        }
-        // add new order to data base when clicking savebtn at order form
-        function onSubmit() {
-            let timeOfOrder = new Date(Date.now());
-            NowDate = timeOfOrder.toISOString();
-            let flightID = dataForTable[clickedOrderBtnIndex].id;
-            let airportFrom = dataForTable[clickedOrderBtnIndex].flyFrom;
-            let airportTo = dataForTable[clickedOrderBtnIndex].flyTo;
-            let price = dataForTable[clickedOrderBtnIndex].price;
-            let duration = dataForTable[clickedOrderBtnIndex].fly_duration;
-            let departure = new Date(0);
-            let arrival = new Date(0);
-            let legs = dataForTable[clickedOrderBtnIndex]['route'];
-            let legsFinal = [];
-            departure.setUTCSeconds(dataForTable[clickedOrderBtnIndex].dTimeUTC);
-            arrival.setUTCSeconds(dataForTable[clickedOrderBtnIndex].aTimeUTC);
-
-            //creating leg object and pushing it to the array
-            for (var i = 0; i < legs.length; i++) {
-                let Departure = new Date(0);
-                let Arrival = new Date(0);
-                Departure.setUTCSeconds(legs[i].dTimeUTC);
-                Arrival.setUTCSeconds(legs[i].aTimeUTC);
-                let timeDiff = Arrival.getTime() - Departure.getTime(); //timediff contains num of milliseconds
-                let seconds = parseInt((timeDiff / 1000) % 60);
-                let minutes = parseInt(((timeDiff / (1000 * 60)) % 60));
-                let hours = parseInt(((timeDiff / (1000 * 60 * 60)) % 24));
-                let Duration = hours + "h " + minutes + "m";
-                legObject = {
-
-                    LegID: legs[i].id,
-                    FlightID: flightID,
-                    AirlineID: legs[i].airline,
-                    AirportFrom: legs[i].flyFrom,
-                    AirportTo: legs[i].flyTo,
-                    Flight_no: legs[i].flight_no,
-                    LegNum: i,
-                    Departure: Departure,
-                    Arrival: Arrival,
-                    Duration: Duration
                 }
-                legsFinal.push(legObject);
             }
+            return opt;
+        }
 
-            OrderObject = {
-                orderID: 0,
-                ClientName: $("#ClientName").val(),
-                Email: $("#EMail").val(),
-                FlightID: flightID,
-                TimeOfOrder: NowDate,
-                AirlineID: legs[0].airline,
-                airportFrom: airportFrom,
-                airportTo: airportTo,
-                price: price,
-                duration: duration,
-                departure: departure,
-                arrival: arrival,
-                legs: legsFinal
+        function LoginCheck() {
+            var user = $("#user").val();
+            var pass = $("#pass").val();
+           
+
+            manager = {
+                username: user,
+                password: pass
             }
-
-
-            ajaxCall("POST", "../api/Flights", JSON.stringify(OrderObject), successFlight, ErrorFlight);
-
+            ajaxCall("POST", "../api/Manager", JSON.stringify(manager), successLogin, errorLogin);
             return false;
         }
-        //success and error behavior
-        function successFlight(data) {
-            $("#NewOrderDiv").hide();
-            //swal("Added Successfuly!", "Inserted Flight into Database", "success");
-            swal({ // this will open a dialouge
-                title: "Success",
-                text: "Inserted Flight into Database",
-                icon: "success",
-                confirm: true,
 
-            })
-                .then(function (BtnClicked) {
-                    if (BtnClicked) window.location.reload();
-                    else window.location.reload();
-                });
-
-        }
-        function ErrorFlight(err) {
-            console.log(err);
-            alrert(err);
-        }
-
-
-
-
-        //sets the header table after creation
-        function setTablesHeaders(value, tableId) {
-            var table = document.getElementById(tableId)
-            //creat new row an add it to the begin of table
-            var row = table.insertRow(0);
-            for (var i = 0; i < value; i++) {
-                var cell = document.createElement('th');
-                cell.innerHTML = headers[i];
-                row.appendChild(cell);
-            }
-        }
-
-        //conver date type to fit api search request
-        function convertDateType(toConvert) {
-            var temp = toConvert.split("-");
-            var year = temp[0];
-            var month = temp[1];
-            var day = temp[2];
-            return (day + "/" + month + "/" + year);
-        }
-
-        //save selected flight in server
-        function postFlight(btn) {
-
-            let index = btn.id;
-            index = index.replace(/\D/g, '');
-            let FlightTable = document.getElementById("flightTbl");
-            index = parseInt(index);
-
-            let from = FlightTable.rows[index].cells[0].innerHTML;
-            let to = FlightTable.rows[index].cells[1].innerHTML;
-            let stopsStr = FlightTable.rows[index].cells[2].innerHTML;
-            let stops = stopsStr.split(',');
-            let departuretime = FlightTable.rows[index].cells[3].innerHTML;
-            let arrivaltime = FlightTable.rows[index].cells[4].innerHTML;
-            let airlinename = FlightTable.rows[index].cells[5].innerHTML;
-            let price = FlightTable.rows[index].cells[6].innerHTML;
-
-            o = {
-                // critical point, zillion error here
-                // parameters passing is done by names
-                // must be identical to the class Properties
-                From: from,
-                To: to,
-                Stops: stops,
-                DepartureTime: departuretime,
-                ArrivalTime: arrivaltime,
-                AirlineName: airlinename,
-                Price: price,
-            }
-            ajaxCall("POST", "../api/Flight", JSON.stringify(o), postSuccessCB, postErrorCB);
-        }
-
-        function postSuccessCB(data) {
-
+        function successLogin(data) {
             if (data) {
-                alert("Post successful")
+                alert("LogIn Success");            
+                manager = {
+                    username: data.Username,
+                    password: data.Password
+                }
+
+                localStorage.setItem('man', JSON.stringify(manager));
+
+                var sel = document.getElementById("Pages");
+                var opt = getSelectedOption(sel);
+                console.log(opt.value);
+
+                if (opt.value == "Manager")
+                {
+                    window.location.replace("ManagerInterface.html");
+                }
+                else if (opt.value == "Tour")
+                {
+                    window.location.replace("ToursInterface.html");
+                }
+
             }
             else {
-                alert("You already ordered that! :)");
+                alert("Failed");
             }
         }
-        function postErrorCB(err) {
-            alert(err.responseJSON.ExceptionMessage);
+
+        function errorLogin(err) {
+            alert("unauthorized User Information")
         }
+
+
     </script>
 
 </head>
 
-<!--Class bg is for the background image-->
-<body onload="getAllAirportsAutoComplete()" class="bg">
 
-
-    <!--/////////////////////NEW Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
-
-    <!--/////////////////////END Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
-
-    <!--/////////////////////START NEW SEARCH\\\\\\\\\\\\\\\\\\\\\\-->
-    <div class="container">
-        <form autocomplete="off" action="/action_page.php" id="flightForm">
-            <div class="form-row justify-content-md-center">
-
-                <div class="form-group col-md-5 autocomplete">
-                    <!--We must add autocomplete-->
-                    <label for="origin" class="MainLabel">From</label>
-                    <input type="text" class="form-control" id="originTB" name="myOrigin" placeholder="From" required>
-                </div>
-                <div class="form-group col-md-2 text-center">
-                    <!--We must add autocomplete-->
-                    <label style="width:100%; min-height:18px;"></label>
-                    <button style="width:100px" type="button" class="btn btn-primary" id="switchBTN"><i class="fas fa-exchange-alt" style="font-size:20px;"></i></button>
-                </div>
-                <div class="form-group col-md-5 autocomplete">
-                    <label for="destination" class="MainLabel">To:</label>
-                    <input type="text" class="form-control" id="destinationTB" name="myDestination" placeholder="To" required />
-                </div>
+<body class="bg">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <h1>What would you like to do?</h1>
             </div>
-            <div class="form-row justify-content-md-center">
-
-                <div class="form-group col-md-5">
-                    <label for="sDate" class="MainLabel">Depart</label>
-                    <input type="date" class="form-control" id="startDateTB" name="myStartDate" dateva required />
-                </div>
-
-                <div class="form-group col-md-5 offset-md-2">
-                    <!--We need offset to create an empty space in the middle-->
-                    <label for="eDate" class="MainLabel">Return</label>
-                    <input type="date" class="form-control" id="endDateTB" name="myEndDate" required />
-                </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <a href="../Pages/index.html"><input class="btn btn-primary" type="button" value="Search Flight" /></a>
             </div>
-            <div class="form-row">
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary" id="searchBTN" style="font-size:x-large">Search Flights</button>
-                </div>
-                <div class="col-md-3">
-                    <input type="checkbox" id="NonStop" name="nonStop">
-                    <label for="vehicle1">Non-stop flights only</label>
-                </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12 mx-auto text-center">
+                <a href="" data-toggle="modal" data-target="#modalLoginForm"><input class="btn btn-primary" type="button" value="Login" /></a>
             </div>
-        </form>
+        </div>
+       
     </div>
 
-    <!--///////////////////////////END NEW SEARCH\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\-->
-    <!--We will be adding an uploadingGif for cool affects-->
-    <div id="loadingGif" class="text-center" style="display:none;">
-        <img src="../Images/PlaneGif4.gif" style="width:400px; height:300px;" />
-    </div>
-
-    
-    <!--For the dynamic content [Tables]-->
-    <div id="dynamicContent">
-
-    </div>
-
-
-    <!--Hidden form, show only when the client is done choosing a flight-->
-    <div id="NewOrderDiv" style="display:none;">
-        <form id="NewOrderForm">
-            <div class="form-group row">
-                <div class="form-group col-sm-4">
-                    <label for="ClientName"><span class="red-star">★ </span>ClientName</label>
-                    <input type="text" class="form-control" id="ClientName" placeholder="Enter full name" required>
+    <!-- Login Modal Form (Hidden) -->
+    <form class="modal fade text-center " id="modalLoginForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Sign in </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div class="form-group col-sm-4">
-                    <label for="EMail"><span class="red-star">★ </span>E- Mail</label>
-                    <input type="text" class="form-control" id="EMail" placeholder="Enter E-Mail" required>
-                </div>
-                <div class="form-group col-sm-4">
-                    <label for="Agree to Terms"><span class="red-star">★ </span>Agree to Terms:</label>
-                    <input type="checkbox" class="form-control" id="Agree" required>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>
-            <input type="button" class="btn btn-warning btn-lg" id="cancelSaveBTN" value="Cancel" />
-        </form>
-        <section class="container p-t-3" id="SectionTitle">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h3>Insted of long wait in the teminal,find out about alternetive for you waiting</h3>
-                </div>
-            </div>
-        </section>
-        <section  class="carousel slide" data-ride="carousel" id="postsCarousel">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xs-12 text-md-right lead">
-                        <a class="btn btn-secondary-outline prev" href="" title="go back"><i class="fa fa-lg fa-chevron-left"></i></a>
-                        <a class="btn btn-secondary-outline next" href="" title="more"><i class="fa fa-lg fa-chevron-right"></i></a>
+                     <div class="modal-body">
+                         <div class="md-form mb-4">
+                             <input type="text" id="user" class="form-control mb-3" placeholder="Username" required>
+                         </div>
+                         <div class="md-form mb-4">
+                             <input type="text" id="pass" class="form-control mb-3" placeholder="Password" required>
+                         </div>
+                        <div class="md-form mb-4">
+                            <label for="Page">Choose a Page:</label>
+                            <select id="Pages" name="Pages" class="form-control mb-3" required>
+                                <option value="Manager">ManagerInterface</option>
+                                <option value="Tour">TourInterface</option>
+                            </select>
+                        </div>
+
                     </div>
-                </div>
-            </div>
-            <div id="innerCarusel" class="container p-t-0 m-t-2 carousel-inner">
-                <script>
-                    (function ($) {
-                        "use strict";
+                     <div class="modal-footer  justify-content-center">
+                         <!-- <button class="btn btn-default">Login</button>-->
+                         <button id="login" class="btn btn-primary" type="submit">Login</button>
+                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-                        // manual carousel controls
-                        $('.next').click(function () { $('.carousel').carousel('next'); return false; });
-                        $('.prev').click(function () { $('.carousel').carousel('prev'); return false; });
+                     </div>
+             </div>
+        </div>
+    </form>
 
-                    })(jQuery);
-
-                    function CaruselGenerator() {
-                        let carusel = document.getElementById("innerCarusel");
-                        let numOfRow = Math.floor(ToursSelectedFlight.length / 3);
-                        let lastRowNumOfCards = ToursSelectedFlight.length % 3;
-                        if (numOfRow == 0) {
-                            let row1 = cardRowCreator(1, lastRowNumOfCards);
-                            carusel.appendChild(row1);
-                        }
-                        if (numOfRow == 1 && lastRowNumOfCards == 0) {
-                            let row1 = cardRowCreator(numOfRow, 3);
-                            carusel.appendChild(row1);
-                        }
-                        if (numOfRow == 1 && lastRowNumOfCards != 0) {
-                            let row1 = cardRowCreator(1, 3);
-                            let row2 = cardRowCreator(2, lastRowNumOfCards);
-                            carusel.appendChild(row1);
-                            carusel.appendChild(row2);
-                        }
-                        if (numOfRow == 2 && lastRowNumOfCards == 0) {
-                            let row1 = cardRowCreator(1, 3);
-                            let row2 = cardRowCreator(2, 3);
-                            carusel.appendChild(row1);
-                            carusel.appendChild(row2);
-                        }
-                        if (numOfRow == 2 && lastRowNumOfCards != 0) {
-                            let row1 = cardRowCreator(1, 3);
-                            let row2 = cardRowCreator(2, 3);
-                            let row3 = cardRowCreator(3, lastRowNumOfCards);
-                            carusel.appendChild(row1);
-                            carusel.appendChild(row2);
-                            carusel.appendChild(row3);
-                        }
-                        if (numOfRow == 3) {
-                            let row1 = cardRowCreator(1, 3);
-                            let row2 = cardRowCreator(2, 3);
-                            let row3 = cardRowCreator(3, 3);
-                            carusel.appendChild(row1);
-                            carusel.appendChild(row2);
-                            carusel.appendChild(row3);
-                        }
-
-                        $("#loadingGif").hide();
-                        $("#SectionTitle").show();
-                        $("#postsCarousel").show();
-                        $("#NewOrderDiv").show();
-                    }
-
-                    function cardRowCreator(rowId, numOfCards) {
-                        let row = document.createElement('div');
-                        row.setAttribute("id", "CaruselRow" + rowId);
-                        if (rowId == 1)
-                            row.setAttribute("class", "row row-equal carousel-item active m-t-0");
-                        else
-                            row.setAttribute("class", "row row-equal carousel-item  m-t-0");
-                        let tempCard;
-                        let tempCardId = (rowId - 1) * 3;
-                        for (var i = 0; i < numOfCards; i++) {
-                            tempCard = cardCreator(tempCardId + i);
-                            row.appendChild(tempCard);
-                        }
-                        return row;
-                    }
-
-                    function cardCreator(cardID) {
-                        let col = document.createElement('div');
-                        if (cardID == ToursSelectedFlight.length - 1)
-                            col.setAttribute("class", "col-md-4 fadeIn wow");
-                        else
-                            col.setAttribute("class", "col-md-4");
-
-                        let card = document.createElement('div');
-                        card.setAttribute("class", "card");
-
-                        let divImg = document.createElement('div');
-                        divImg.setAttribute("class", "card-img-top card-img-top-250");
-
-                        let Img = document.createElement('img');
-                        Img.setAttribute("class", "img-fluid");
-                        Img.setAttribute("src", "https://lp-cms-production.imgix.net/2019-06/8ec64b64e1d0805b1101f6c70c7f5b31-tel-aviv.jpg?auto=format&fit=crop&vib=20&sharp=10&ixlib=react-8.6.4");
-                        Img.setAttribute("alt", "Carusel" + cardID);
-
-                        let cardDiv = document.createElement('div');
-                        cardDiv.setAttribute("class", "card-block p-t-2");
-
-                        let header = document.createElement('h4');
-                        header.setAttribute("class", "large text-wide p-b-2");
-                        header.innerText = ToursSelectedFlight[cardID].TourName;
-                        let category = document.createElement('h6');
-                        category.setAttribute("class", "small text-wide p-b-2");
-                        category.innerText = ToursSelectedFlight[cardID].Category;
-                        let btn = document.createElement('button');
-                        btn.setAttribute("id", "tourBTN" + cardID);
-                        btn.setAttribute("class", "btn btn-primary");
-                        btn.innerText = "View";
-                        btn.onclick = function () {
-                            showModal(this)
-                        }
-                        cardDiv.appendChild(header);
-                        cardDiv.appendChild(category);
-                        cardDiv.appendChild(btn);
-                        divImg.appendChild(Img);
-                        card.appendChild(divImg);
-                        card.appendChild(cardDiv);
-                        col.appendChild(card);
-
-                        return col;
-                    }
-
-                    function ShowModal(selectedCard) {
-                        let index = selectedCard.id;
-                        index = index.replace(/\D/g, '');
-                        index = parseInt(index);
-                    }
-                </script>
-            </div>
-        </section>
-    </div>
 </body>
 </html>

@@ -206,8 +206,8 @@
     <Content Include="PagesCSS\ResponsiveTableVersion2.css" />
     <Content Include="PagesCSS\ResponsiveTable.css" />
     <Content Include="PagesCSS\SlideCard.css" />
+    <Content Include="Pages\FlightSearch.html" />
     <Content Include="Pages\index.html" />
-    <Content Include="Pages\LoginPage.html" />
     <Content Include="Pages\ToursInterface.html" />
     <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />
