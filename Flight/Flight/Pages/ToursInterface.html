@@ -38,26 +38,31 @@
         var CityTour = "";
         var tour = "";
         var ToursArr = [];
+        var AlreadyCalled = "";
 
         var allAirportsData, airportsNames;
         // will run when the document is ready
         $(document).ready(function () {
 
-            ////Name of manager that logged in is shown in nav bar.
-            //var man = JSON.parse(localStorage.getItem('man'));
-            //document.getElementById("man").innerHTML = man.username;
-            //mode = "";
+            ////Name of Authorized user that logged in is shown in nav bar.
+            var man = JSON.parse(localStorage.getItem('man'));
+            document.getElementById("man").innerHTML = man.username;
+            mode = "";
+            CancelMode = "";
+
 
             //wire the submit event when Manager press search
             $("#SearchForm").submit(getTours);
             $("#ToursFormEDIT").submit(InsertToDatabase);
-
+            //Choose New City To check tours in it.
+         
             //Get all tours stored in dataBase
             $("#GetToursBTN").on("click", function () {
                 $("#ToursForm").hide();
+                $("#ToursForm").hide();
                 $("#editDiv").hide();
                 $("#SearchForm").hide();
-
+                CancelMode = "StoredTours";
                
                 if (FunctionAlreadyCalled == 0) {
                     ajaxCall("GET", "../api/Tours", "", GetSuccess, GetError);
@@ -72,9 +77,10 @@
             $("#newBTN").on("click", function () {
                 $("#ToursForm").hide();
                 $("#ToursStored").hide();
+                $("#editDiv").hide();
+                CancelMode = "NewTours";
 
                 tour = null;
-                mode = "new";
                 $("#SearchForm").show();
             });
 
@@ -82,8 +88,11 @@
             $("#cancelSaveBTN").on("click", function () {
                 tour = null;
                 $("#editDiv").hide();
-                $("#ToursForm").show();
-                if (mode == "new") $("#ToursForm").show();
+                if (CancelMode == "NewTours") {
+                    $("#ToursForm").show();
+                } else if (CancelMode == "StoredTours") {
+                    $("#ToursStored").show();
+                }
                 mode = "";
             });
         });
@@ -92,6 +101,7 @@
         //GET (AjaxCall) from the skypicker api server using the values we input
         function getTours() {
 
+            $("#loadingGif").show();
             let destination = $("#CitySearch").val();
             CityTour = destination;
             destination = destination.replace(/ /g, "_");
@@ -103,11 +113,14 @@
             $.get(apiTours).done(successTours);
             $.get(apiTours).fail(errorCBF);
             //All Sightseeing Places
+
             $.get(apiSightseeing).done(successSight);
             $.get(apiSightseeing).fail(errorCBF);
             //All Eatingout Places
             $.get(apiEatingOut).done(successEating);
             $.get(apiEatingOut).fail(errorCBF);
+
+
             return false;
         }
 
@@ -121,6 +134,7 @@
             apiCounter++;
             if (apiCounter == 3) {
                 PrepareJson();
+                apiCounter = 0;
             }
         }
 
@@ -129,6 +143,8 @@
             apiCounter++;
             if (apiCounter == 3) {
                 PrepareJson();
+                apiCounter = 0;
+
             }
         }
 
@@ -137,6 +153,8 @@
             apiCounter++;
             if (apiCounter == 3) {
                 PrepareJson();
+                apiCounter = 0;
+
             }
         }
 
@@ -165,7 +183,7 @@
                         { data: "Score" },
                         { data: "Duration"},
                         { data: "Price" },
-                        { data: "Currency"},
+                        { data: "Currency" },
                     ]
                 });
                 //new $.fn.dataTable.FixedHeader(tbl);
@@ -193,7 +211,7 @@
         //Insert selected Tour to DataBase
         function InsertToDatabase() {
             var Id = -1;
-            if (mode == "view") {
+            if (mode == "new" || mode=="edit") {
                 Id = tour.TourID;
             }
 
@@ -211,20 +229,46 @@
                 City: CityTour,              
             }
 
-            
-            ajaxCall("POST", "../api/Tours", JSON.stringify(TourToInsert), insertSuccess, Inserterror);
+            if (mode == "new") {
+                ajaxCall("POST", "../api/Tours", JSON.stringify(TourToInsert), insertSuccess, Inserterror);
+
+            }
+            else if (mode == "edit") {
+                ajaxCall("PUT", "../api/Tours", JSON.stringify(TourToInsert), UpdateSuccess, Inserterror);
+            }
             return false;
         }
 
         // success callback function after update
-        function insertSuccess() {
+        function UpdateSuccess(TourData) {
+            $("#ToursStored").show();
+            tblStored.clear();
+            StoredTours = TourData;
+            redrawTable(tblStored, TourData);
+            buttonEvents();
+            $("#editDiv").hide();       
+             swal("Updated Successfuly!", "Great Job", "success");
+             mode = "";
+                   
+        }
+
+        // success callback function after Insert
+        function insertSuccess(CheckIfExist) {             
             $("#ToursForm").show();
             tbl.clear();
             redrawTable(tbl, NewTours);
             buttonEvents();
             $("#editDiv").hide();
-            swal("Inserted Successfuly!", "Great Job", "success");
-            mode = "";
+
+            if (CheckIfExist == 0) {
+                swal("Inserted Successfuly!", "Great Job", "success");
+                mode = "";
+            }
+            else {
+                swal("oops!", "You already inserted that!", "error");
+                mode = "";
+
+            }       
         }
         // this function is activated in case of a failure
         function Inserterror(err) {
@@ -233,6 +277,7 @@
 
         // SuccessFunction - Build a TourTable based on 
         function buildTable(Data) {
+
             NewTours = Data; // 
 
             try {
@@ -260,6 +305,7 @@
                 });
                 //new $.fn.dataTable.FixedHeader(tbl);
                 buttonEvents();
+                $("#loadingGif").hide();//Hide loading gif
                 $("#ToursForm").show();
             }
             catch (err) {
@@ -273,7 +319,7 @@
         function buttonEvents() {
 
             $(document).on("click", ".viewBtn", function () {
-                mode = "view";
+                mode = "new";
                 markSelected(this);
                 $("#ToursForm").hide();
                 $("#editDiv").show();
@@ -291,23 +337,23 @@
             });
 
             $(document).on("click", ".viewBtnStored", function () {
-                mode = "view";
-                $("#ToursForm").hide();
                 markSelected(this);
+                $("#ToursStored").hide();
+
                 $("#editDiv").show();
                 row.className = 'selected';
-                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form
-                
+                $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form                
                 populateFieldsStored(this.getAttribute('data-tourId'));
             });
 
             $(document).on("click", ".editBtn", function () {
                 mode = "edit";
-                $("#ToursForm").hide();
+                $("#ToursStored").hide();
                 markSelected(this);
                 $("#editDiv").show();
+                row.className = 'selected';
                 $("#editDiv :input").prop("disabled", false); // edit mode: enable all controls in the form
-                populateFields(this.getAttribute('data-tourId')); // fill the form fields according to the selected row
+                populateFieldsStored(this.getAttribute('data-tourId')); // fill the form fields according to the selected row
             });
 
             $(document).on("click", ".deleteBtn", function () {
@@ -316,7 +362,7 @@
                 mode = "delete";
                 markSelected(this);
                 //var tourid = this.getAttribute('data-tourId');
-                tourDel = getTourID(this.getAttribute('data-tourId'););
+                tourDel = getTouridStored(this.getAttribute('data-tourId'));
                 swal({ // this will open a dialouge
                     title: "Are you sure ??",
                     text: "",
@@ -325,25 +371,59 @@
                     dangerMode: true
                 })
                     .then(function (willDelete) {
-                        if (willDelete) DeleteDiscount(tourDel);
+                        if (willDelete) DeleteTour(tourDel);
                         else swal("Not Deleted!");
                     });
             });
       
         }
-
+        // Delete a car from the server
+        function DeleteTour(TourDeleted) {
+            ajaxCall("DELETE", "../api/Tours/", JSON.stringify(TourDeleted), deleteSuccess, DeleteError);
+        }
+        // success callback function after delete
+        function deleteSuccess(TourData) {
+            tblStored.clear();
+            redrawTable(tblStored, TourData);
+            buttonEvents(); // after redrawing the table, we must wire the new buttons
+            $("#editDiv").hide();
+            swal("Deleted Successfuly!", "Great Job", "success");
+            mode = "";
+        }
+        function DeleteError(err) {
+            swal("Error: " + err);
+        }
         //General Function
 ////////////////////////////////////////////////////////////////>>
         function PrepareJson() {
+            AlreadyCalled++;
             $("#SearchForm").hide();
             JsonLoop(ToursData.results, "Tour");
             JsonLoop(SightSeeing.results, "SightSeeing");
             JsonLoop(EatingOut.results, "EatingOut");
-            buildTable(ToursArr);
+
+            if (AlreadyCalled == 1) {
+                buildTable(ToursArr);
+                ToursArr = [];
+            }
+            else {
+                NewTours = ToursArr;
+                AlreadyCalledFunction(ToursArr)             
+                ToursArr = [];
+            }
+        }
+
+        // success callback function after update
+        function AlreadyCalledFunction(ToursData) {
+            tbl.clear();
+            redrawTable(tbl, ToursData);
+            buttonEvents();
+            $("#loadingGif").hide();//Hide loading gif
+
+            $("#ToursForm").show();
         }
 
         function JsonLoop(JsonData, Mode) {
-            console.log(JsonData);
 
             if (Mode == "EatingOut" || Mode == "SightSeeing") {
 
@@ -392,17 +472,33 @@
         }
         // fill the form fields
         function populateFieldsStored(TourID) {
-            tour = getTourID(TourID);
-            $("#Name").val(tour.Name);
+            tour = getTouridStored(TourID);
+            $("#Name").val(tour.TourName);
             $("#Score").val(tour.Score);
             $("#Price").val(tour.Price);
-            $("#Intro").val(tour.Intro);
+            $("#Intro").val(tour.Description);
             $("#Category").val(tour.Category);
             $("#Curreny").val(tour.Currency);
             $("#Duration").val(tour.Duration);
             $("#Image").val(tour.Image);
-            $("#Transportaion").val(tour.Transportaion);
 
+            if (tour.Transportaion == 1) {
+                document.getElementById("Transportaion").checked = false;
+
+            }
+            else {
+                document.getElementById("Transportaion").checked = true;
+            }
+
+        }
+
+        // get a car according to its Id
+        function getTouridStored(id) {
+            for (i in StoredTours) {
+                if (StoredTours[i].TourID == id)
+                    return StoredTours[i];
+            }
+            return null;
         }
 
         // get a car according to its Id
@@ -487,7 +583,7 @@
 
 
         <!--Make sure the form has the autocomplete function switched off:-->
-        <form autocomplete="off" action="/action_page.php" id="SearchForm" style="display:none">
+        <form autocomplete="off" id="SearchForm" style="display:none">
             <div class="form-row justify-content-md-center">
                 <div class="form-group col-md-5 autocomplete">
                     <!--We must add autocomplete-->
@@ -500,6 +596,11 @@
                 </div>
             </div>
         </form>
+    </div>
+
+    <!--We will be adding an uploadingGif for cool affects-->
+    <div id="loadingGif" class="text-center" style="display:none;">
+        <img src="../Images/PlaneGif4.gif" style="width:400px; height:300px;" />
     </div>
 
     <form id="ToursForm" style="display:none;">
@@ -520,7 +621,7 @@
         <table id="ToursTableStored" class="display center" style="width:90%; margin-left:auto;margin-right:auto">
             <thead>
                 <tr>
-           
+
                     <th></th>
                     <th>TourName</th>
                     <th>City</th>
@@ -572,11 +673,11 @@
                 </div>
                 <div class="form-group col-sm-3 ">
                     <label for="Image"><span class="red-star">★ </span>Image{URL}</label>
-                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save" >
+                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save">
                 </div>
                 <div class="form-group col-sm-1 ">
                     <label for="Transportaion"><span class="red-star">★ </span>Transportaion?</label>
-                    <input type="checkbox" class="form-control" id="Transportaion" placeholder="Enter Transportaion URL to save" >
+                    <input type="checkbox" class="form-control" id="Transportaion" placeholder="Enter Transportaion URL to save">
                 </div>
             </div>
 
