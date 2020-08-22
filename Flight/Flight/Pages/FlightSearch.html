@@ -74,11 +74,16 @@
             //
             $("#cancelSaveBTN").click(function () {
                 $("#NewOrderDiv").hide();
+                $("#ClientName").val("");
+                $("#EMail").val("");
+                document.getElementById("Agree").clicked = false;
+                $("#flightForm").show();
                 $("#dynamicContent").show();
+                
             });
         });
-
-
+        
+        
         var DiscountsFromManager;
         //Handling the discountsList we fetched from the database
         /////////////////////////////////////////////////////////////////////
@@ -449,6 +454,7 @@
             ajaxCall("GET", "../api/Tours", stringLegs, getSelectedToursSuccess, getSelectedToursError);
             $("#loadingGif").show();
             //clearFields();
+            $("#flightForm").hide();
             $("#dynamicContent").hide();
 
         }
@@ -731,7 +737,7 @@
                 </div>
             </div>
         </section>
-        <section  class="carousel slide" data-ride="carousel" id="postsCarousel">
+        <section class="carousel slide" data-ride="carousel" id="postsCarousel">
             <div class="container">
                 <div class="row">
                     <div class="col-xs-12 text-md-right lead">
@@ -750,7 +756,28 @@
                         $('.prev').click(function () { $('.carousel').carousel('prev'); return false; });
 
                     })(jQuery);
-
+                    function populateModalFields(cardID) {
+                        let temp = ToursSelectedFlight[cardID]
+                        $("#modalHeader").text(temp.TourName);
+                        $("#modalCardImg").attr("src", temp.Image)
+                        $("#ModalCardCity").text(temp.City);
+                        $("#ModalCardCategory").text(temp.Category);
+                        $("#ModalCardDuration").text(temp.Duration);
+                        if (temp.Transportation == 0)
+                            $("#ModalCardTrans").text("yes");
+                        else
+                            $("#ModalCardTrans").text("no");
+                        $("#ModalCardPrice").text(temp.Price);
+                        $("#ModalCardCurrency").text(temp.Currency);;
+                        $("#ModalCardScore").text(temp.Score.toFixed(2));
+                        $("#ModalCardDesctiption").text(temp.Description);
+                    }
+                    function showModal(selectedCard) {
+                        let index = selectedCard.id;
+                        index = index.replace(/\D/g, '');
+                        index = parseInt(index);
+                        populateModalFields(index);
+                    }
                     function CaruselGenerator() {
                         let carusel = document.getElementById("innerCarusel");
                         let numOfRow = Math.floor(ToursSelectedFlight.length / 3);
@@ -829,7 +856,8 @@
 
                         let Img = document.createElement('img');
                         Img.setAttribute("class", "img-fluid");
-                        Img.setAttribute("src", "https://lp-cms-production.imgix.net/2019-06/8ec64b64e1d0805b1101f6c70c7f5b31-tel-aviv.jpg?auto=format&fit=crop&vib=20&sharp=10&ixlib=react-8.6.4");
+                        //"https://lp-cms-production.imgix.net/2019-06/8ec64b64e1d0805b1101f6c70c7f5b31-tel-aviv.jpg?auto=format&fit=crop&vib=20&sharp=10&ixlib=react-8.6.4"
+                        Img.setAttribute("src", ToursSelectedFlight[cardID].Image);
                         Img.setAttribute("alt", "Carusel" + cardID);
 
                         let cardDiv = document.createElement('div');
@@ -844,7 +872,12 @@
                         let btn = document.createElement('button');
                         btn.setAttribute("id", "tourBTN" + cardID);
                         btn.setAttribute("class", "btn btn-primary");
+                        btn.setAttribute("type", "button");
+                        btn.setAttribute("data-toggle", "modal");
+                        btn.setAttribute("data-target", "#ModalCardView");
+
                         btn.innerText = "View";
+
                         btn.onclick = function () {
                             showModal(this)
                         }
@@ -859,14 +892,84 @@
                         return col;
                     }
 
-                    function ShowModal(selectedCard) {
-                        let index = selectedCard.id;
-                        index = index.replace(/\D/g, '');
-                        index = parseInt(index);
-                    }
+                 
                 </script>
             </div>
         </section>
+    
+
+        <!--Modal: modalRelatedContent-->
+        <div class="modal fade right" id="ModalCardView" tabindex="-1" role="dialog"
+             aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="false">
+            <div class="modal-dialog modal-side modal-bottom-right modal-notify modal-info" role="document">
+                <!--Content-->
+                <div class="modal-content">
+                    <!--Header-->
+                    <div id="modaHeaderDiv" class="modal-header">
+                        <h3 id="modalHeader" class="heading"></h3>
+
+                        <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true" class="white-text">&times;</span>
+                        </button>
+                    </div>
+
+                    <!--Body-->
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12 card">
+                                <img id="modalCardImg" class="img-fluid" alt="">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3 card">
+                                <label>City:</label>
+                                <p id="ModalCardCity"></p>
+                            </div>
+                            <div class="col-3 card">
+                                <label>Category:</label>
+                                <p id="ModalCardCategory"></p>
+                            </div>
+                            <div class="col-3 card">
+                                <label>Duration:</label>
+                                <p id="ModalCardDuration"></p>
+                            </div>
+                            <div class="col-3 card">
+                                <label>Transportation:</label>
+                                <p id="ModalCardTrans"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-4 card">
+                                <label>Price:</label>
+                                <p id="ModalCardPrice:"></p>
+                            </div>
+
+                            <div class="col-4 card">
+                                <label>Currency:</label>
+                                <p id="ModalCardCurrency"></p>
+                            </div>
+                            <div class="col-4 card">
+                                <label>Score:</label>
+                                <p id="ModalCardScore"></p>
+
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-12 card">
+                                <label>Desctiption:</label>
+                                <p id="ModalCardDesctiption"></p>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+        <!--Modal: modalRelatedContent-->
     </div>
 </body>
 </html>

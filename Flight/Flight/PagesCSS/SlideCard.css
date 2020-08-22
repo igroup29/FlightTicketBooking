@@ -30,3 +30,21 @@
     max-height: 250px;
     overflow: hidden;
 }
+
+#modalHeader {
+    color: white;
+    font-weight: bold;
+    font: italic Georgia, serif;
+}
+.card > label {
+    font-weight: bold;
+    color: #3385ff;
+    background-color:none;
+}
+#modaHeaderDiv {
+    background-color: #3385ff;
+}
+
+#modalClose:hover {
+    background-color: #ff3333;
+}
