@@ -451,7 +451,7 @@
             index--;
             clickedOrderBtnIndex = index;
             let stringLegs = getLegs(dataForTable[clickedOrderBtnIndex].route);
-            ajaxCall("GET", "../api/Tours", stringLegs, getSelectedToursSuccess, getSelectedToursError);
+            ajaxCall("GET", "../api/Tours?legs=" + stringLegs, stringLegs, getSelectedToursSuccess, getSelectedToursError);
             $("#loadingGif").show();
             //clearFields();
             $("#flightForm").hide();
@@ -460,8 +460,6 @@
         }
 
         function getSelectedToursSuccess(toursList) {
-            alert("RON");
-            console.log(toursList);
             ToursSelectedFlight = toursList;
             CaruselGenerator();
         }
@@ -732,8 +730,8 @@
         </form>
         <section class="container p-t-3" id="SectionTitle">
             <div class="row">
-                <div class="col-lg-12">
-                    <h3>Insted of long wait in the teminal,find out about alternetive for you waiting</h3>
+                <div class="col-lg-12 text-center">
+                    <h2>Instead of a long wait at the terminal ,Check these offers!</h2>
                 </div>
             </div>
         </section>

@@ -17,11 +17,11 @@ namespace ClassEX3.Controllers
             return tour.getAllTour();
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
-        {
-            return "value";
-        }
+        //// GET api/<controller>/5
+        //public string Get(int id)
+        //{
+        //    return "value";
+        //}
         public List<Tours> Get(string legs)
         {
             Tours t = new Tours();

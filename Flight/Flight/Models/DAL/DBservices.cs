@@ -61,14 +61,14 @@ public class DBservices
         try
         {
             con = connect("DBConnectionString"); // create a connection to the database using the connection String defined in the web config file
-            String selectSTR = "select TOP(9)* from Tours_CS Where City = ";
+            String selectSTR = "select TOP(9) * from Tours_CS Where City = ";
 
             for (int i = 0; i < legs.Length; i++)
             {
                 selectSTR += legs[i];
                 if (i == legs.Length - 1)
                     break;
-                selectSTR += "OR City = ";
+                selectSTR += " OR City = ";
             }
             selectSTR += " order by Score desc";
             SqlCommand cmd = new SqlCommand(selectSTR, con);
