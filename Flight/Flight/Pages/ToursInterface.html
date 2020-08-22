@@ -87,6 +87,7 @@
             //Cancel Button
             $("#cancelSaveBTN").on("click", function () {
                 tour = null;
+                ClearFields();
                 $("#editDiv").hide();
                 if (CancelMode == "NewTours") {
                     $("#ToursForm").show();
@@ -106,8 +107,8 @@
             CityTour = destination;
             destination = destination.replace(/ /g, "_");
 
-            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
-            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=sightseeing&fields=id,name,score,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiEatingOut = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=eatingout&count=10&fields=id,name,score,intro,images,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
+            let apiSightseeing = "https://www.triposo.com/api/20200405/poi.json?location_id=" + destination + "&tag_labels=sightseeing&fields=id,name,score,intro,images,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j"
             let apiTours = "https://www.triposo.com/api/20200405/tour.json?location_ids=" + destination + "&count=10&fields=id,name,score,price,intro,tag_labels&account=EB9YW8BZ&token=ve18dbyy61vqg2gzzwsj2nyn6yejer8j";
             //All Tours Places
             $.get(apiTours).done(successTours);
@@ -196,7 +197,8 @@
         }
 
             // success callback function after update
-            function AlreadyGetSuccess(ToursData) {
+        function AlreadyGetSuccess(ToursData) {
+                StoredTours = ToursData;
                 tblStored.clear();
                 redrawTable(tblStored, ToursData);
                 buttonEvents();
@@ -275,6 +277,15 @@
             swal("Error: " + err);
         }
 
+        function ClearFields() {
+
+            $("#Name").val("");
+            $("#Score").val("");
+            $("#Price").val("");
+            $("#Intro").val("") 
+            $("#Image").val("");
+        }
+
         // SuccessFunction - Build a TourTable based on 
         function buildTable(Data) {
 
@@ -339,11 +350,12 @@
             $(document).on("click", ".viewBtnStored", function () {
                 markSelected(this);
                 $("#ToursStored").hide();
-
                 $("#editDiv").show();
                 row.className = 'selected';
                 $("#editDiv :input").attr("disabled", "disabled"); // view mode: disable all controls in the form                
                 populateFieldsStored(this.getAttribute('data-tourId'));
+                $("#cancelSaveBTN").attr("disabled", false);
+
             });
 
             $(document).on("click", ".editBtn", function () {
@@ -361,6 +373,8 @@
 
                 mode = "delete";
                 markSelected(this);
+                row.className = 'selected';
+
                 //var tourid = this.getAttribute('data-tourId');
                 tourDel = getTouridStored(this.getAttribute('data-tourId'));
                 swal({ // this will open a dialouge
@@ -425,34 +439,61 @@
 
         function JsonLoop(JsonData, Mode) {
 
-            if (Mode == "EatingOut" || Mode == "SightSeeing") {
+            var ShortIntro = "";
+            var NameWithout = "";
 
-                for (var k in JsonData) {
+            if (Mode == "Tour") {
+
+                for (var k in JsonData){
+                    ShortIntro = (JsonData[k].intro).substring(0, 450);
+                    ShortIntro = ShortIntro.replace("'", "");
+                    NameWithout = (JsonData[k].name).replace("'", "");
+        
                     eating = {
                         TourID: JsonData[k].id,
-                        Name: JsonData[k].name,
+                        Name: NameWithout,
                         Score: JsonData[k].score,
                         Price: "0",
-                        Intro: JsonData[k].intro,
+                        Image: "0",
+                        Intro: ShortIntro,
                         City: CityTour,
-                    };
-                    ToursArr.push(eating);
+                    };                  
                 }
             }
             else {
                 for (var k in JsonData) {
-                    Tour = {
-                        TourID: JsonData[k].id,
-                        Name: JsonData[k].name,
-                        Score: JsonData[k].score,
-                        Price: JsonData[k].price.amount,
-                        Intro: JsonData[k].intro,
-                        City: CityTour,
-                    };
-                    ToursArr.push(Tour);
+                    ShortIntro = (JsonData[k].intro).substring(0, 450);
+                    ShortIntro = ShortIntro.replace("'", "");
+                    NameWithout = (JsonData[k].name).replace("'", "");
+
+                    if (JsonData[k].images.length == 0) {
+
+                        eating = {
+                            TourID: JsonData[k].id,
+                            Name: NameWithout,
+                            Score: JsonData[k].score,
+                            Price: "0",
+                            Image: "0",
+                            Intro: ShortIntro,
+                            City: CityTour,
+                        };
+                    }
+                    else {
+                        eating = {
+                            TourID: JsonData[k].id,
+                            Name: NameWithout,
+                            Score: JsonData[k].score,
+                            Price: "0",
+                            Image: JsonData[k].images[0].sizes.thumbnail.url,
+                            Intro: ShortIntro,
+                            City: CityTour,
+                        };
+                    }
+                    ToursArr.push(eating);
                 }
             }
         }
+
         // mark the selected row
         function markSelected(btn) {
             $("#ToursTable tr").removeClass("selected"); // remove seleced class from rows that were selected before
@@ -468,6 +509,7 @@
             $("#Score").val(tour.Score);
             $("#Price").val(tour.Price);
             $("#Intro").val(tour.Intro);
+            $("#Image").val(tour.Image);
 
         }
         // fill the form fields
@@ -673,7 +715,7 @@
                 </div>
                 <div class="form-group col-sm-3 ">
                     <label for="Image"><span class="red-star">★ </span>Image{URL}</label>
-                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save">
+                    <input type="text" class="form-control" id="Image" placeholder="Enter Image URL to save" required>
                 </div>
                 <div class="form-group col-sm-1 ">
                     <label for="Transportaion"><span class="red-star">★ </span>Transportaion?</label>
