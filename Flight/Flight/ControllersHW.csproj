@@ -208,6 +208,7 @@
     <Content Include="PagesCSS\SlideCard.css" />
     <Content Include="Pages\FlightSearch.html" />
     <Content Include="Pages\index.html" />
+    <Content Include="Pages\login.css" />
     <Content Include="Pages\ToursInterface.html" />
     <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />
