@@ -71,10 +71,7 @@
                 $(this).slideUp();
             });
 
-            // wire the submit event when manager wish to login
-            // $("#loginForm").submit(LoginCheck);
-
-            //
+            //What happens when when press cancel on order
             $("#cancelSaveBTN").click(function () {
                 $("#NewOrderDiv").hide();
                 $("#ClientName").val("");
@@ -144,7 +141,7 @@
             alert("error");
         }
 
-        //Inserting Airports to database
+        //Switch button between origin to destination
         function switchInputs() {
             let from = $("#originTB").val();
             let To = $("#destinationTB").val();
@@ -266,6 +263,7 @@
             return false;
         }
 
+        //Success at getting the data from api
         function successCBF(data) {
 
             $("#loadingGif").hide();
@@ -287,11 +285,12 @@
         }
 
 
+        //Compare dates for discount check
         function compare_dates(FlightDeparture, DiscountStart, DiscountEnd) {
             if (FlightDeparture > DiscountStart && FlightDeparture < DiscountEnd) return (true);
             else return (false);
         }
-
+        //Check if there is a discount on the flight
         function CheckIfOnSale(i) {
 
             if (typeof DiscountsFromManager == 'undefined') {
@@ -476,8 +475,8 @@
         function getSelectedToursError(err) {
             alert(err.responseJSON.ExceptionMessage);
         }
-        //build json from database with tours from selected flight legs
 
+        //Calculate a duration of waiting time in stops
         function CalculateDuration(aTimeUTC , dTimeUTC) {
             //Calculate Duration 
             let Departure = new Date(0);
@@ -490,6 +489,7 @@
             return hours
         }
 
+        //Check each stop for duration and add it to a string 
         function getLegs(legs) {
              
             let tempString = "";
@@ -732,12 +732,8 @@
                 </div>
             </div>
             <div class="form-row">
-                <div class="col-md-3">
+                <div class="col-sm-12 text-left">
                     <button type="submit" class="btn btn-primary" id="searchBTN" style="font-size:x-large">Search Flights</button>
-                </div>
-                <div class="col-md-3">
-                    <input type="checkbox" id="NonStop" name="nonStop">
-                    <label for="vehicle1">Non-stop flights only</label>
                 </div>
             </div>
         </form>
@@ -770,7 +766,8 @@
                 </div>
                 <div class="form-group col-sm-4">
                     <label for="Agree to Terms"><span class="red-star">★ </span>Agree to Terms:</label>
-                    <input type="checkbox" class="form-control" id="Agree" required>
+                    <br />
+                     <input type="checkbox" id="Agree" style=" margin-top: 10px; margin-left: 30px;" required>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary btn-lg" id="saveBTN">Save</button>

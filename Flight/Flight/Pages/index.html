@@ -28,6 +28,7 @@
             $("#modalLoginForm").submit(LoginCheck);
         });
 
+        //get the selected option the user choose
         function getSelectedOption(sel) {
             var opt;
             for (var i = 0, len = sel.options.length; i < len; i++) {
@@ -39,6 +40,7 @@
             return opt;
         }
 
+        //Check username and password that the user wrote
         function LoginCheck() {
             var user = $("#user").val();
             var pass = $("#pass").val();
@@ -52,6 +54,7 @@
             return false;
         }
 
+        //Login success 
         function successLogin(data) {
             if (data) {
                 alert("LogIn Success");            
@@ -60,6 +63,7 @@
                     password: data.Password
                 }
 
+                //add to local storage the name of the manager
                 localStorage.setItem('man', JSON.stringify(manager));
 
                 var sel = document.getElementById("Pages");
@@ -99,16 +103,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 mx-auto text-center">
+            <div class="col-lg-12 mx-auto text-center">
                 <a href="../Pages/FlightSearch.html"><input class="btn btn-primary" type="button" value="Search Flight" /></a>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 mx-auto text-center">
+            <div class="col-lg-12 mx-auto text-center">
                 <a href="" data-toggle="modal" data-target="#modalLoginForm"><input class="btn btn-primary" type="button" value="Login" /></a>
             </div>
-        </div>
-       
+        </div>     
     </div>
 
     <!-- Login Modal Form (Hidden) -->
@@ -121,28 +124,27 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                     <div class="modal-body">
-                         <div class="md-form mb-4">
-                             <input type="text" id="user" class="form-control mb-3" placeholder="Username" required>
-                         </div>
-                         <div class="md-form mb-4">
-                             <input type="text" id="pass" class="form-control mb-3" placeholder="Password" required>
-                         </div>
+                    <div class="modal-body">
                         <div class="md-form mb-4">
-                            <label for="Page">Choose a Page:</label>
-                            <select id="Pages" name="Pages" class="form-control mb-3" required>
-                                <option value="Manager">ManagerInterface</option>
-                                <option value="Tour">TourInterface</option>
-                            </select>
+                            <input type="text" id="user" class="form-control mb-3" placeholder="Username" required>
                         </div>
+                        <div class="md-form mb-4">
+                            <input type="text" id="pass" class="form-control mb-3" placeholder="Password" required>
+                        </div>
+                    <div class="md-form mb-4">
+                        <label for="Page">Choose a Page:</label>
+                        <select id="Pages" name="Pages" class="form-control mb-3" required>
+                            <option value="Manager">ManagerInterface</option>
+                            <option value="Tour">TourInterface</option>
+                        </select>
+                    </div>
 
                     </div>
-                     <div class="modal-footer  justify-content-center">
-                         <!-- <button class="btn btn-default">Login</button>-->
-                         <button id="login" class="btn btn-primary" type="submit">Login</button>
-                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-                     </div>
+                    <div class="modal-footer  justify-content-center">
+                        <!-- <button class="btn btn-default">Login</button>-->
+                        <button id="login" class="btn btn-primary" type="submit">Login</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
              </div>
         </div>
     </form>
