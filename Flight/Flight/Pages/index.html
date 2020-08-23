@@ -57,7 +57,7 @@
         //Login success 
         function successLogin(data) {
             if (data) {
-                alert("LogIn Success");            
+                swal("LogIn Success!", "Welcom " + data.Username, "success");
                 manager = {
                     username: data.Username,
                     password: data.Password
@@ -81,14 +81,21 @@
 
             }
             else {
-                alert("Failed");
+                swal("LogIn Failed!", "Please Cheack Your Password/UserName ", "error");
+                $("#closeModal").trigger("click");
             }
         }
 
         function errorLogin(err) {
-            alert("unauthorized User Information")
+            alert("unauthorized User Information" + err)
         }
 
+        function clearModalFields() {
+            $("#user").val("");
+            $("#pass").val("");
+            $("#Pages").val("default");
+
+        }
 
     </script>
 
@@ -134,16 +141,17 @@
                     <div class="md-form mb-4">
                         <label for="Page">Choose a Page:</label>
                         <select id="Pages" name="Pages" class="form-control mb-3" required>
+                            <option value="default"></option>
                             <option value="Manager">ManagerInterface</option>
                             <option value="Tour">TourInterface</option>
                         </select>
                     </div>
-
+                    
                     </div>
                     <div class="modal-footer  justify-content-center">
                         <!-- <button class="btn btn-default">Login</button>-->
                         <button id="login" class="btn btn-primary" type="submit">Login</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="closeModal" type="button" class="btn btn-secondary" data-dismiss="modal" onclick="clearModalFields()">Close</button>
                     </div>
              </div>
         </div>
