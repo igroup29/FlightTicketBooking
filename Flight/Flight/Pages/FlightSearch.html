@@ -12,6 +12,8 @@
     <link href="../PagesCSS/ResponsiveTable.css" rel="stylesheet" />
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
     <link href="../PagesCSS/SlideCard.css" rel="stylesheet" />
+    <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
+
     <!-- Add icon library -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
@@ -80,11 +82,11 @@
                 document.getElementById("Agree").clicked = false;
                 $("#flightForm").show();
                 $("#dynamicContent").show();
-                
+
             });
         });
-        
-        
+
+
         var DiscountsFromManager;
         //Handling the discountsList we fetched from the database
         /////////////////////////////////////////////////////////////////////
@@ -399,7 +401,7 @@
             {
                 let temp = dataForTable[set][feature];
                 let stringToReturn = "";
-                let index=0;
+                let index = 0;
                 for (var k in temp) {
                     if (index != (temp.length - 1)) {
                         stringToReturn += (temp[k].cityTo + ",");
@@ -456,10 +458,11 @@
             index = parseInt(index);
             index--;
             clickedOrderBtnIndex = index;
+
+            //Get Tour Deals based on legs (Stops including last stop)
             let stringLegs = getLegs(dataForTable[clickedOrderBtnIndex].route);
             ajaxCall("GET", "../api/Tours?legs=" + stringLegs, stringLegs, getSelectedToursSuccess, getSelectedToursError);
             $("#loadingGif").show();
-            //clearFields();
             $("#flightForm").hide();
             $("#dynamicContent").hide();
 
@@ -474,13 +477,39 @@
             alert(err.responseJSON.ExceptionMessage);
         }
         //build json from database with tours from selected flight legs
+
+        function CalculateDuration(aTimeUTC , dTimeUTC) {
+            //Calculate Duration 
+            let Departure = new Date(0);
+            let Arrival = new Date(0);
+            Departure.setUTCSeconds(dTimeUTC);
+            Arrival.setUTCSeconds(aTimeUTC);
+            let timeDiff =  Departure.getTime() - Arrival.getTime(); //timediff contains num of milliseconds
+            let hours = parseInt(((timeDiff / (1000 * 60 * 60)) % 24));
+
+            return hours
+        }
+
         function getLegs(legs) {
+             
             let tempString = "";
+            let duration;
+
             for (var i = 0; i < legs.length; i++) {
-                tempString += legs[i].cityTo;
-                if (i == legs.length - 1)
+
+                if (i != (legs.length - 1)) {
+                     duration = CalculateDuration(legs[i].aTimeUTC, legs[i + 1].dTimeUTC);
+
+                } else {
+
+                    tempString += legs[i].cityTo;
                     break;
-                tempString += ",";
+                }
+
+                if (duration > 2) {
+                    tempString += legs[i].cityTo;
+                    tempString += ",";
+                }             
             }
             return tempString;
         }
@@ -651,10 +680,23 @@
 <!--Class bg is for the background image-->
 <body onload="getAllAirportsAutoComplete()" class="bg">
 
+    <!------------------Navigation Bar-------------->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
+        <div class="container">
+            <div class="row justify-content-sm-center">
+                <div class="col-sm-2">
+                    <a class="navbar-brand" href="index.html"><label style="text-decoration: underline overline;">HomePage</label></a>
+                </div>  
+                <div class="col-sm-4">
 
-    <!--/////////////////////NEW Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
-
-    <!--/////////////////////END Logo\Header\\\\\\\\\\\\\\\\\\\\\\\-->
+                </div>
+                <div class="col-sm-6">
+                    <label style="color:white">Welcome to Gariba & Ramal's Airline </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-----------------End Navigation Bar------------->
 
     <!--/////////////////////START NEW SEARCH\\\\\\\\\\\\\\\\\\\\\\-->
     <div class="container">
@@ -707,7 +749,7 @@
         <img src="../Images/PlaneGif4.gif" style="width:400px; height:300px;" />
     </div>
 
-    
+
     <!--For the dynamic content [Tables]-->
     <div id="dynamicContent">
 
@@ -895,11 +937,11 @@
                         return col;
                     }
 
-                 
+
                 </script>
             </div>
         </section>
-    
+
 
         <!--Modal: modalRelatedContent-->
         <div class="modal fade right" id="ModalCardView" tabindex="-1" role="dialog"
@@ -939,7 +981,7 @@
                             <div class="col-sm-3 card">
                                 <label>Price:</label>
                                 <p id="ModalCardPrice:"></p>
-                              
+
                             </div>
                         </div>
                         <div class="row">
