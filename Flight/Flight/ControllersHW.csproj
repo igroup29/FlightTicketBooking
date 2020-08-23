@@ -198,6 +198,7 @@
     <Content Include="Images\Background.jpg" />
     <Content Include="Images\Background2.jpg" />
     <Content Include="Images\giphy.gif" />
+    <Content Include="Images\PlaneGif4.gif" />
     <Content Include="PagesCSS\AutoComplete.css" />
     <Content Include="PagesCSS\Index.css" />
     <Content Include="PagesCSS\LoginPage.css" />
