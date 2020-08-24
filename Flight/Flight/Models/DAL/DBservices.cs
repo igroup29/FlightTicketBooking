@@ -857,9 +857,8 @@ return airlineList;
         }
         catch (Exception ex)
         {
-            return 0;
-            //  Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
-            throw (ex);
+            Console.WriteLine("Inside catch block. Exception: {0}", ex.Message);
+            throw(ex);
         }
 
         finally

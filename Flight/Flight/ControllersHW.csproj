@@ -201,6 +201,7 @@
     <Content Include="Images\PlaneGif4.gif" />
     <Content Include="PagesCSS\AutoComplete.css" />
     <Content Include="PagesCSS\Index.css" />
+    <Content Include="PagesCSS\login.css" />
     <Content Include="PagesCSS\LoginPage.css" />
     <Content Include="PagesCSS\ManagerInterface.css" />
     <Content Include="PagesCSS\NavigationBar.css" />
@@ -209,7 +210,6 @@
     <Content Include="PagesCSS\SlideCard.css" />
     <Content Include="Pages\FlightSearch.html" />
     <Content Include="Pages\index.html" />
-    <Content Include="Pages\login.css" />
     <Content Include="Pages\ToursInterface.html" />
     <Content Include="Pages\ManagerInterface.html" />
     <Content Include="Scripts\ajaxCalls.js" />

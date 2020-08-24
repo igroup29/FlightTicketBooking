@@ -190,7 +190,6 @@
                         { data: "Currency" },
                     ]
                 });
-                //new $.fn.dataTable.FixedHeader(tbl);
                 buttonEvents();
                 $("#loadingGif").hide();
 
@@ -423,6 +422,8 @@
             JsonLoop(EatingOut.results, "EatingOut");
 
             if (AlreadyCalled == 1) {
+
+                console.log(ToursArr);
                 buildTable(ToursArr);
                 ToursArr = [];
             }
@@ -459,11 +460,13 @@
                         TourID: JsonData[k].id,
                         Name: NameWithout,
                         Score: JsonData[k].score,
-                        Price: "0",
+                        Price: JsonData[k].price.amount, 
                         Image: "0",
                         Intro: ShortIntro,
                         City: CityTour,
-                    };                  
+                    }; 
+                    
+                    ToursArr.push(eating);
                 }
             }
             else {
