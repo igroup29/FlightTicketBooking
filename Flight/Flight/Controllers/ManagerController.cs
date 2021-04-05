@@ -30,7 +30,6 @@ namespace ClassEX3.Controllers
             if (Man.checkManager())
             {
                 return Man;
-
             }
             return null;
         }

@@ -13,25 +13,20 @@
     <link href="../PagesCSS/AutoComplete.css" rel="stylesheet" />
     <link href="../PagesCSS/SlideCard.css" rel="stylesheet" />
     <link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />
-
     <!-- Add icon library -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
-
-    <!--<link href="../PagesCSS/NavigationBar.css" rel="stylesheet" />-->
-    <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
-    <!--<link href="../PagesCSS/Test.css" rel="stylesheet" />-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 
+
     <script>
-        var dataForTable;  //returned data from api to generate flight table
-        var allAirportsData;
-        var airportsNames;
-        var tableType;    //to save the optiot for generate table
+        var dataForTable;  //Returned data from api to generate flight table
+        var allAirportsData; //All airports data
+        var airportsNames; //All airport names
+        var tableType;    //to save the option for generate table
         var clickedOrderBtnIndex;
         var ToursSelectedFlight;
         var propertyFromApi = ["cityFrom", "cityTo", "route", "dTimeUTC", "aTimeUTC", "airlines", "price"];
@@ -45,20 +40,22 @@
             $("#SectionTitle").hide();
             $("#postsCarousel").hide();
 
-
-            // once the document is ready we fetch a list of Discounts from the server
+            //Once the document is ready we fetch a list of Discounts from the server
             ajaxCall("GET", "../api/Discount", "", DiscountsSuccess, DiscountsError);
 
-            // wire the submit event when client press save order
+            //Wire the submit event when client presses 'Save order'
             $("#NewOrderForm").submit(onSubmit);
 
-            //wire the submit event when client press search
+            //Wire the submit event when client presses 'Search'
             $("#flightForm").submit(getFlight);
-            //wire the click event when client press myFlights
+
+            //Wire the click event when client presses 'MyFlights'
             $("#myFlightsBTN").click(getMyFlights);
+
+            //When the user wants to swtich the From and To 
             $("#switchBTN").click(switchInputs);
 
-            //wire get airports button behavior
+            //Wire get airports button behavior
             $("#getAirportsBTN").click(function () {
                 alert("getAirports was clicked,Please wait a few seconds until recieve a message");
                 GetAirports();
@@ -86,19 +83,19 @@
 
         var DiscountsFromManager;
         //Handling the discountsList we fetched from the database
-        /////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
         function DiscountsSuccess(DiscountsData) {
             //we'll use this to check if one of the flights is on sale
             DiscountsFromManager = DiscountsData;
         }
-
+        //Discounts error callback
         function DiscountsError(err) {
 
             alert(err);
         }
 
         //Inserting Airlines to database
-        ////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
         function GetAirlines() {
             getAllAirlines();
             return false; // the return false will prevent the form from being submitted
@@ -111,7 +108,6 @@
         }
         function successAirline(data) {
             AirlinesData = data;
-            //  swal("Get Airlines json Success!", "", "success");
             AddAllAirline();
         }
         function errorAirline(err) {
@@ -125,7 +121,6 @@
                     Airline = { // Note that the name of the fields must be identical to the names of the properties of the object in the server
                         airlineID: AirlinesData[k].id,
                         airlineName: AirlinesData[k].name,
-
                     };
                     AirlinesArr.push(Airline);
                 }
@@ -151,7 +146,7 @@
         }
 
         //Inserting Airports to database
-        ///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////
         function GetAirports() {
             getAllAirports();
             return false; // the return false will prevent the form from being submitted
@@ -200,13 +195,14 @@
 
 
         ///Airports AutoComplete Section
-        ////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////
         function getAllAirportsAutoComplete() {
 
             let airports = "https://api.skypicker.com/locations?type=dump&locale=en-US&location_types=airport&limit=4000&active_only=true&sort=name";
             ajaxCall("GET", airports, "", successAP, errorAP);
         }
+
+        //Get all airports success Callback
         function successAP(data) {
             allAirportsData = data;
             airportsNames = createAirportsList(data);
@@ -215,6 +211,7 @@
             autocomplete(document.getElementById("originTB"), airportsNames);
             autocomplete(document.getElementById("destinationTB"), airportsNames);
         }
+        //Get all airports Error Callback
         function errorAP(err) {
             console.log(err.responseJSON.ExceptionMessage);
         }
@@ -227,7 +224,7 @@
             return arr;
         }
 
-        //get my flight list from server
+        //Get User saved flights list from server
         function getMyFlights() {
             tableType = 1;
             ajaxCall("GET", "../api/Flight", "", successCBF, errorCBF);
@@ -263,7 +260,7 @@
             return false;
         }
 
-        //Success at getting the data from api
+        //Success Callback getting the data from SKYPICKER
         function successCBF(data) {
 
             $("#loadingGif").hide();
@@ -279,7 +276,7 @@
                 generateTable(1);
             }
         }
-
+        //Error Callback getting the data from SKYPICKER
         function errorCBF(err) {
             console.log(err.responseJSON.ExceptionMessage);
         }
@@ -469,7 +466,15 @@
 
         function getSelectedToursSuccess(toursList) {
             ToursSelectedFlight = toursList;
-            CaruselGenerator();
+            if (ToursSelectedFlight.length > 1) {
+                CaruselGenerator();
+            } else {
+                $("#loadingGif").hide();
+                $("#SectionTitle").hide();
+                $("#postsCarousel").hide();
+                $("#NewOrderDiv").show();
+            }
+            
         }
 
         function getSelectedToursError(err) {
@@ -794,7 +799,7 @@
                     (function ($) {
                         "use strict";
 
-                        // manual carousel controls
+                        // Manual Carousel controls
                         $('.next').click(function () { $('.carousel').carousel('next'); return false; });
                         $('.prev').click(function () { $('.carousel').carousel('prev'); return false; });
 
@@ -917,7 +922,6 @@
                         btn.setAttribute("type", "button");
                         btn.setAttribute("data-toggle", "modal");
                         btn.setAttribute("data-target", "#ModalCardView");
-
                         btn.innerText = "View";
 
                         btn.onclick = function () {
@@ -930,11 +934,8 @@
                         card.appendChild(divImg);
                         card.appendChild(cardDiv);
                         col.appendChild(card);
-
                         return col;
                     }
-
-
                 </script>
             </div>
         </section>
